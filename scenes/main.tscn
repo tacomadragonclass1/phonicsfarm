@@ -1,0 +1,280 @@
+[gd_scene load_steps=15 format=3]
+[ext_resource type="PackedScene" path="res://player/player.tscn" id="Player"]
+[ext_resource type="PackedScene" path="res://alphabet_block/alphabet_block.tscn" id="Block"]
+[ext_resource type="PackedScene" path="res://pedestal/pedestal.tscn" id="Pedestal"]
+[ext_resource type="PackedScene" path="res://environment/tree.tscn" id="Tree"]
+[ext_resource type="PackedScene" path="res://ui/touch_controls.tscn" id="UI"]
+[ext_resource type="PackedScene" path="res://assets/kenney/mini_forest/plant.glb" id="Plant"]
+[ext_resource type="PackedScene" path="res://assets/kenney/mini_forest/patch-grass.glb" id="Grass"]
+[ext_resource type="Script" path="res://environment/fixed_camera.gd" id="Camera"]
+[sub_resource type="StandardMaterial3D" id="GrassMat"]
+albedo_color = Color(0.46, 0.65, 0.38, 1)
+roughness = 1.0
+[sub_resource type="BoxMesh" id="GroundMesh"]
+material = SubResource("GrassMat")
+size = Vector3(17, 0.5, 17)
+[sub_resource type="BoxShape3D" id="GroundShape"]
+size = Vector3(17, 0.5, 17)
+[sub_resource type="BoxShape3D" id="WallX"]
+size = Vector3(0.5, 4, 16)
+[sub_resource type="BoxShape3D" id="WallZ"]
+size = Vector3(16, 4, 0.5)
+[sub_resource type="Environment" id="Environment"]
+background_mode = 1
+background_color = Color(0.68, 0.8, 0.78, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.91, 0.95, 1, 1)
+ambient_light_energy = 0.35
+reflected_light_source = 2
+tonemap_mode = 0
+[node name="Clearing" type="Node3D"]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-58, -28, 0)
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 0.75
+shadow_enabled = true
+directional_shadow_max_distance = 65.0
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(16, 19, 16)
+rotation_degrees = Vector3(-40, 45, 0)
+projection = 1
+current = true
+size = 20.0
+far = 100.0
+script = ExtResource("Camera")
+[node name="Environment" type="Node3D" parent="."]
+[node name="Ground" type="StaticBody3D" parent="Environment"]
+position = Vector3(0, -0.25, 0)
+[node name="Mesh" type="MeshInstance3D" parent="Environment/Ground"]
+mesh = SubResource("GroundMesh")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Ground"]
+shape = SubResource("GroundShape")
+[node name="Boundaries" type="StaticBody3D" parent="Environment"]
+[node name="Left" type="CollisionShape3D" parent="Environment/Boundaries"]
+position = Vector3(-7.5, 2, 0)
+shape = SubResource("WallX")
+[node name="Right" type="CollisionShape3D" parent="Environment/Boundaries"]
+position = Vector3(7.5, 2, 0)
+shape = SubResource("WallX")
+[node name="Back" type="CollisionShape3D" parent="Environment/Boundaries"]
+position = Vector3(0, 2, -7.5)
+shape = SubResource("WallZ")
+[node name="Front" type="CollisionShape3D" parent="Environment/Boundaries"]
+position = Vector3(0, 2, 7.5)
+shape = SubResource("WallZ")
+[node name="Trees" type="Node3D" parent="Environment"]
+[node name="Tree01" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(-7.0, 0, -6.8)
+scale = Vector3(1.4, 1.4, 1.4)
+rotation_degrees = Vector3(0, 0, 0)
+[node name="Tree02" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(-4.8, 0, -7.0)
+scale = Vector3(1.5799999999999998, 1.5799999999999998, 1.5799999999999998)
+rotation_degrees = Vector3(0, 53, 0)
+[node name="Tree03" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(-7.0, 0, -4.6)
+scale = Vector3(1.7599999999999998, 1.7599999999999998, 1.7599999999999998)
+rotation_degrees = Vector3(0, 106, 0)
+[node name="Tree04" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(-2.8, 0, -7.0)
+scale = Vector3(1.4, 1.4, 1.4)
+rotation_degrees = Vector3(0, 159, 0)
+[node name="Tree05" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(-7.0, 0, -2.3999999999999995)
+scale = Vector3(1.5799999999999998, 1.5799999999999998, 1.5799999999999998)
+rotation_degrees = Vector3(0, 212, 0)
+[node name="Tree06" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(-0.7999999999999998, 0, -7.0)
+scale = Vector3(1.7599999999999998, 1.7599999999999998, 1.7599999999999998)
+rotation_degrees = Vector3(0, 265, 0)
+[node name="Tree07" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(-7.0, 0, -0.1999999999999993)
+scale = Vector3(1.4, 1.4, 1.4)
+rotation_degrees = Vector3(0, 318, 0)
+[node name="Tree08" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(1.2000000000000002, 0, -7.0)
+scale = Vector3(1.5799999999999998, 1.5799999999999998, 1.5799999999999998)
+rotation_degrees = Vector3(0, 11, 0)
+[node name="Tree09" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(-7.0, 0, 2.000000000000001)
+scale = Vector3(1.7599999999999998, 1.7599999999999998, 1.7599999999999998)
+rotation_degrees = Vector3(0, 64, 0)
+[node name="Tree10" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(3.2, 0, -7.0)
+scale = Vector3(1.4, 1.4, 1.4)
+rotation_degrees = Vector3(0, 117, 0)
+[node name="Tree11" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(-7.0, 0, 4.2)
+scale = Vector3(1.5799999999999998, 1.5799999999999998, 1.5799999999999998)
+rotation_degrees = Vector3(0, 170, 0)
+[node name="Tree12" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(5.2, 0, -7.0)
+scale = Vector3(1.7599999999999998, 1.7599999999999998, 1.7599999999999998)
+rotation_degrees = Vector3(0, 223, 0)
+[node name="Tree13" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(-7.0, 0, 6.400000000000001)
+scale = Vector3(1.4, 1.4, 1.4)
+rotation_degrees = Vector3(0, 276, 0)
+[node name="Tree14" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(7.2, 0, -7.0)
+scale = Vector3(1.5799999999999998, 1.5799999999999998, 1.5799999999999998)
+rotation_degrees = Vector3(0, 329, 0)
+[node name="Tree15" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(7, 0, -6)
+scale = Vector3(1.7599999999999998, 1.7599999999999998, 1.7599999999999998)
+rotation_degrees = Vector3(0, 22, 0)
+[node name="Tree16" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(7, 0, -3.8)
+scale = Vector3(1.02, 1.02, 1.02)
+rotation_degrees = Vector3(0, 75, 0)
+[node name="Tree17" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(7, 0, -1.4)
+scale = Vector3(1.11, 1.11, 1.11)
+rotation_degrees = Vector3(0, 128, 0)
+[node name="Tree18" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(7, 0, 1.4)
+scale = Vector3(1.2, 1.2, 1.2)
+rotation_degrees = Vector3(0, 181, 0)
+[node name="Tree19" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(7, 0, 4.3)
+scale = Vector3(1.02, 1.02, 1.02)
+rotation_degrees = Vector3(0, 234, 0)
+[node name="Tree20" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(7, 0, 6.9)
+scale = Vector3(1.11, 1.11, 1.11)
+rotation_degrees = Vector3(0, 287, 0)
+[node name="Tree21" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(-5.0, 0, 7)
+scale = Vector3(1.2, 1.2, 1.2)
+rotation_degrees = Vector3(0, 340, 0)
+[node name="Tree22" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(-2.4, 0, 7)
+scale = Vector3(1.02, 1.02, 1.02)
+rotation_degrees = Vector3(0, 33, 0)
+[node name="Tree23" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(0.5, 0, 7)
+scale = Vector3(1.11, 1.11, 1.11)
+rotation_degrees = Vector3(0, 86, 0)
+[node name="Tree24" parent="Environment/Trees" instance=ExtResource("Tree")]
+position = Vector3(3.6, 0, 7)
+scale = Vector3(1.2, 1.2, 1.2)
+rotation_degrees = Vector3(0, 139, 0)
+[node name="Plants" type="Node3D" parent="Environment"]
+[node name="Plant0" parent="Environment/Plants" instance=ExtResource("Plant")]
+position = Vector3(-6.7, 0, -4.5)
+scale = Vector3(1.5, 1.5, 1.5)
+[node name="Plant1" parent="Environment/Plants" instance=ExtResource("Plant")]
+position = Vector3(-4, 0, -6.8)
+scale = Vector3(1.5, 1.5, 1.5)
+[node name="Plant2" parent="Environment/Plants" instance=ExtResource("Plant")]
+position = Vector3(-6.8, 0, 3)
+scale = Vector3(1.5, 1.5, 1.5)
+[node name="Plant3" parent="Environment/Plants" instance=ExtResource("Plant")]
+position = Vector3(2.4, 0, -6.8)
+scale = Vector3(1.5, 1.5, 1.5)
+[node name="Plant4" parent="Environment/Plants" instance=ExtResource("Plant")]
+position = Vector3(6.5, 0, -4.9)
+scale = Vector3(1.5, 1.5, 1.5)
+[node name="Plant5" parent="Environment/Plants" instance=ExtResource("Plant")]
+position = Vector3(6.7, 0, 3)
+scale = Vector3(1.5, 1.5, 1.5)
+[node name="Plant6" parent="Environment/Plants" instance=ExtResource("Plant")]
+position = Vector3(1.5, 0, 6.8)
+scale = Vector3(1.5, 1.5, 1.5)
+[node name="Plant7" parent="Environment/Plants" instance=ExtResource("Plant")]
+position = Vector3(-4, 0, 6.7)
+scale = Vector3(1.5, 1.5, 1.5)
+[node name="Pedestals" type="Node3D" parent="."]
+[node name="Pedestal1" parent="Pedestals" instance=ExtResource("Pedestal")]
+position = Vector3(-1.20207, 0, 1.20207)
+rotation_degrees = Vector3(0, 45, 0)
+[node name="Pedestal2" parent="Pedestals" instance=ExtResource("Pedestal")]
+position = Vector3(0.0, 0, 0.0)
+rotation_degrees = Vector3(0, 45, 0)
+[node name="Pedestal3" parent="Pedestals" instance=ExtResource("Pedestal")]
+position = Vector3(1.20207, 0, -1.20207)
+rotation_degrees = Vector3(0, 45, 0)
+[node name="Blocks" type="Node3D" parent="."]
+[node name="Block_a" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(-4.8, 0, -4.9)
+letter = "a"
+[node name="Block_b" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(-3.1999999999999997, 0, -4.9)
+letter = "b"
+[node name="Block_c" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(-1.5999999999999996, 0, -4.9)
+letter = "c"
+[node name="Block_d" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(8.881784197001252e-16, 0, -4.9)
+letter = "d"
+[node name="Block_e" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(1.6000000000000005, 0, -4.9)
+letter = "e"
+[node name="Block_f" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(3.2, 0, -4.9)
+letter = "f"
+[node name="Block_g" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(4.800000000000002, 0, -4.9)
+letter = "g"
+[node name="Block_h" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(5.7, 0, -3.3)
+letter = "h"
+[node name="Block_i" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(5.7, 0, -1.9799999999999998)
+letter = "i"
+[node name="Block_j" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(5.7, 0, -0.6599999999999997)
+letter = "j"
+[node name="Block_k" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(5.7, 0, 0.6600000000000001)
+letter = "k"
+[node name="Block_l" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(5.7, 0, 1.9800000000000004)
+letter = "l"
+[node name="Block_m" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(5.7, 0, 3.3000000000000007)
+letter = "m"
+[node name="Block_n" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(4.8, 0, 4.9)
+letter = "n"
+[node name="Block_o" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(3.1999999999999997, 0, 4.9)
+letter = "o"
+[node name="Block_p" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(1.5999999999999996, 0, 4.9)
+letter = "p"
+[node name="Block_q" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(-8.881784197001252e-16, 0, 4.9)
+letter = "q"
+[node name="Block_r" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(-1.6000000000000005, 0, 4.9)
+letter = "r"
+[node name="Block_s" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(-3.2, 0, 4.9)
+letter = "s"
+[node name="Block_t" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(-4.800000000000002, 0, 4.9)
+letter = "t"
+[node name="Block_u" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(-5.7, 0, 3.3)
+letter = "u"
+[node name="Block_v" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(-5.7, 0, 1.9799999999999998)
+letter = "v"
+[node name="Block_w" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(-5.7, 0, 0.6599999999999997)
+letter = "w"
+[node name="Block_x" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(-5.7, 0, -0.6600000000000001)
+letter = "x"
+[node name="Block_y" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(-5.7, 0, -1.9800000000000004)
+letter = "y"
+[node name="Block_z" parent="Blocks" instance=ExtResource("Block")]
+position = Vector3(-5.7, 0, -3.3000000000000007)
+letter = "z"
+[node name="Player" parent="." instance=ExtResource("Player")]
+position = Vector3(0, 0.02, 2.5)
+[node name="TouchControls" parent="." instance=ExtResource("UI")]

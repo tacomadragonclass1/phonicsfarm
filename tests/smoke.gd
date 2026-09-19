@@ -1,0 +1,223 @@
+extends SceneTree
+
+var failures := 0
+var scene: Node3D
+var player: CharacterBody3D
+
+
+func _initialize() -> void:
+	call_deferred("run")
+
+
+func check(condition: bool, description: String) -> void:
+	if condition:
+		print("PASS: ", description)
+	else:
+		push_error("FAIL: " + description)
+		failures += 1
+
+
+func frames(count: int = 3) -> void:
+	for i in count:
+		await physics_frame
+		await process_frame
+
+
+func teleport(point: Vector3) -> void:
+	player.global_position = point
+	player.velocity = Vector3.ZERO
+	await frames()
+
+
+func key(code: Key, pressed: bool) -> void:
+	var event := InputEventKey.new()
+	event.physical_keycode = code
+	event.pressed = pressed
+	Input.parse_input_event(event)
+
+
+func interact_key() -> void:
+	key(KEY_E, true)
+	await frames()
+	key(KEY_E, false)
+	await frames()
+
+
+func touch(index: int, point: Vector2, pressed: bool) -> void:
+	var event := InputEventScreenTouch.new()
+	event.index = index
+	event.position = root.get_final_transform() * point
+	event.pressed = pressed
+	Input.parse_input_event(event)
+
+
+func run() -> void:
+	scene = load("res://scenes/main.tscn").instantiate()
+	root.add_child(scene)
+	current_scene = scene
+	player = scene.get_node("Player")
+	await frames(5)
+	check(get_nodes_in_group("alphabet_blocks").size() == 26, "26 blocks")
+	check(get_nodes_in_group("pedestals").size() == 3, "exactly 3 pedestals")
+	var letters := ""
+	for block in get_nodes_in_group("alphabet_blocks"):
+		letters += block.letter
+	check(letters == "abcdefghijklmnopqrstuvwxyz", "all lowercase letters are data")
+	for entry in [[KEY_LEFT, "move_left"], [KEY_RIGHT, "move_right"], [KEY_UP, "move_up"], [KEY_DOWN, "move_down"]]:
+		key(entry[0], true)
+		await frames()
+		check(Input.is_action_pressed(entry[1]), "arrow binding: " + entry[1])
+		key(entry[0], false)
+		await frames()
+
+	# Physical keyboard events must move relative to the camera, then stop.
+	var start := player.global_position
+	key(KEY_D, true)
+	await frames(25)
+	key(KEY_D, false)
+	await frames(15)
+	check(player.global_position.x > start.x + 0.3 and player.global_position.z < start.z - 0.3, "camera-relative keyboard movement")
+	check(Vector2(player.velocity.x, player.velocity.z).length() < 0.01, "release decelerates to rest")
+
+	var block: AlphabetBlock = scene.get_node("Blocks/Block_a")
+	await teleport(block.global_position + Vector3(0, 0.02, 0.9))
+	await interact_key()
+	check(player.carried_block == block and block.collision_layer == 0, "keyboard picks up block and disables collision")
+	check(block.get_parent() == player.carry_anchor, "carried block follows visible anchor")
+	var pedestal: Pedestal = scene.get_node("Pedestals/Pedestal2")
+	await teleport(pedestal.global_position + Vector3(0, 0.02, 1.2))
+	await interact_key()
+	check(pedestal.block == block and player.carried_block == null, "block snaps onto empty pedestal")
+	check(block.position == Vector3.ZERO and block.global_position.is_equal_approx(pedestal.get_node("SnapPoint").global_position), "exact snap location")
+	await interact_key()
+	check(player.carried_block == block and pedestal.block == null and block.pedestal == null, "retrieve block frees pedestal")
+	await teleport(Vector3(0, 0.02, 3))
+	await interact_key()
+	check(player.carried_block == null and block.collision_layer == 4, "ground drop restores solid block")
+	check(absf(block.global_position.y - 0.02) < 0.001, "ground drop stays above floor")
+
+	# Repeated placement on each slot with different letters.
+	for index in range(3):
+		var next_block: AlphabetBlock = scene.get_node("Blocks/Block_" + ["b", "c", "d"][index])
+		await teleport(next_block.global_position + Vector3(0, 0.02, 0.9))
+		await interact_key()
+		var slot: Pedestal = scene.get_node("Pedestals/Pedestal" + str(index + 1))
+		await teleport(slot.global_position + Vector3(0.8, 0.02, 0.8))
+		await interact_key()
+		check(slot.block == next_block, "independent occupancy in pedestal " + str(index + 1))
+
+	# Two touch IDs: move and interact concurrently; release/focus loss reset.
+	await teleport(Vector3(0, 0.02, 3))
+	var ui := scene.get_node("TouchControls/Controls")
+	touch(0, ui.joystick_center() + Vector2(60, 0), true)
+	await frames(12)
+	check(Input.get_action_strength("move_right") > 0.8, "touch stick feeds shared action")
+	touch(1, ui.button_center(), true)
+	await frames()
+	check(Input.is_action_pressed("interact") and Input.is_action_pressed("move_right"), "simultaneous movement and interaction touches")
+	touch(1, ui.button_center(), false)
+	touch(0, ui.joystick_center(), false)
+	await frames(12)
+	check(not Input.is_action_pressed("move_right") and not Input.is_action_pressed("interact"), "touch releases actions")
+	touch(0, ui.joystick_center() + Vector2(60, 0), true)
+	await frames()
+	ui.notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	await frames()
+	check(not Input.is_action_pressed("move_right"), "focus loss clears joystick")
+
+	# Mouse follows the same pointer path, including dragging outside the pad.
+	var mouse := InputEventMouseButton.new()
+	mouse.button_index = MOUSE_BUTTON_LEFT
+	mouse.position = root.get_final_transform() * (ui.joystick_center() + Vector2(60, 0))
+	mouse.pressed = true
+	Input.parse_input_event(mouse)
+	await frames()
+	check(Input.is_action_pressed("move_right"), "mouse joystick press")
+	var motion := InputEventMouseMotion.new()
+	motion.position = root.get_final_transform() * (ui.joystick_center() + Vector2(200, 0))
+	Input.parse_input_event(motion)
+	await frames()
+	check(is_equal_approx(Input.get_action_strength("move_right"), 1.0), "mouse drag clamps outside pad")
+	mouse.position = motion.position
+	mouse.pressed = false
+	Input.parse_input_event(mouse)
+	await frames()
+	check(not Input.is_action_pressed("move_right"), "mouse release outside pad")
+	key(KEY_D, true)
+	touch(0, ui.joystick_center() + Vector2(60, 0), true)
+	await frames()
+	touch(0, ui.joystick_center(), false)
+	await frames()
+	check(Input.is_action_pressed("move_right"), "touch release preserves held keyboard input")
+	key(KEY_D, false)
+	await frames()
+
+	# Standard controller events, independent of vendor/model.
+	var axis := InputEventJoypadMotion.new()
+	axis.device = 0
+	axis.axis = JOY_AXIS_LEFT_X
+	axis.axis_value = -1.0
+	Input.parse_input_event(axis)
+	await frames()
+	check(Input.is_action_pressed("move_left"), "controller left stick binding")
+	axis.axis_value = 0.0
+	Input.parse_input_event(axis)
+	var button := InputEventJoypadButton.new()
+	button.device = 0
+	button.button_index = JOY_BUTTON_DPAD_UP
+	button.pressed = true
+	Input.parse_input_event(button)
+	await frames()
+	check(Input.is_action_pressed("move_up"), "controller D-pad binding")
+	button.pressed = false
+	Input.parse_input_event(button)
+	button = InputEventJoypadButton.new()
+	button.button_index = JOY_BUTTON_A
+	button.pressed = true
+	Input.parse_input_event(button)
+	await frames()
+	check(Input.is_action_pressed("interact"), "controller primary action binding")
+	button.pressed = false
+	Input.parse_input_event(button)
+
+	# Sweep the player's actual collision shape against scene geometry.
+	await teleport(Vector3(0, 0.02, 3))
+	check(player.test_move(player.global_transform, Vector3(20, 0, 0)), "clearing boundary blocks movement")
+	await teleport(Vector3(0, 0.02, 1.5))
+	check(player.test_move(player.global_transform, Vector3(0, 0, -1.5)), "pedestal blocks movement")
+	var ground_block: AlphabetBlock = scene.get_node("Blocks/Block_e")
+	await teleport(ground_block.global_position + Vector3(0, 0.02, 1.2))
+	check(player.test_move(player.global_transform, Vector3(0, 0, -1.2)), "ground block blocks movement")
+	touch(1, ui.button_center(), true)
+	await frames()
+	touch(1, ui.button_center(), false)
+	await frames()
+	check(player.carried_block == ground_block, "touch button performs actual pickup")
+	await teleport(Vector3(2.5, 0.02, 2.5))
+	var blockers: Array[StaticBody3D] = []
+	for index in range(8):
+		var obstacle := StaticBody3D.new()
+		var collision := CollisionShape3D.new()
+		var shape := BoxShape3D.new()
+		shape.size = Vector3(0.8, 0.8, 0.8)
+		collision.shape = shape
+		obstacle.add_child(collision)
+		scene.add_child(obstacle)
+		var offset: Vector3 = player.visual.global_basis.z.rotated(Vector3.UP, index * PI / 4.0) * 1.12
+		obstacle.global_position = player.global_position + offset + Vector3.UP * 0.4
+		blockers.append(obstacle)
+	await frames()
+	await interact_key()
+	check(player.carried_block == ground_block, "surrounded player keeps block instead of overlapping geometry")
+	for obstacle in blockers:
+		obstacle.queue_free()
+	await frames()
+	key(KEY_SPACE, true)
+	await frames()
+	key(KEY_SPACE, false)
+	await frames()
+	check(player.carried_block == null, "Space drops block after space becomes clear")
+	await teleport(Vector3(-6.15, 0.02, -6.8))
+	check(player.test_move(player.global_transform, Vector3(-0.85, 0, 0)), "Kenney tree trunk blocks movement")
+	print("SMOKE RESULT: ", failures, " failures")
+	quit(1 if failures else 0)
