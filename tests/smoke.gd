@@ -43,6 +43,14 @@ func interact_key() -> void:
 	await frames()
 
 
+func find_block(letter: String) -> AlphabetBlock:
+	for node in get_nodes_in_group("alphabet_blocks"):
+		var block := node as AlphabetBlock
+		if block.letter == letter:
+			return block
+	return null
+
+
 func touch(index: int, point: Vector2, pressed: bool) -> void:
 	var event := InputEventScreenTouch.new()
 	event.index = index
@@ -59,6 +67,7 @@ func run() -> void:
 	await frames(5)
 	check(get_nodes_in_group("alphabet_blocks").size() == 26, "26 blocks")
 	check(get_nodes_in_group("pedestals").size() == 3, "exactly 3 pedestals")
+	check(scene.get_node_or_null("Environment/River/Bridge") != null, "river bridge exists")
 	var letters := ""
 	for block in get_nodes_in_group("alphabet_blocks"):
 		letters += block.letter
@@ -79,8 +88,8 @@ func run() -> void:
 	check(player.global_position.x > start.x + 0.3 and player.global_position.z < start.z - 0.3, "camera-relative keyboard movement")
 	check(Vector2(player.velocity.x, player.velocity.z).length() < 0.01, "release decelerates to rest")
 
-	var block: AlphabetBlock = scene.get_node("Blocks/Block_a")
-	await teleport(block.global_position + Vector3(0, 0.02, 0.9))
+	var block: AlphabetBlock = find_block("a")
+	await teleport(block.global_position + scene.get_node("Blocks").global_basis * Vector3(0, 0.02, -0.95))
 	await interact_key()
 	check(player.carried_block == block and block.collision_layer == 0, "keyboard picks up block and disables collision")
 	check(block.get_parent() == player.carry_anchor, "carried block follows visible anchor")
@@ -98,8 +107,8 @@ func run() -> void:
 
 	# Repeated placement on each slot with different letters.
 	for index in range(3):
-		var next_block: AlphabetBlock = scene.get_node("Blocks/Block_" + ["b", "c", "d"][index])
-		await teleport(next_block.global_position + Vector3(0, 0.02, 0.9))
+		var next_block: AlphabetBlock = find_block(["b", "c", "d"][index])
+		await teleport(next_block.global_position + scene.get_node("Blocks").global_basis * Vector3(0, 0.02, -0.95))
 		await interact_key()
 		var slot: Pedestal = scene.get_node("Pedestals/Pedestal" + str(index + 1))
 		await teleport(slot.global_position + Vector3(0.8, 0.02, 0.8))
@@ -183,11 +192,15 @@ func run() -> void:
 	# Sweep the player's actual collision shape against scene geometry.
 	await teleport(Vector3(0, 0.02, 3))
 	check(player.test_move(player.global_transform, Vector3(20, 0, 0)), "clearing boundary blocks movement")
+	# The tree line has no invisible interior wall; only the board edge is sealed.
+	var environment: Node3D = scene.get_node("Environment")
+	await teleport(environment.to_global(Vector3(-12, 0.02, -2.6)))
+	check(not player.test_move(player.global_transform, environment.global_basis * Vector3(-3.8, 0, 0)), "walk through a gap between trees")
 	await teleport(Vector3(0, 0.02, 1.5))
 	check(player.test_move(player.global_transform, Vector3(0, 0, -1.5)), "pedestal blocks movement")
 	var ground_block: AlphabetBlock = scene.get_node("Blocks/Block_e")
-	await teleport(ground_block.global_position + Vector3(0, 0.02, 1.2))
-	check(player.test_move(player.global_transform, Vector3(0, 0, -1.2)), "ground block blocks movement")
+	await teleport(ground_block.global_position + scene.get_node("Blocks").global_basis * Vector3(0, 0.02, -0.95))
+	check(player.test_move(player.global_transform, scene.get_node("Blocks").global_basis * Vector3(0, 0, 0.95)), "ground block blocks movement")
 	touch(1, ui.button_center(), true)
 	await frames()
 	touch(1, ui.button_center(), false)
@@ -217,7 +230,8 @@ func run() -> void:
 	key(KEY_SPACE, false)
 	await frames()
 	check(player.carried_block == null, "Space drops block after space becomes clear")
-	await teleport(Vector3(-6.15, 0.02, -6.8))
-	check(player.test_move(player.global_transform, Vector3(-0.85, 0, 0)), "Kenney tree trunk blocks movement")
+	var tree: Node3D = scene.get_node("Environment/Trees/Tree01")
+	await teleport(tree.global_position + Vector3(1, 0.02, 0))
+	check(player.test_move(player.global_transform, Vector3(-1, 0, 0)), "Kenney tree trunk blocks movement")
 	print("SMOKE RESULT: ", failures, " failures")
 	quit(1 if failures else 0)

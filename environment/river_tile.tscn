@@ -1,0 +1,20 @@
+[gd_scene load_steps=6 format=3]
+[ext_resource type="PackedScene" path="res://assets/kenney/nature/ground_riverStraight.glb" id="Model"]
+[sub_resource type="StandardMaterial3D" id="Earth"]
+albedo_color = Color(0.34, 0.25, 0.16, 1)
+roughness = 1.0
+[sub_resource type="StandardMaterial3D" id="Grass"]
+albedo_color = Color(0.46, 0.65, 0.38, 1)
+roughness = 1.0
+[sub_resource type="StandardMaterial3D" id="Water"]
+albedo_color = Color(0.19, 0.57, 0.69, 1)
+roughness = 0.65
+[sub_resource type="StandardMaterial3D" id="Sand"]
+albedo_color = Color(0.70, 0.61, 0.41, 1)
+roughness = 1.0
+[node name="RiverTile" instance=ExtResource("Model")]
+[node name="ground_riverStraight" parent="." index="0"]
+surface_material_override/0 = SubResource("Earth")
+surface_material_override/1 = SubResource("Grass")
+surface_material_override/2 = SubResource("Water")
+surface_material_override/3 = SubResource("Sand")

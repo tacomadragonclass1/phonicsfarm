@@ -15,7 +15,7 @@ func joystick_center() -> Vector2:
 
 
 func button_center() -> Vector2:
-	return Vector2(size.x - 100, size.y - 112)
+	return joystick_center() + Vector2(160, 0)
 
 
 func _input(event: InputEvent) -> void:

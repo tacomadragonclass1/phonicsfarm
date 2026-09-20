@@ -1,7 +1,7 @@
 extends CharacterBody3D
 
-@export var walk_speed := 3.2
-@export var acceleration := 16.0
+@export var walk_speed := 6.4
+@export var acceleration := 32.0
 @export var interaction_distance := 1.65
 
 var carried_block: AlphabetBlock

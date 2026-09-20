@@ -1,0 +1,127 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="PackedScene" path="res://environment/river_tile.tscn" id="Tile"]
+[ext_resource type="PackedScene" path="res://assets/kenney/nature/bridge_wood.glb" id="BridgeModel"]
+[sub_resource type="StandardMaterial3D" id="Bark"]
+albedo_color = Color(0.34, 0.18, 0.09, 1)
+roughness = 1.0
+[sub_resource type="StandardMaterial3D" id="Wood"]
+albedo_color = Color(0.63, 0.39, 0.18, 1)
+roughness = 1.0
+[sub_resource type="StandardMaterial3D" id="Deck"]
+albedo_color = Color(0.76, 0.55, 0.31, 1)
+roughness = 1.0
+[sub_resource type="BoxShape3D" id="WaterBlocker"]
+size = Vector3(15.6, 3, 2.4)
+[sub_resource type="BoxShape3D" id="Rail"]
+size = Vector3(0.3, 1.4, 4.16)
+[sub_resource type="BoxShape3D" id="DeckShape"]
+size = Vector3(2.4, 0.3, 3.2)
+[sub_resource type="ConvexPolygonShape3D" id="NorthRamp"]
+points = PackedVector3Array(-1.2, -0.1, -2.1, 1.2, -0.1, -2.1, -1.2, 0, -2.1, 1.2, 0, -2.1, -1.2, -0.1, -1.6, 1.2, -0.1, -1.6, -1.2, 0.2, -1.6, 1.2, 0.2, -1.6)
+[sub_resource type="ConvexPolygonShape3D" id="SouthRamp"]
+points = PackedVector3Array(-1.2, -0.1, 2.1, 1.2, -0.1, 2.1, -1.2, 0, 2.1, 1.2, 0, 2.1, -1.2, -0.1, 1.6, 1.2, -0.1, 1.6, -1.2, 0.2, 1.6, 1.2, 0.2, 1.6)
+
+[node name="River" type="Node3D"]
+[node name="Tiles" type="Node3D" parent="."]
+[node name="Tile0" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(-16, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="Tile1" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(-14, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="Tile2" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(-12, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="Tile3" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(-10, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="Tile4" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(-8, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="Tile5" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(-6, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="Tile6" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(-4, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="Tile7" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(-2, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="Tile8" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(0, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="Tile9" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(2, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="Tile10" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(4, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="Tile11" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(6, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="Tile12" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(8, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="Tile13" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(10, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="Tile14" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(12, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="Tile15" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(14, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="Tile16" parent="Tiles" instance=ExtResource("Tile")]
+position = Vector3(16, 0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 2)
+[node name="WaterBarrier" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 2
+[node name="Left" type="CollisionShape3D" parent="WaterBarrier"]
+position = Vector3(-9.2, 1.4, 0.124)
+shape = SubResource("WaterBlocker")
+[node name="Right" type="CollisionShape3D" parent="WaterBarrier"]
+position = Vector3(9.2, 1.4, 0.124)
+shape = SubResource("WaterBlocker")
+[node name="Bridge" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 2
+[node name="Model" parent="Bridge" instance=ExtResource("BridgeModel")]
+position = Vector3(0, -0.1, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(4, 2, 3)
+[node name="bridge_wood" parent="Bridge/Model" index="0"]
+surface_material_override/0 = SubResource("Bark")
+surface_material_override/1 = SubResource("Wood")
+surface_material_override/2 = SubResource("Deck")
+[node name="Deck" type="CollisionShape3D" parent="Bridge"]
+position = Vector3(0, 0.05, 0)
+shape = SubResource("DeckShape")
+[node name="NorthRamp" type="CollisionShape3D" parent="Bridge"]
+shape = SubResource("NorthRamp")
+[node name="SouthRamp" type="CollisionShape3D" parent="Bridge"]
+shape = SubResource("SouthRamp")
+[node name="LeftRail" type="CollisionShape3D" parent="Bridge"]
+position = Vector3(-1.35, 0.6, 0)
+shape = SubResource("Rail")
+[node name="RightRail" type="CollisionShape3D" parent="Bridge"]
+position = Vector3(1.35, 0.6, 0)
+shape = SubResource("Rail")

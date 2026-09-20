@@ -19,7 +19,7 @@ Import `project.godot` in Godot 4.5.2 or a compatible newer Godot 4 version and 
 | --- | --- | --- |
 | Keyboard | WASD or arrow keys | E or Space |
 | Standard controller | Left stick or D-pad | A / Cross / primary button |
-| Touch | Lower-left pad | Lower-right Pick / Put button |
+| Touch | Lower-left pad | Pick / Put immediately to the pad's right |
 | Mouse | Drag lower-left pad | Click Pick / Put |
 
 Movement follows screen directions. Approach a block and interact to carry it.
@@ -27,7 +27,8 @@ Approach an empty pedestal while carrying and interact to snap it into place.
 Interact near an occupied pedestal with empty hands to retrieve its block.
 Otherwise, interacting while carrying places it on clear ground nearby. If every
 nearby position is obstructed, it stays in your hands. Only one block can be carried.
-The nearest reachable block wins when several are within range.
+The nearest reachable block wins when several are within range. Chuck walks at
+6.4 units/second. Cross the central bridge to reach the dry alphabet row to the south.
 
 ## Scene structure
 
@@ -38,11 +39,14 @@ player/player.tscn + .gd      CharacterBody3D, walking, animation, interaction/d
 alphabet_block/               Reusable AlphabetBlock scene and exported lowercase letter
 pedestal/                     Reusable Pedestal scene, occupant reference and SnapPoint
 environment/tree.tscn        Kenney tree model with a simple trunk collider
-environment/fixed_camera.gd  Stationary camera; fits the clearing when the window resizes
+environment/fixed_camera.gd  Follows Chuck, with fixed rotation and aspect-aware zoom
+environment/river.tscn       Kenney river tiles, bridge, ramps and water barriers
+environment/river_tile.tscn  Nature Kit tile with materials matching the clearing
 ui/touch_controls.tscn + .gd  Minimal pointer controls feeding the existing Input Map
 assets/kenney/                Selected original GLBs, their textures and CC0 licenses
 assets/fonts/                 Fredoka variable font and SIL Open Font License
 tests/smoke.gd                Physics and input integration checks
+tests/layout.gd               Actual bridge traversal, fetch/return and tree-gap checks
 tests/capture.gd              Optional rendered screenshot check
 export_presets.cfg            Single-threaded Web export preset
 ```
@@ -69,8 +73,13 @@ into `assets/kenney/`, including each GLB's external `Textures/colormap.png`.
   mapped to `move_left/right/up/down` and `interact`. It tracks two independent
   pointers, supports mouse drag, and clears input on focus loss. Player code has
   no touch-specific movement behavior.
-- The camera stays at 40 degrees downward and 45 degrees around Y. Only its
-  orthographic size changes with viewport aspect ratio; it never follows or rotates.
+- The camera follows Chuck at 25 degrees downward and 45 degrees around Y.
+  Its orthographic size is max(18, 25/aspect); it never turns with the character.
+- The board is 34×34. Environment and Blocks are rotated 45 degrees around Y so
+  their local +Z is screen-south and local +X is screen-right. Keep positions local
+  when editing: river center Z=6, alphabet row Z=12, outer walls at ±16.75.
+  There are no inner walls between trees. Only trunks, river barriers, and the
+  outer edge block movement. Bridge ramps allow crossing without jumping.
 - The font variation's integer key `2003265652` is the OpenType `wght` tag (600).
 
 ## Assets and placeholders
@@ -86,6 +95,11 @@ faces and real Fredoka Label3D text. They are not imported Kenney 3D models.
 Ground and pedestals are deliberately simple native primitive geometry. To replace
 them, edit their visual mesh children while retaining collision shapes and snap points.
 
+The supplied Nature Kit includes 3D GLBs. Selected river and bridge models and the
+CC0 license are copied into assets/kenney/nature. The original source pack stays
+intact with a .gdignore to avoid importing thousands of unused assets. Water/bank
+geometry comes from ground_riverStraight.glb; the crossing uses bridge_wood.glb.
+
 Fredoka was obtained from [Google Fonts](https://github.com/google/fonts/tree/main/ofl/fredoka).
 The font and asset licenses are included alongside the runtime assets. Kenney sources:
 [Mini Forest](https://kenney.nl/assets/mini-forest),
@@ -98,6 +112,7 @@ The font and asset licenses are included alongside the runtime assets. Kenney so
 GODOT=/home/milo/.local/opt/godot-4.5.2/Godot_v4.5.2-stable_linux.x86_64
 "$GODOT" --headless --path . --editor --import
 "$GODOT" --headless --path . --script res://tests/smoke.gd
+"$GODOT" --headless --path . --script res://tests/layout.gd
 "$GODOT" --path . --script res://tests/capture.gd
 ```
 
@@ -105,11 +120,14 @@ Run these from this project folder. The smoke suite injects actual keyboard,
 controller, mouse and screen-touch events, checks carrying/placement/retrieval and
 collision, and exits nonzero on failure. The capture script writes
 `/tmp/phonics-clearing.png` then exits; `-- --close-up` captures block lettering.
+Use `-- --river` for the normal follow-camera view at the bridge, or
+`-- --overview` for a diagnostic view of the whole board. Captures require a
+rendered window; do not pass --headless.
 
 Native desktop rendering was inspected. A physical gamepad, physical multitouch
 device, and browser export have **not** been tested. Input simulation is not a
-substitute for those device checks. On narrow portrait screens, the entire clearing
-still fits but letters are smaller; landscape is the preferred prototype layout.
+substitute for those device checks. The closer follow camera shows part of the
+board; moving Chuck reveals the rest. Landscape is preferred for the prototype.
 
 ## Web / GitHub Pages
 
