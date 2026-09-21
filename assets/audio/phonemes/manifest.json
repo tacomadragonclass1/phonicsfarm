@@ -1,0 +1,347 @@
+{
+  "source": "https://github.com/s5k/ipa",
+  "selection": "User selected the human IPA recordings for alphabet blocks on 2026-09-20; Maisie deferred.",
+  "format": "24 kHz 16-bit mono PCM WAV; user-supplied overrides keep their own sample rate",
+  "letters": [
+    {
+      "letter": "a",
+      "ipa": "a",
+      "file": "a.wav",
+      "source_files": [
+        "clips/monophthongs/05_a_pan.wav"
+      ],
+      "source_sha256": [
+        "e8eacf6cc943ad5c0156f4281124311af8299cfea44b1da60e1810dd9a49abae"
+      ],
+      "sha256": "e8eacf6cc943ad5c0156f4281124311af8299cfea44b1da60e1810dd9a49abae",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "b",
+      "ipa": "b",
+      "file": "b.wav",
+      "source_files": [
+        "clips/plosives/31_b_bed.wav"
+      ],
+      "source_sha256": [
+        "343a3b4420a98ec4dc7e7122b90ab8e294469c87a2fe0fe751083c776c3a1559"
+      ],
+      "sha256": "343a3b4420a98ec4dc7e7122b90ab8e294469c87a2fe0fe751083c776c3a1559",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "c",
+      "ipa": "k",
+      "file": "c.wav",
+      "source_files": [
+        "clips/plosives/34_k_code.wav"
+      ],
+      "source_sha256": [
+        "33d6e55b534ee3b1f890c4932f0d7477235db01bcaaab9aa9d9ce5982dd097fc"
+      ],
+      "sha256": "33d6e55b534ee3b1f890c4932f0d7477235db01bcaaab9aa9d9ce5982dd097fc",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "d",
+      "ipa": "d",
+      "file": "d.wav",
+      "source_files": [
+        "clips/plosives/33_d_dine.wav"
+      ],
+      "source_sha256": [
+        "272bd1e7b0c78628ccdc223f7f09f69263d0bc25cee6b80166a1fdade84d410f"
+      ],
+      "sha256": "272bd1e7b0c78628ccdc223f7f09f69263d0bc25cee6b80166a1fdade84d410f",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "e",
+      "ipa": "ɛ",
+      "file": "e.wav",
+      "source_files": [
+        "clips/monophthongs/03_ɛ_met.wav"
+      ],
+      "source_sha256": [
+        "e8998c5d9d1a823eb74310c2ea01f6192af765e61dd7124d0b1c8e1482c545f5"
+      ],
+      "sha256": "e8998c5d9d1a823eb74310c2ea01f6192af765e61dd7124d0b1c8e1482c545f5",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "f",
+      "ipa": "f",
+      "file": "f.wav",
+      "source_files": [
+        "clips/fricatives/21_f_first.wav"
+      ],
+      "source_sha256": [
+        "80efa9fc0a164b61a1915c4fa4aba93a4dc37021c2ff3bc7f9afe87f91c53756"
+      ],
+      "sha256": "80efa9fc0a164b61a1915c4fa4aba93a4dc37021c2ff3bc7f9afe87f91c53756",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "g",
+      "ipa": "ɡ",
+      "file": "g.wav",
+      "source_files": [
+        "clips/plosives/35_ɡ_get.wav"
+      ],
+      "source_sha256": [
+        "3e7a90a3d466742fb608355d06cfa75b64fac662eb27f282299aeeaa410940ef"
+      ],
+      "sha256": "3e7a90a3d466742fb608355d06cfa75b64fac662eb27f282299aeeaa410940ef",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "h",
+      "ipa": "h",
+      "file": "h.wav",
+      "source_files": [
+        "clips/fricatives/29_h_hard.wav"
+      ],
+      "source_sha256": [
+        "17d0a75c6bf70e07f6afe993ac49bbb446620bf33533e1f7f64c49b465d0117f"
+      ],
+      "sha256": "17d0a75c6bf70e07f6afe993ac49bbb446620bf33533e1f7f64c49b465d0117f",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "i",
+      "ipa": "ɪ",
+      "file": "i.wav",
+      "source_files": [
+        "clips/monophthongs/02_ɪ_tip.wav"
+      ],
+      "source_sha256": [
+        "89c72d07fd05a7827bdd17a93ae8abccaa540631652612790597b35651981f98"
+      ],
+      "sha256": "89c72d07fd05a7827bdd17a93ae8abccaa540631652612790597b35651981f98",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "j",
+      "ipa": "dʒ",
+      "file": "j.wav",
+      "source_files": [
+        "clips/affricates/37_dʒ_jet.wav"
+      ],
+      "source_sha256": [
+        "4b42cfe92d420bee04addd313fc3fdf6bad606afe701ede321ed23d05aa54ff4"
+      ],
+      "sha256": "4b42cfe92d420bee04addd313fc3fdf6bad606afe701ede321ed23d05aa54ff4",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "k",
+      "ipa": "k",
+      "file": "k.wav",
+      "source_files": [
+        "clips/plosives/34_k_code.wav"
+      ],
+      "source_sha256": [
+        "33d6e55b534ee3b1f890c4932f0d7477235db01bcaaab9aa9d9ce5982dd097fc"
+      ],
+      "sha256": "33d6e55b534ee3b1f890c4932f0d7477235db01bcaaab9aa9d9ce5982dd097fc",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "l",
+      "ipa": "l",
+      "file": "l.wav",
+      "source_files": [
+        "/home/milo/Desktop/PhonicsFarm Sound Review/new letter l phoneme.wav"
+      ],
+      "source_sha256": [
+        "7fb36d7abc8934f290071859e1177dd20e5a476e83d566d59f93c0546d549916"
+      ],
+      "sha256": "aa7305c3cb9b24944d014f38f46b6365eed1ca94882be4a3ede072cd20f6ae4a",
+      "processing": "user's replacement for the IPA l; trimmed and normalized to 0.89 peak, 12 ms lead, 60 ms tail (48000 Hz)"
+    },
+    {
+      "letter": "m",
+      "ipa": "m",
+      "file": "m.wav",
+      "source_files": [
+        "clips/nasals/42_m_mode.wav"
+      ],
+      "source_sha256": [
+        "5bd57fc552bd887f3ef8a73f5a083704b20b535e53cecc71f751c3c2820924f4"
+      ],
+      "sha256": "5bd57fc552bd887f3ef8a73f5a083704b20b535e53cecc71f751c3c2820924f4",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "n",
+      "ipa": "n",
+      "file": "n.wav",
+      "source_files": [
+        "clips/nasals/43_n_neck.wav"
+      ],
+      "source_sha256": [
+        "b86e5c5c348f4791b7b974b988c3787fb629c3bbc24ffcb160d0d9d24a940bd3"
+      ],
+      "sha256": "b86e5c5c348f4791b7b974b988c3787fb629c3bbc24ffcb160d0d9d24a940bd3",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "o",
+      "ipa": "ɒ",
+      "file": "o.wav",
+      "source_files": [
+        "clips/monophthongs/13_ɒ_lock.wav"
+      ],
+      "source_sha256": [
+        "4f2a3d7bea31182b5a6527b42f62279f6cf43782fae1584f0af1aaa002a72186"
+      ],
+      "sha256": "4f2a3d7bea31182b5a6527b42f62279f6cf43782fae1584f0af1aaa002a72186",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "p",
+      "ipa": "p",
+      "file": "p.wav",
+      "source_files": [
+        "clips/plosives/30_p_pick.wav"
+      ],
+      "source_sha256": [
+        "5965e51fe89cc22e134535c4e70ae0bb19d5dad03c8b46f23c1f09d6f1ca5db5"
+      ],
+      "sha256": "5965e51fe89cc22e134535c4e70ae0bb19d5dad03c8b46f23c1f09d6f1ca5db5",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "q",
+      "ipa": "kw",
+      "file": "q.wav",
+      "source_files": [
+        "/home/milo/Desktop/PhonicsFarm Sound Review/q sound.wav"
+      ],
+      "source_sha256": [
+        "e2b9645487f50db260491564694c5d7cd22ad0779de81ba82cb79483decf09d2"
+      ],
+      "sha256": "e2b9645487f50db260491564694c5d7cd22ad0779de81ba82cb79483decf09d2",
+      "processing": "unchanged copy of user's edited q sound.wav"
+    },
+    {
+      "letter": "r",
+      "ipa": "r",
+      "file": "r.wav",
+      "source_files": [
+        "clips/approximants/39_r_rug.wav"
+      ],
+      "source_sha256": [
+        "0d9f48d60b9b2d646ccd9005af224d179681bac0fb3ef3dcbc3a505ee5c0a8e2"
+      ],
+      "sha256": "0d9f48d60b9b2d646ccd9005af224d179681bac0fb3ef3dcbc3a505ee5c0a8e2",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "s",
+      "ipa": "s",
+      "file": "s.wav",
+      "source_files": [
+        "clips/fricatives/25_s_saw.wav"
+      ],
+      "source_sha256": [
+        "a88a92692d94019b808645f2b7d165af0ccff2509958499a79a31cba926d24d4"
+      ],
+      "sha256": "a88a92692d94019b808645f2b7d165af0ccff2509958499a79a31cba926d24d4",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "t",
+      "ipa": "t",
+      "file": "t.wav",
+      "source_files": [
+        "clips/plosives/32_t_team.wav"
+      ],
+      "source_sha256": [
+        "b0d02bc266e65b2264be744d5a1727ba7cab5d862b94281d45620a242f7a4cf7"
+      ],
+      "sha256": "b0d02bc266e65b2264be744d5a1727ba7cab5d862b94281d45620a242f7a4cf7",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "u",
+      "ipa": "ʌ",
+      "file": "u.wav",
+      "source_files": [
+        "clips/monophthongs/09_ʌ_fun.wav"
+      ],
+      "source_sha256": [
+        "36eb82aca90ad49547566d0c129deea8662ef5263b44b8be15229580ca8e0272"
+      ],
+      "sha256": "36eb82aca90ad49547566d0c129deea8662ef5263b44b8be15229580ca8e0272",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "v",
+      "ipa": "v",
+      "file": "v.wav",
+      "source_files": [
+        "clips/fricatives/22_v_van.wav"
+      ],
+      "source_sha256": [
+        "366458059ff8ffe6d953240f3345492bba1d13ddd39b1b41629e8167cd1e0756"
+      ],
+      "sha256": "366458059ff8ffe6d953240f3345492bba1d13ddd39b1b41629e8167cd1e0756",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "w",
+      "ipa": "w",
+      "file": "w.wav",
+      "source_files": [
+        "clips/approximants/38_w_watch.wav"
+      ],
+      "source_sha256": [
+        "67493c4ceb1cb57c306d460b55bbed67558863f39b4feb3bdd68cdf52a107dc0"
+      ],
+      "sha256": "67493c4ceb1cb57c306d460b55bbed67558863f39b4feb3bdd68cdf52a107dc0",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "x",
+      "ipa": "ks",
+      "file": "x.wav",
+      "source_files": [
+        "clips/plosives/34_k_code.wav",
+        "clips/fricatives/25_s_saw.wav"
+      ],
+      "source_sha256": [
+        "33d6e55b534ee3b1f890c4932f0d7477235db01bcaaab9aa9d9ce5982dd097fc",
+        "a88a92692d94019b808645f2b7d165af0ccff2509958499a79a31cba926d24d4"
+      ],
+      "sha256": "b0829d276f1338e13fbf07aff59e5bdc0ef1bf3e1a39ddde4cdcf62bff49b5b5",
+      "processing": "concatenated; remove 70 ms tail and 25 ms head padding at join"
+    },
+    {
+      "letter": "y",
+      "ipa": "j",
+      "file": "y.wav",
+      "source_files": [
+        "clips/approximants/40_j_yet.wav"
+      ],
+      "source_sha256": [
+        "3039f2c769f983d9a4cfe250e155cfa7a7473c7a241c9faacfb9de939052161a"
+      ],
+      "sha256": "3039f2c769f983d9a4cfe250e155cfa7a7473c7a241c9faacfb9de939052161a",
+      "processing": "unchanged copy"
+    },
+    {
+      "letter": "z",
+      "ipa": "z",
+      "file": "z.wav",
+      "source_files": [
+        "clips/fricatives/26_z_zen.wav"
+      ],
+      "source_sha256": [
+        "c74514fc5fabab23534e00e2a2200f1b9350a9cea46f902146faaae0166c14ca"
+      ],
+      "sha256": "c74514fc5fabab23534e00e2a2200f1b9350a9cea46f902146faaae0166c14ca",
+      "processing": "unchanged copy"
+    }
+  ]
+}

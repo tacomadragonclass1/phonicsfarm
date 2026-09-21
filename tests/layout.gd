@@ -104,8 +104,13 @@ func run() -> void:
 	await teleport(Vector3(-12, 0.02, -2.6))
 	await walk("move_left", 32)
 	check(board.to_local(player.global_position).x < -15.0, "tree gap has no leftover interior wall")
-	await walk("move_left", 35)
-	check(board.to_local(player.global_position).x > -16.4, "outer boundary keeps Chuck on board")
+	await walk("move_left", 120)
+	var west_edge: float = board.to_local(player.global_position).x
+	# The clearing walls are gone. Chuck should walk straight through where the
+	# old 34-wide boundary stood and only stop at the edge of the whole world.
+	check(west_edge < -17.0, "no leftover wall at the old clearing edge")
+	check(west_edge > -20.3, "single outer boundary keeps Chuck on board")
+	check(west_edge < -19.5, "Chuck actually reaches that outer boundary")
 
 	print("LAYOUT RESULT: ", failures, " failures")
 	quit(1 if failures else 0)

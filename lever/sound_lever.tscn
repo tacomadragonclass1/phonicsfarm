@@ -1,0 +1,73 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://lever/sound_lever.gd" id="Script"]
+[sub_resource type="StandardMaterial3D" id="Wood"]
+albedo_color = Color(0.52, 0.39, 0.26, 1)
+[sub_resource type="StandardMaterial3D" id="Metal"]
+albedo_color = Color(0.25, 0.3, 0.32, 1)
+roughness = 0.6
+[sub_resource type="StandardMaterial3D" id="Red"]
+albedo_color = Color(0.85, 0.19, 0.1, 1)
+[sub_resource type="BoxMesh" id="Base"]
+material = SubResource("Wood")
+size = Vector3(0.9, 0.3, 0.8)
+[sub_resource type="BoxMesh" id="Housing"]
+material = SubResource("Metal")
+size = Vector3(0.4, 0.4, 0.4)
+[sub_resource type="CylinderMesh" id="Shaft"]
+material = SubResource("Metal")
+top_radius = 0.06
+bottom_radius = 0.06
+height = 0.85
+[sub_resource type="CylinderMesh" id="Grip"]
+material = SubResource("Red")
+top_radius = 0.13
+bottom_radius = 0.13
+height = 0.65
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(0.9, 1.25, 0.8)
+[sub_resource type="StandardMaterial3D" id="PulseMaterial"]
+shading_mode = 0
+albedo_color = Color(1, 0.75, 0.12, 1)
+[sub_resource type="TorusMesh" id="PulseMesh"]
+material = SubResource("PulseMaterial")
+inner_radius = 0.62
+outer_radius = 0.69
+rings = 32
+ring_segments = 8
+
+[node name="SoundLever" type="StaticBody3D" groups=["sound_levers"]]
+collision_layer = 8
+collision_mask = 2
+script = ExtResource("Script")
+[node name="Pulse" type="MeshInstance3D" parent="."]
+visible = false
+position = Vector3(0, 0.08, 0)
+mesh = SubResource("PulseMesh")
+cast_shadow = 0
+[node name="Base" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.15, 0)
+mesh = SubResource("Base")
+[node name="Housing" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.45, 0)
+mesh = SubResource("Housing")
+[node name="Handle" type="Node3D" parent="."]
+position = Vector3(0, 0.55, 0)
+rotation_degrees = Vector3(-25, 0, 0)
+[node name="Shaft" type="MeshInstance3D" parent="Handle"]
+position = Vector3(0, 0.425, 0)
+mesh = SubResource("Shaft")
+[node name="Grip" type="MeshInstance3D" parent="Handle"]
+position = Vector3(0, 0.85, 0)
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("Grip")
+[node name="PlayMark" type="Label3D" parent="."]
+position = Vector3(0, 0.2, 0.405)
+text = "PLAY"
+font_size = 40
+pixel_size = 0.004
+modulate = Color(1, 0.94, 0.76, 1)
+outline_size = 0
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.625, 0)
+shape = SubResource("Shape")

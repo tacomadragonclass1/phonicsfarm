@@ -3,6 +3,7 @@ extends SceneTree
 var failures := 0
 var scene: Node3D
 var player: CharacterBody3D
+var phoneme_audio: AudioStreamPlayer
 
 
 func _initialize() -> void:
@@ -59,12 +60,30 @@ func touch(index: int, point: Vector2, pressed: bool) -> void:
 	Input.parse_input_event(event)
 
 
+func check_letter_audio(letter: String, description: String) -> void:
+	check(phoneme_audio.playing and phoneme_audio.stream.resource_path ==
+		"res://assets/audio/phonemes/" + letter + ".wav", description)
+	phoneme_audio.stop()
+
+
 func run() -> void:
 	scene = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
 	current_scene = scene
 	player = scene.get_node("Player")
+	phoneme_audio = root.get_node("PhonemeAudio")
 	await frames(5)
+	check(not phoneme_audio.playing, "no phoneme on scene startup")
+	for letter in "abcdefghijklmnopqrstuvwxyz":
+		find_block(letter).play_sound()
+		await frames(1)
+		check_letter_audio(letter, "playable phoneme for " + letter)
+	# A rapid second interaction must replace the first sound.
+	find_block("m").play_sound()
+	find_block("s").play_sound()
+	check_letter_audio("s", "latest interaction replaces previous phoneme")
+	phoneme_audio.play_letter("")
+	check(not phoneme_audio.playing, "empty letter is silent")
 	check(get_nodes_in_group("alphabet_blocks").size() == 26, "26 blocks")
 	check(get_nodes_in_group("pedestals").size() == 3, "exactly 3 pedestals")
 	check(scene.get_node_or_null("Environment/River/Bridge") != null, "river bridge exists")
@@ -93,17 +112,23 @@ func run() -> void:
 	await interact_key()
 	check(player.carried_block == block and block.collision_layer == 0, "keyboard picks up block and disables collision")
 	check(block.get_parent() == player.carry_anchor, "carried block follows visible anchor")
+	check_letter_audio("a", "keyboard pickup plays letter")
 	var pedestal: Pedestal = scene.get_node("Pedestals/Pedestal2")
 	await teleport(pedestal.global_position + Vector3(0, 0.02, 1.2))
 	await interact_key()
 	check(pedestal.block == block and player.carried_block == null, "block snaps onto empty pedestal")
 	check(block.position == Vector3.ZERO and block.global_position.is_equal_approx(pedestal.get_node("SnapPoint").global_position), "exact snap location")
+	check_letter_audio("a", "pedestal placement plays letter")
+	pedestal.place(find_block("b"))
+	check(not phoneme_audio.playing, "occupied pedestal rejects placement silently")
 	await interact_key()
 	check(player.carried_block == block and pedestal.block == null and block.pedestal == null, "retrieve block frees pedestal")
+	check_letter_audio("a", "pedestal retrieval plays letter")
 	await teleport(Vector3(0, 0.02, 3))
 	await interact_key()
 	check(player.carried_block == null and block.collision_layer == 4, "ground drop restores solid block")
 	check(absf(block.global_position.y - 0.02) < 0.001, "ground drop stays above floor")
+	check_letter_audio("a", "ground drop plays letter")
 
 	# Repeated placement on each slot with different letters.
 	for index in range(3):
@@ -206,6 +231,7 @@ func run() -> void:
 	touch(1, ui.button_center(), false)
 	await frames()
 	check(player.carried_block == ground_block, "touch button performs actual pickup")
+	check_letter_audio("e", "touch pickup plays letter")
 	await teleport(Vector3(2.5, 0.02, 2.5))
 	var blockers: Array[StaticBody3D] = []
 	for index in range(8):
@@ -222,6 +248,7 @@ func run() -> void:
 	await frames()
 	await interact_key()
 	check(player.carried_block == ground_block, "surrounded player keeps block instead of overlapping geometry")
+	check(not phoneme_audio.playing, "blocked ground drop is silent")
 	for obstacle in blockers:
 		obstacle.queue_free()
 	await frames()
@@ -230,6 +257,7 @@ func run() -> void:
 	key(KEY_SPACE, false)
 	await frames()
 	check(player.carried_block == null, "Space drops block after space becomes clear")
+	check_letter_audio("e", "Space drop plays letter")
 	var tree: Node3D = scene.get_node("Environment/Trees/Tree01")
 	await teleport(tree.global_position + Vector3(1, 0.02, 0))
 	check(player.test_move(player.global_transform, Vector3(-1, 0, 0)), "Kenney tree trunk blocks movement")

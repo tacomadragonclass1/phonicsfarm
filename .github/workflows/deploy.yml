@@ -1,0 +1,104 @@
+name: Test and deploy Phonics Farm
+
+# Push to main and the live game updates. Nothing is built on your laptop, so
+# the work machine never needs Godot -- only a browser.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two pushes deploy over each other; the newest wins.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: 4.5.2
+  GODOT_RELEASE: 4.5.2-stable
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Godot and export templates
+        id: godot-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot
+            ~/.local/share/godot/export_templates
+          key: godot-${{ env.GODOT_RELEASE }}
+
+      - name: Install Godot ${{ env.GODOT_VERSION }} and its web template
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          base="https://github.com/godotengine/godot-builds/releases/download/${GODOT_RELEASE}"
+          mkdir -p ~/godot
+          curl -fsSL --retry 3 -o /tmp/godot.zip \
+            "${base}/Godot_v${GODOT_RELEASE}_linux.x86_64.zip"
+          unzip -q -o /tmp/godot.zip -d ~/godot
+          mv ~/godot/Godot_v${GODOT_RELEASE}_linux.x86_64 ~/godot/godot
+          chmod +x ~/godot/godot
+          # Templates unpack as templates/*; Godot wants them under the exact
+          # "<version>.<status>" directory name or the export fails.
+          curl -fsSL --retry 3 -o /tmp/templates.tpz \
+            "${base}/Godot_v${GODOT_RELEASE}_export_templates.tpz"
+          unzip -q -o /tmp/templates.tpz -d /tmp/templates
+          mkdir -p ~/.local/share/godot/export_templates
+          mv /tmp/templates/templates "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+
+      - name: Import assets
+        run: |
+          set -euo pipefail
+          # First import always reports errors while .godot is still empty.
+          ~/godot/godot --headless --path . --editor --import || true
+          ~/godot/godot --headless --path . --editor --import
+
+      # A broken build must not reach the classroom. Any failing suite stops
+      # the deploy and the previously deployed game stays live.
+      - name: Run the test suites
+        run: |
+          set -euo pipefail
+          for suite in smoke layout lever feedback village; do
+            echo "::group::$suite"
+            ~/godot/godot --headless --path . --script "res://tests/${suite}.gd"
+            echo "::endgroup::"
+          done
+
+      - name: Export the Web build
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          ~/godot/godot --headless --path . --export-release "Web" build/web/index.html
+          # Pages would otherwise run Jekyll and drop files starting with "_".
+          touch build/web/.nojekyll
+          ls -la build/web
+
+      - name: Fail if the export produced nothing
+        run: |
+          set -euo pipefail
+          for f in index.html index.wasm index.pck index.js; do
+            test -s "build/web/$f" || { echo "missing or empty: $f"; exit 1; }
+          done
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

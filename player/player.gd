@@ -41,8 +41,12 @@ func _physics_process(delta: float) -> void:
 
 
 func interact() -> void:
+	var lever := nearest_sound_lever()
 	if carried_block:
 		var pedestal := nearest_empty_pedestal()
+		if lever and (not pedestal or horizontal_distance(lever.global_position) < horizontal_distance(pedestal.global_position)):
+			lever.activate()
+			return
 		if pedestal:
 			pedestal.place(carried_block)
 			carried_block = null
@@ -59,11 +63,26 @@ func interact() -> void:
 		if distance < nearest_distance and can_reach(block):
 			nearest = block
 			nearest_distance = distance
+	if lever and (not nearest or horizontal_distance(lever.global_position) < nearest_distance):
+		lever.activate()
+		return
 	if nearest:
 		if nearest.pedestal:
 			nearest.pedestal.remove_block()
 		carried_block = nearest
 		nearest.pick_up(carry_anchor)
+
+
+func nearest_sound_lever() -> SoundLever:
+	var nearest: SoundLever
+	var nearest_distance := interaction_distance
+	for node in get_tree().get_nodes_in_group("sound_levers"):
+		var lever := node as SoundLever
+		var distance := horizontal_distance(lever.global_position)
+		if distance < nearest_distance and can_reach(lever):
+			nearest = lever
+			nearest_distance = distance
+	return nearest
 
 
 func nearest_empty_pedestal() -> Pedestal:
@@ -100,6 +119,7 @@ func drop_block() -> void:
 	for angle in [0.0, 45.0, -45.0, 90.0, -90.0, 135.0, -135.0, 180.0]:
 		var offset := forward.rotated(Vector3.UP, deg_to_rad(angle)) * 1.12
 		var point := Vector3(global_position.x + offset.x, 0.02, global_position.z + offset.z)
+		point.y = ground_height(point)
 		var query := PhysicsShapeQueryParameters3D.new()
 		query.shape = shape
 		query.transform = Transform3D(Basis.IDENTITY, point + Vector3.UP * 0.4)
@@ -109,6 +129,17 @@ func drop_block() -> void:
 		var ray := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.4, point + Vector3.UP * 0.4, 13)
 		if not get_world_3d().direct_space_state.intersect_ray(ray).is_empty():
 			continue
-		carried_block.put_on_ground(get_tree().current_scene.get_node("Blocks"), point)
+		carried_block.put_on_ground(carried_block.home, point)
 		carried_block = null
 		return
+
+
+func ground_height(point: Vector3) -> float:
+	# Phoneme Village has raised terrain, so a drop cannot assume ground Y = 0.
+	# Start just above Chuck's own feet and look DOWN: a surface higher than he
+	# is standing is not somewhere he can place a block, and starting above his
+	# head would let him drop onto the top of whatever is boxing him in.
+	var from := Vector3(point.x, global_position.y + 0.15, point.z)
+	var query := PhysicsRayQueryParameters3D.create(from, from + Vector3.DOWN * 8.0, 1)
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	return (hit.position.y + 0.02) if hit else 0.02

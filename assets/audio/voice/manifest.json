@@ -1,0 +1,42 @@
+{
+  "source": "User-supplied recordings for Annette's sentences; synthesized chime. Phonemes stay the human recordings in ../phonemes/.",
+  "format": "24 kHz 16-bit mono PCM WAV",
+  "note": "Sentence wrappers only. Phonemes stay the human recordings in ../phonemes/.",
+  "clips": [
+    {
+      "key": "annette_find",
+      "text": "Please find the letter that says",
+      "voice": "user-supplied recording",
+      "file": "annette_find.wav",
+      "duration_seconds": 2.539,
+      "engine": "user-supplied",
+      "source_file": "/home/milo/Desktop/PhonicsFarm Sound Review/annnette find the letter.wav",
+      "source_sha256": "6db6e0580d7b0b323d05cdcbd3cc14e31084091aac7407fa5ec0b83eb95dd5db",
+      "sha256": "4212f4fe47caeb9100a93819c18e8e9d8863ad60ff50e5d8208cb45302134f1d",
+      "processing": "trimmed to 30 ms lead / 140 ms tail, normalized to 0.89 peak",
+      "status": "pending_user_review"
+    },
+    {
+      "key": "annette_good",
+      "text": "Good job!",
+      "voice": "user-supplied recording",
+      "file": "annette_good.wav",
+      "duration_seconds": 1.04,
+      "engine": "user-supplied",
+      "source_file": "/home/milo/Desktop/PhonicsFarm Sound Review/annette good job.wav",
+      "source_sha256": "4d848f4dc3eafb31daea6e2b9a83acd6ed5bd2fdb2c9a613525c638a84d02184",
+      "sha256": "f9c01a74c04c1c63ee8f78a83e0395018814171f588b4777d73aa67a4afc9b65",
+      "processing": "trimmed to 30 ms lead / 140 ms tail, normalized to 0.89 peak",
+      "status": "pending_user_review"
+    },
+    {
+      "key": "wrong_chime",
+      "text": null,
+      "voice": null,
+      "file": "wrong_chime.wav",
+      "duration_seconds": 0.38,
+      "engine": "synthesized",
+      "status": "pending_user_review"
+    }
+  ]
+}
