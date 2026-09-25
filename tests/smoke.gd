@@ -60,6 +60,13 @@ func touch(index: int, point: Vector2, pressed: bool) -> void:
 	Input.parse_input_event(event)
 
 
+func drag(index: int, point: Vector2) -> void:
+	var event := InputEventScreenDrag.new()
+	event.index = index
+	event.position = root.get_final_transform() * point
+	Input.parse_input_event(event)
+
+
 func check_letter_audio(letter: String, description: String) -> void:
 	check(phoneme_audio.playing and phoneme_audio.stream.resource_path ==
 		"res://assets/audio/phonemes/" + letter + ".wav", description)
@@ -108,11 +115,10 @@ func run() -> void:
 	check(Vector2(player.velocity.x, player.velocity.z).length() < 0.01, "release decelerates to rest")
 
 	var block: AlphabetBlock = find_block("a")
-	await teleport(block.global_position + scene.get_node("Blocks").global_basis * Vector3(0, 0.02, -0.95))
-	await interact_key()
-	check(player.carried_block == block and block.collision_layer == 0, "keyboard picks up block and disables collision")
+	await teleport(block.global_position + scene.get_node("Blocks").global_basis * Vector3(0, 0.02, -0.8))
+	check(player.carried_block == block and block.collision_layer == 0, "walking into a block picks it up and disables collision")
 	check(block.get_parent() == player.carry_anchor, "carried block follows visible anchor")
-	check_letter_audio("a", "keyboard pickup plays letter")
+	check_letter_audio("a", "contact pickup plays letter")
 	var pedestal: Pedestal = scene.get_node("Pedestals/Pedestal2")
 	await teleport(pedestal.global_position + Vector3(0, 0.02, 1.2))
 	await interact_key()
@@ -129,58 +135,107 @@ func run() -> void:
 	check(player.carried_block == null and block.collision_layer == 4, "ground drop restores solid block")
 	check(absf(block.global_position.y - 0.02) < 0.001, "ground drop stays above floor")
 	check_letter_audio("a", "ground drop plays letter")
+	await frames(10)
+	check(player.carried_block == null, "a block just put down is not picked straight back up")
+	# Stepping away and back re-arms it.
+	await teleport(Vector3(0, 0.02, 6.5))
+	await teleport(block.global_position + Vector3(0, 0.02, -0.8))
+	check(player.carried_block == block, "the same block can be picked up again after walking away")
+	await teleport(Vector3(0, 0.02, 3))
+	await interact_key()
 
 	# Repeated placement on each slot with different letters.
 	for index in range(3):
 		var next_block: AlphabetBlock = find_block(["b", "c", "d"][index])
-		await teleport(next_block.global_position + scene.get_node("Blocks").global_basis * Vector3(0, 0.02, -0.95))
-		await interact_key()
+		await teleport(next_block.global_position + scene.get_node("Blocks").global_basis * Vector3(0, 0.02, -0.8))
 		var slot: Pedestal = scene.get_node("Pedestals/Pedestal" + str(index + 1))
 		await teleport(slot.global_position + Vector3(0.8, 0.02, 0.8))
 		await interact_key()
 		check(slot.block == next_block, "independent occupancy in pedestal " + str(index + 1))
 
-	# Two touch IDs: move and interact concurrently; release/focus loss reset.
+	# The whole screen is the controller: one finger walks, a second finger acts.
 	await teleport(Vector3(0, 0.02, 3))
 	var ui := scene.get_node("TouchControls/Controls")
-	touch(0, ui.joystick_center() + Vector2(60, 0), true)
+	var anchor := Vector2(940, 180)
+	touch(0, anchor, true)
+	await frames(2)
+	check(not Input.is_action_pressed("move_right"), "a planted finger on its own does not walk")
+	drag(0, anchor + Vector2(140, 0))
 	await frames(12)
-	check(Input.get_action_strength("move_right") > 0.8, "touch stick feeds shared action")
-	touch(1, ui.button_center(), true)
-	await frames()
-	check(Input.is_action_pressed("interact") and Input.is_action_pressed("move_right"), "simultaneous movement and interaction touches")
-	touch(1, ui.button_center(), false)
-	touch(0, ui.joystick_center(), false)
+	check(Input.get_action_strength("move_right") > 0.8, "dragging anywhere on the screen walks")
+	touch(1, Vector2(160, 720), true)
+	touch(1, Vector2(160, 720), false)
+	await frames(6)
+	check(Input.get_action_strength("move_right") > 0.8, "the walking finger survives a second finger")
+	drag(0, anchor + Vector2(-140, 0))
 	await frames(12)
-	check(not Input.is_action_pressed("move_right") and not Input.is_action_pressed("interact"), "touch releases actions")
-	touch(0, ui.joystick_center() + Vector2(60, 0), true)
+	check(Input.get_action_strength("move_left") > 0.8, "the same finger can steer the other way")
+	touch(0, anchor + Vector2(-140, 0), false)
+	await frames(12)
+	check(not Input.is_action_pressed("move_left"), "lifting the finger stops Chuck")
+
+	# What the second finger is FOR: putting the carried block down. Checked by
+	# its effect, not by the action flag, because the pulse is a frame long.
+	var row_basis: Basis = scene.get_node("Blocks").global_basis
+	var touch_block: AlphabetBlock = find_block("x")
+	await teleport(touch_block.global_position + row_basis * Vector3(0, 0.02, -0.8))
+	check(player.carried_block == touch_block, "contact pickup before the touch checks")
+	await teleport(Vector3(0, 0.02, 3))
+	touch(0, anchor, true)
+	await frames(2)
+	touch(1, Vector2(160, 720), true)
+	touch(1, Vector2(160, 720), false)
+	await frames(8)
+	check(player.carried_block == null, "a second finger anywhere puts the block down")
+	drag(0, anchor + Vector2(0, 60))
+	touch(0, anchor + Vector2(0, 60), false)
+	await frames(2)
+
+	# A single quick tap that never moved does the same, so one hand is enough.
+	var tap_block: AlphabetBlock = find_block("z")
+	await teleport(tap_block.global_position + row_basis * Vector3(0, 0.02, -0.8))
+	check(player.carried_block == tap_block, "contact pickup before the tap check")
+	await teleport(Vector3(2.5, 0.02, 2.5))
+	touch(0, anchor, true)
+	touch(0, anchor, false)
+	await frames(8)
+	check(player.carried_block == null, "one quick tap with no drag acts")
+
+	touch(0, anchor, true)
+	drag(0, anchor + Vector2(140, 0))
 	await frames()
 	ui.notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
 	await frames()
-	check(not Input.is_action_pressed("move_right"), "focus loss clears joystick")
+	check(not Input.is_action_pressed("move_right"), "focus loss clears the drag")
+	touch(0, anchor + Vector2(140, 0), false)
+	await frames()
 
-	# Mouse follows the same pointer path, including dragging outside the pad.
+	# Mouse follows the same pointer path, including dragging far past the range.
 	var mouse := InputEventMouseButton.new()
 	mouse.button_index = MOUSE_BUTTON_LEFT
-	mouse.position = root.get_final_transform() * (ui.joystick_center() + Vector2(60, 0))
+	mouse.position = root.get_final_transform() * anchor
 	mouse.pressed = true
 	Input.parse_input_event(mouse)
 	await frames()
-	check(Input.is_action_pressed("move_right"), "mouse joystick press")
 	var motion := InputEventMouseMotion.new()
-	motion.position = root.get_final_transform() * (ui.joystick_center() + Vector2(200, 0))
+	motion.position = root.get_final_transform() * (anchor + Vector2(90, 0))
 	Input.parse_input_event(motion)
 	await frames()
-	check(is_equal_approx(Input.get_action_strength("move_right"), 1.0), "mouse drag clamps outside pad")
+	check(Input.is_action_pressed("move_right"), "mouse drag walks")
+	motion.position = root.get_final_transform() * (anchor + Vector2(300, 0))
+	Input.parse_input_event(motion)
+	await frames()
+	check(is_equal_approx(Input.get_action_strength("move_right"), 1.0), "a long drag clamps to full speed")
 	mouse.position = motion.position
 	mouse.pressed = false
 	Input.parse_input_event(mouse)
 	await frames()
-	check(not Input.is_action_pressed("move_right"), "mouse release outside pad")
+	check(not Input.is_action_pressed("move_right"), "mouse release stops Chuck")
 	key(KEY_D, true)
-	touch(0, ui.joystick_center() + Vector2(60, 0), true)
+	touch(0, anchor, true)
+	drag(0, anchor + Vector2(140, 0))
 	await frames()
-	touch(0, ui.joystick_center(), false)
+	touch(0, anchor + Vector2(140, 0), false)
 	await frames()
 	check(Input.is_action_pressed("move_right"), "touch release preserves held keyboard input")
 	key(KEY_D, false)
@@ -224,14 +279,11 @@ func run() -> void:
 	await teleport(Vector3(0, 0.02, 1.5))
 	check(player.test_move(player.global_transform, Vector3(0, 0, -1.5)), "pedestal blocks movement")
 	var ground_block: AlphabetBlock = scene.get_node("Blocks/Block_e")
-	await teleport(ground_block.global_position + scene.get_node("Blocks").global_basis * Vector3(0, 0.02, -0.95))
-	check(player.test_move(player.global_transform, scene.get_node("Blocks").global_basis * Vector3(0, 0, 0.95)), "ground block blocks movement")
-	touch(1, ui.button_center(), true)
-	await frames()
-	touch(1, ui.button_center(), false)
-	await frames()
-	check(player.carried_block == ground_block, "touch button performs actual pickup")
-	check_letter_audio("e", "touch pickup plays letter")
+	await teleport(ground_block.global_position + scene.get_node("Blocks").global_basis * Vector3(0, 0.02, -1.15))
+	check(player.test_move(player.global_transform, scene.get_node("Blocks").global_basis * Vector3(0, 0, 1.15)), "ground block blocks movement")
+	await teleport(ground_block.global_position + scene.get_node("Blocks").global_basis * Vector3(0, 0.02, -0.8))
+	check(player.carried_block == ground_block, "contact pickup works on the alphabet rows")
+	check_letter_audio("e", "contact pickup plays letter")
 	await teleport(Vector3(2.5, 0.02, 2.5))
 	var blockers: Array[StaticBody3D] = []
 	for index in range(8):

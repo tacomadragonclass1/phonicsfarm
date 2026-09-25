@@ -2,9 +2,12 @@
 
 Godot **4.5.2**, GDScript, Compatibility renderer. Two clearings joined by a corridor,
 one walking character, and 26 lowercase letter blocks in CVC Land and 23 in the village.
+The world is lit for late golden hour: a low warm sun, long shadows and a cool blue
+skylight filling the shade so a letter standing in shadow is still easy to read.
 
-**CVC Land** (south) has the river, the bridge, the alphabet row, three pedestals and a
-playback lever that checks short English words after sounding out the occupied blocks.
+**CVC Land** (south) has the river, the bridge, two alphabet rows of 13, three pedestals
+and a playback lever that checks short English words after sounding out the occupied
+blocks.
 
 **Phoneme Village** (north) is a fetch game on three walkable levels: Annette names a
 SOUND and Chuck finds the letter that makes it.
@@ -20,20 +23,31 @@ Import `project.godot` in Godot 4.5.2 or a compatible newer Godot 4 version and 
 
 ## Controls
 
-| Input | Walk | Pick up / put down |
+**Picking a block up is not a button.** Chuck picks up any loose block he walks into.
+Blocks resting on a pedestal are the exception: those are taken back with the action,
+so crossing the pedestal row cannot undo the word he has just built.
+
+| Input | Walk | Put down / lever |
 | --- | --- | --- |
+| Touch | One finger dragged in any direction, anywhere on screen | A second finger tapped anywhere |
+| Mouse | Press and drag anywhere | Click without dragging |
 | Keyboard | WASD or arrow keys | E or Space |
 | Standard controller | Left stick or D-pad | A / Cross / primary button |
-| Touch | Lower-left pad | Pick / Put immediately to the pad's right |
-| Mouse | Drag lower-left pad | Click Pick / Put |
 
-Movement follows screen directions. Approach a block and interact to carry it.
-Approach an empty pedestal while carrying and interact to snap it into place.
-Interact near an occupied pedestal with empty hands to retrieve its block.
-Otherwise, interacting while carrying places it on clear ground nearby. If every
-nearby position is obstructed, it stays in your hands. Only one block can be carried.
-The nearest reachable block wins when several are within range. Chuck walks at
-6.4 units/second. Cross the central bridge to reach the dry alphabet row to the south.
+**There is nothing drawn on screen.** The whole viewport is the control surface. The
+first finger down plants a walking stick wherever it lands and steers from there; the
+anchor trails the finger so one long drag keeps steering instead of running out of
+travel. A second finger tapped anywhere puts the carried block down. A single quick tap
+that never moved does the same, so the lever can be pulled one-handed.
+
+Movement follows screen directions. Walk into a block to carry it. Approach an empty
+pedestal while carrying and act to snap it into place. Act next to an occupied pedestal
+with empty hands to retrieve its block. Otherwise, acting while carrying places the
+block on clear ground nearby. If every nearby position is obstructed, it stays in your
+hands. Only one block can be carried. A block just put down is ignored until Chuck has
+stepped away from it, or he would pick it straight back up. The nearest reachable block
+wins when several are within range. Chuck walks at 6.4 units/second. Cross the central
+bridge to reach the dry alphabet rows to the south.
 
 Every successful pickup, ground drop, pedestal placement or retrieval plays the
 block's phoneme. A new interaction replaces the previous sound to keep letters
@@ -67,6 +81,18 @@ When all the letters have been found the board refreshes: a fresh set of blocks 
 scattered to **different** places and the alphabet starts over. Walking out of the
 village pauses the round; walking back in asks the same letter again.
 
+The village is laid out, not scattered. Six identical cottages stand in an L around the
+green -- three along the north rim facing south, three down the west side facing east,
+all evenly spaced -- and a stone lane runs in front of both rows to meet the main path
+from the south gate. The camp (tent and its fire) sits square on the east side. **No
+letter is ever hidden behind a structure**: the camera is orthographic and never turns,
+so "behind" is one fixed direction for the whole board, and `tests/village.gd` checks
+every spawn point against the visuals of every building, boulder, prop and tree.
+`tools/village_spawn_probe.gd` prints a fresh set of spawn positions that are standable,
+block-sized and unobscured; run it if the buildings are ever moved, then paste the
+result into `SpawnPoints`. It is an aid, not a build step -- the scene stays the source
+of truth.
+
 The village has three walkable levels — the clearing floor, a raised terrace reached by
 a ramp on its south-west corner, and a lookout one level higher again. Each level is a
 different shade of green and rimmed with boulders. Letters are scattered across all
@@ -77,9 +103,14 @@ separate sets and can be left mid-play.
 
 ## CVC Land
 
+The 26 letters stand in **two rows of 13**, a-m nearest the river and n-z behind them.
+Columns are 1.9 apart and the rows 2.6 apart, so the 1.1-unit column gaps and the
+1.8-unit lane between the rows both clear Chuck's 0.6-wide body: he can walk into the
+grid, not just along its front. `tests/layout.gd` walks him through both gaps.
+
 The three pedestals are 2.38 units apart (30% closer than the original 3.4).
 Approach the red-handled lever on their left and use E/Space, the controller
-action button, or Pick / Put. It plays the occupied slots from left to right,
+action button, or a tap. It plays the occupied slots from left to right,
 waiting for each clip to finish and skipping empty slots. Any one, two or three
 slots can be filled; an empty row is silent. Pulling again restarts the sequence.
 The lever also works while carrying a block. Pickup or placement interrupts
@@ -120,7 +151,8 @@ environment/tree.tscn        Kenney tree model with a simple trunk collider
 environment/fixed_camera.gd  Follows Chuck, with fixed rotation and aspect-aware zoom
 environment/river.tscn       Kenney river tiles, bridge, ramps and water barriers
 environment/river_tile.tscn  Nature Kit tile with materials matching the clearing
-ui/touch_controls.tscn + .gd  Minimal pointer controls feeding the existing Input Map
+ui/touch_controls.tscn + .gd  Invisible drag/tap pointer layer feeding the Input Map
+tools/village_spawn_probe.gd  One-off aid: prints unobscured village spawn positions
 assets/kenney/                Selected original GLBs, their textures and CC0 licenses
 assets/fonts/                 Fredoka variable font and SIL Open Font License
 tests/smoke.gd                Physics and input integration checks
@@ -163,9 +195,15 @@ into `assets/kenney/`, including each GLB's external `Textures/colormap.png`.
   collision, like the ground and bridge. Imported GLBs carry no colliders, so every
   Kenney model in the village is decoration; the ramps and plateaus underneath are not.
 - Touch uses virtual joypad device 100, with the same axis/button events already
-  mapped to `move_left/right/up/down` and `interact`. It tracks two independent
-  pointers, supports mouse drag, and clears input on focus loss. Player code has
-  no touch-specific movement behavior.
+  mapped to `move_left/right/up/down` and `interact`. Player code has no
+  touch-specific movement behavior. The layer draws nothing, tracks the first
+  pointer as the walking stick and treats every later one as an action tap, and
+  clears input on focus loss. The action is a PULSE: Godot may not flush a
+  synthesised event until the next frame, so it is held across two physics frames
+  before being released, or the player's `is_action_just_pressed` poll misses it.
+  A lost mouse-up (released outside the canvas, swallowed by the browser) would
+  otherwise leave Chuck walking forever, so `_process` polls the real button state
+  and lets go.
 - The camera follows Chuck at `pitch_degrees` down and `yaw_degrees` around Y,
   backed off by `distance`; it never turns with the character. All of those, plus
   `zoom` and `minimum_width`, are exported on `environment/fixed_camera.gd`, which
@@ -181,7 +219,7 @@ into `assets/kenney/`, including each GLB's external `Textures/colormap.png`.
   with the camera at yaw 45 that puts their local +Z at screen-south and local +X
   at screen-right, and at the current yaw 30 it is 15 degrees off that.
   Keep positions local
-  when editing: river center Z=6, alphabet row Z=12, outer walls at ±16.75.
+  when editing: river center Z=6, alphabet rows Z=11.2 and Z=13.8, outer walls at ±16.75.
   There are no inner walls between trees, and **no wall between the two clearings** —
   a single boundary rings the whole world at x = +-20.25, z = +20.25 and z = -68.25.
   Only trunks, river barriers and that outer edge block movement. Bridge ramps allow
@@ -247,7 +285,8 @@ captures the lever and closer slots with example blocks. Captures require a
 rendered window; do not pass --headless.
 `-- --feedback` saves `/tmp/phonics-feedback-active.png` during the first lift
 and `/tmp/phonics-feedback-word.png` after the completed word sparkles.
-`-- --village` and `-- --village-close` capture Phoneme Village with a round scattered;
+`-- --village`, `-- --village-close` and `-- --village-houses` capture Phoneme Village
+with a round scattered -- the last one frames the cottage rows from the green;
 `-- --world` is a diagnostic view of both clearings and the corridor at once.
 
 Native desktop rendering was inspected. A physical gamepad, physical multitouch
@@ -314,5 +353,6 @@ real multitouch device are still untested.
 2. Check this build with a real gamepad and multitouch tablet; record device-specific issues.
 3. Export the existing Web preset and test it on a local static server and GitHub Pages.
 4. Adjust only tree/block positions after a kindergarten readability playtest.
-5. Tune existing joystick/button sizing for the target tablet's landscape viewport.
+5. Watch a child use the invisible controls. Nothing on screen says "drag to walk";
+   if that turns out to need teaching, a one-off fading hint is the smallest fix.
 6. Refine pedestal visuals while preserving the scene origin, collider and SnapPoint.

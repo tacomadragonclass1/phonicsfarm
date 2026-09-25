@@ -5,16 +5,27 @@ state and outstanding limitations, and README.md for architecture and test
 commands before editing. Keep shared handoff updates in PROGRESS.md so Claude
 Code, Codex, and OpenCode/Qwen use the same memory.
 
-Start with **Session handoff — 2026-09-20 (i)** at the top of PROGRESS.md.
+Start with **Session handoff — 2026-09-25** at the top of PROGRESS.md.
 Implemented: CVC Land audio, lever, visual feedback, word recognition,
-Phoneme Village, the 40x40-per-clearing field, the single outer boundary, and
-the camera/crop/prompt/Annette-touch fixes.
+Phoneme Village, the 40x40-per-clearing field, the single outer boundary, the
+camera/crop/prompt/Annette-touch fixes, and the 2026-09-25 pass (sunset light,
+pitch-30 camera, two alphabet rows of 13, the laid-out village, and controls
+with nothing drawn on screen).
 
-Two things that look like bugs but are decisions: the board sits 15 degrees off
+Four things that look like bugs but are decisions: the board sits 15 degrees off
 screen-axis because the camera yaw is 30 for a three-quarter view (45 is the
-axis-aligned value), and Phoneme Village uses 23 letters because k, q and x
-collide with c by ear. Both are explained in README and PROGRESS.
-Older sections record superseded decisions; they are not pending instructions.
+axis-aligned value); Phoneme Village uses 23 letters because k, q and x collide
+with c by ear; the alphabet rows deliberately do NOT fit on screen, because the
+user chose immersion over seeing every letter; and there is deliberately no
+on-screen controller -- drag anywhere to walk, second finger taps to put down,
+and walking into a loose block picks it up. All are explained in README and
+PROGRESS. Older sections record superseded decisions; they are not pending
+instructions.
+
+`tools/village_spawn_probe.gd` regenerates Phoneme Village's spawn markers so no
+letter is hidden behind a structure. Like `build_phoneme_village.py` it is an
+aid, NOT a build step; the scene is the source of truth. `tests/village.gd`
+enforces the no-hidden-letter rule on every run.
 
 Annette's two sentences are now **Milo's own recordings**, not TTS -- do not
 re-render them. Only `wrong_chime.wav` is still synthesized and unheard.

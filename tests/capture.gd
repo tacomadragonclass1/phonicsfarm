@@ -46,6 +46,12 @@ func capture() -> void:
 		camera.look_at(centre)
 		camera.size = 46
 		output = "/tmp/phonics-village.png"
+	if "--village-houses" in OS.get_cmdline_user_args():
+		# The game camera on the village green, framing the cottage row.
+		var village := scene.get_node("Environment/PhonemeVillage") as PhonemeVillage
+		village.start_round()
+		scene.get_node("Player").position = village.to_global(Vector3(-4.0, 0.02, -7.0))
+		output = "/tmp/phonics-village-houses.png"
 	if "--village-close" in OS.get_cmdline_user_args():
 		var village := scene.get_node("Environment/PhonemeVillage") as PhonemeVillage
 		village.start_round()

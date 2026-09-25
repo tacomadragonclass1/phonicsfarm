@@ -40,11 +40,10 @@ func teleport(point: Vector3) -> void:
 	await frames(6)
 
 
-## Stand next to a block and use the ordinary interaction, not a direct call:
-## the village must react to a real pickup.
+## Walk into a block the way a child does -- Chuck picks loose blocks up on
+## contact, with no button -- so the village reacts to a real pickup.
 func fetch(block: AlphabetBlock) -> void:
 	await teleport(block.global_position + Vector3(0.9, 0.02, 0.0))
-	player.interact()
 	await frames(2)
 
 
@@ -53,6 +52,26 @@ func find_block(letter: String) -> AlphabetBlock:
 		if block.letter == letter:
 			return block
 	return null
+
+
+## Slab test: does the segment from `from` along `dir` pass through `box`?
+func crosses(box: AABB, from: Vector3, dir: Vector3, length: float) -> bool:
+	var near := 0.0
+	var far := length
+	for axis in 3:
+		var origin: float = from[axis]
+		var delta: float = dir[axis]
+		var low: float = box.position[axis]
+		var high: float = box.position[axis] + box.size[axis]
+		if absf(delta) < 0.00001:
+			if origin < low or origin > high:
+				return false
+			continue
+		near = maxf(near, minf((low - origin) / delta, (high - origin) / delta))
+		far = minf(far, maxf((low - origin) / delta, (high - origin) / delta))
+		if near > far:
+			return false
+	return near <= far
 
 
 func positions() -> Dictionary:
@@ -192,6 +211,35 @@ func run() -> void:
 	check(village.target == paused_target, "Chuck is asked the same letter he left on")
 	check(prompts.size() == prompt_count + 1, "the repeat is spoken, not silent")
 
+	# --- every letter is in plain sight -------------------------------------
+	# The camera is orthographic and never turns, so "behind a building" is one
+	# fixed direction for the whole board: if the line from a spawned block back
+	# to the camera clears every mesh in the village, that letter is visible no
+	# matter where Chuck is standing. Roof overhangs, boulders and tree canopies
+	# carry no collider, so this walks the visuals instead of casting a ray.
+	var camera: Camera3D = scene.get_node("Camera3D")
+	var to_camera: Vector3 = camera.global_basis.z.normalized()
+	var boxes: Array[AABB] = []
+	for group in ["Buildings", "Props", "Terrain", "Trees", "Path", "Annette"]:
+		for node in village.get_node(group).find_children("*", "MeshInstance3D", true, false):
+			var mesh := node as MeshInstance3D
+			if mesh.get_aabb().size.length() > 0.0:
+				boxes.append(mesh.global_transform * mesh.get_aabb())
+	check(boxes.size() > 100, "the village's visuals were actually collected (%d)" % boxes.size())
+	var obscured: Array[String] = []
+	for marker in village.get_node("SpawnPoints").get_children():
+		for height in [0.14, 0.42, 0.7]:
+			var from: Vector3 = (marker as Node3D).global_position + Vector3.UP * height
+			var blocked := false
+			for box in boxes:
+				if crosses(box, from, to_camera, 40.0):
+					blocked = true
+					break
+			if blocked:
+				obscured.append(String((marker as Node3D).name))
+				break
+	check(obscured.is_empty(), "no letter can be hidden behind a structure " + str(obscured))
+
 	# --- raised terrain -----------------------------------------------------
 	var levels := {}
 	for point in village.get_node("SpawnPoints").get_children():
@@ -211,17 +259,19 @@ func run() -> void:
 	check(climbed.z < 3.0, "the climb actually crosses onto the terrace")
 
 	# a block dropped up there stays up there
+	# Put a letter in Chuck's hands directly: which letter the round happens to
+	# ask for first is random, and this check is about the DROP height, not
+	# about reaching that particular block.
 	var carried := find_block(village.queue[0] if village.queue.size() else "z")
 	if carried:
-		await teleport(carried.global_position + Vector3(0.9, 0.02, 0))
-		player.interact()
-		await frames(2)
 		await teleport(village.to_global(Vector3(8.0, 1.1, -1.0)))
+		carried.pick_up(player.carry_anchor)
+		player.carried_block = carried
+		await frames(2)
 		player.interact()
 		await frames(4)
-		if not player.carried_block:
-			check(village.to_local(carried.global_position).y > 0.8,
-				"a block dropped on the terrace rests on the terrace, not the ground below")
+		check(not player.carried_block and village.to_local(carried.global_position).y > 0.8,
+			"a block dropped on the terrace rests on the terrace, not the ground below")
 
 	# --- a finished alphabet refreshes the board --------------------------
 	await teleport(village.to_global(Vector3(0, 0.02, 12)))

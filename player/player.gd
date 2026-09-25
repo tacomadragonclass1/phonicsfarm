@@ -3,8 +3,16 @@ extends CharacterBody3D
 @export var walk_speed := 6.4
 @export var acceleration := 32.0
 @export var interaction_distance := 1.65
+## Chuck picks a free block up by walking into it -- no button. Slightly wider
+## than actually touching it (0.4 block + 0.3 body), so a brush counts.
+@export var touch_pickup_distance := 0.95
+## How far he has to get from a block he just put down before it can be picked
+## up again. Without this he would grab it straight back off the ground.
+@export var release_distance := 1.5
 
 var carried_block: AlphabetBlock
+## The block Chuck last put down, ignored until he steps away from it.
+var released_block: AlphabetBlock
 @onready var visual: Node3D = $Visual
 @onready var carry_anchor: Marker3D = $Visual/CarryAnchor
 @onready var camera: Camera3D = get_viewport().get_camera_3d()
@@ -38,6 +46,31 @@ func _physics_process(delta: float) -> void:
 			animation.play(next_animation, 0.15)
 	if Input.is_action_just_pressed("interact"):
 		interact()
+	elif not carried_block:
+		pick_up_by_touch()
+
+
+## Walking into a loose block picks it up. Blocks resting on a pedestal are
+## left alone: they are retrieved deliberately, with the interact action, so
+## that crossing the pedestal row does not undo the word Chuck just built.
+func pick_up_by_touch() -> void:
+	if released_block and (not is_instance_valid(released_block)
+			or released_block.is_carried
+			or horizontal_distance(released_block.global_position) > release_distance):
+		released_block = null
+	var nearest: AlphabetBlock
+	var nearest_distance := touch_pickup_distance
+	for node in get_tree().get_nodes_in_group("alphabet_blocks"):
+		var block := node as AlphabetBlock
+		if block.is_carried or block.pedestal or block == released_block:
+			continue
+		var distance := horizontal_distance(block.global_position)
+		if distance < nearest_distance and can_reach(block):
+			nearest = block
+			nearest_distance = distance
+	if nearest:
+		carried_block = nearest
+		nearest.pick_up(carry_anchor)
 
 
 func interact() -> void:
@@ -53,11 +86,14 @@ func interact() -> void:
 		else:
 			drop_block()
 		return
+	# Empty-handed, the action only takes a block back OFF a pedestal. Loose
+	# blocks are picked up by walking into them, so acting next to one Chuck
+	# has just put down cannot snatch it straight back up.
 	var nearest: AlphabetBlock
 	var nearest_distance := interaction_distance
 	for node in get_tree().get_nodes_in_group("alphabet_blocks"):
 		var block := node as AlphabetBlock
-		if block.is_carried:
+		if block.is_carried or not block.pedestal:
 			continue
 		var distance := horizontal_distance(block.global_position)
 		if distance < nearest_distance and can_reach(block):
@@ -67,8 +103,7 @@ func interact() -> void:
 		lever.activate()
 		return
 	if nearest:
-		if nearest.pedestal:
-			nearest.pedestal.remove_block()
+		nearest.pedestal.remove_block()
 		carried_block = nearest
 		nearest.pick_up(carry_anchor)
 
@@ -129,6 +164,7 @@ func drop_block() -> void:
 		var ray := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.4, point + Vector3.UP * 0.4, 13)
 		if not get_world_3d().direct_space_state.intersect_ray(ray).is_empty():
 			continue
+		released_block = carried_block
 		carried_block.put_on_ground(carried_block.home, point)
 		carried_block = null
 		return

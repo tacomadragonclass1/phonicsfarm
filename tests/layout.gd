@@ -47,10 +47,13 @@ func run() -> void:
 	var camera: Camera3D = scene.get_node("Camera3D")
 	var camera_rotation := camera.global_rotation
 	var ui: Control = scene.get_node("TouchControls/Controls")
-	check(ui.button_center().x - ui.joystick_center().x == 160.0, "Pick/Put beside joystick")
-	check(ui.button_center().distance_to(ui.joystick_center()) > 146.0, "touch hit areas do not overlap")
+	check(ui.get_child_count() == 0 and ui.mouse_filter == Control.MOUSE_FILTER_IGNORE,
+		"no on-screen controller: the touch layer only listens")
+	check(ui.size.x >= 1280.0 and ui.size.y >= 800.0, "the whole screen is the drag surface")
 
-	# All letters must be on dry land and individually accessible from the north.
+	# Two rows of 13, on dry land, each letter reachable on its own. The rows sit
+	# 1.9 apart with 2.6 between them, which is wider than Chuck (0.6 across), so
+	# he can walk in and out of the grid instead of only along its front.
 	var blocks: Node3D = scene.get_node("Blocks")
 	var row_ok := blocks.get_child_count() == 26
 	var pickup_ok := true
@@ -58,20 +61,42 @@ func run() -> void:
 		var block: AlphabetBlock = blocks.get_child(i)
 		var original := block.global_position
 		var local := board.to_local(original)
-		row_ok = row_ok and absf(local.z - 12.0) < 0.01 and absf(local.x) < 15.0
+		row_ok = row_ok and absf(local.z - (11.2 if i < 13 else 13.8)) < 0.01
+		row_ok = row_ok and absf(local.x - (float(i % 13) - 6.0) * 1.9) < 0.01
 		row_ok = row_ok and block.letter == "abcdefghijklmnopqrstuvwxyz"[i]
-		await teleport(local + Vector3(0, 0.02, -0.95))
-		player.interact()
+		# Walk in from the north and let contact do the picking up.
+		await teleport(local + Vector3(0, 0.02, -0.8))
 		pickup_ok = pickup_ok and player.carried_block == block
 		if player.carried_block:
 			var carried: AlphabetBlock = player.carried_block
-			carried.put_on_ground(blocks, original)
 			player.carried_block = null
+			# Without this Chuck grabs it again on the very next frame.
+			player.released_block = carried
+			carried.put_on_ground(blocks, original)
 		# Reparent appends at the end; restore scene order for the next iteration.
 		blocks.move_child(block, i)
 		await frames()
-	check(row_ok, "all 26 letters in order on a single dry row inside board")
+	check(row_ok, "26 letters in order across two dry rows of 13")
 	check(pickup_ok, "each letter can be approached and picked up independently")
+
+	# Squeeze between two neighbouring blocks, and along the lane between the
+	# rows. Contact pickup is switched off for this: the question is whether the
+	# 1.1-unit column gap and 1.8-unit row gap clear Chuck's 0.6-wide body, not
+	# whether he would rather carry a letter away.
+	var pickup_range: float = player.touch_pickup_distance
+	player.touch_pickup_distance = 0.0
+	player.global_position = board.to_global(Vector3(-0.95, 0.02, 10.6))
+	player.velocity = Vector3.ZERO
+	await frames()
+	var southward: Vector3 = board.global_basis * Vector3(0, 0, 4.0)
+	var gap_ok := not player.test_move(player.global_transform, southward)
+	player.global_position = board.to_global(Vector3(-12.6, 0.02, 12.5))
+	player.velocity = Vector3.ZERO
+	await frames()
+	var eastward: Vector3 = board.global_basis * Vector3(25.0, 0, 0)
+	gap_ok = gap_ok and not player.test_move(player.global_transform, eastward)
+	player.touch_pickup_distance = pickup_range
+	check(gap_ok, "Chuck fits between neighbouring blocks and down the lane between the rows")
 
 	await teleport(Vector3(0, 0.02, 2.8))
 	Input.action_press("move_down")
@@ -85,8 +110,7 @@ func run() -> void:
 	check(camera.global_rotation.is_equal_approx(camera_rotation), "camera angle stays fixed")
 
 	var block: AlphabetBlock = blocks.get_node("Block_n")
-	await teleport(board.to_local(block.global_position) + Vector3(0, 0.02, -0.95))
-	player.interact()
+	await teleport(board.to_local(block.global_position) + Vector3(0, 0.02, -0.8))
 	check(player.carried_block == block, "pick up letter on south bank")
 	await teleport(Vector3(0, 0.02, 10))
 	await walk("move_up", 65)

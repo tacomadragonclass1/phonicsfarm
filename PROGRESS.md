@@ -1,3 +1,141 @@
+# Session handoff — 2026-09-25
+
+## Sunset light, an isometric camera, two alphabet rows, a laid-out village, and
+## controls with nothing on screen
+
+Five requested changes, all implemented and all five suites green.
+
+**Sunset.** `scenes/main.tscn`'s WorldEnvironment now carries a ProceduralSky
+sunset backdrop, a warm ambient-free palette split in two: a low key sun (24→28
+degrees of elevation, `Color(1, 0.58, 0.3)`, energy 1.55) doing the warm work,
+and a cool blue ambient plus a second shadowless `Skylight` DirectionalLight
+filling the shade. The fill lights exist for READABILITY: the first warm pass
+looked right and left blocks in roof shadow as dark navy squares, which is
+useless in a classroom. Light fog (density 0.0018) adds depth; it is barely
+visible at the game camera's 26-unit distance and only looks heavy in the
+`--overview`/`--world` diagnostic captures, which sit much further back.
+Shadow bias is 0.09 with normal bias 2.0 — a low sun grazes flat surfaces and
+the bridge deck had acne at the defaults.
+
+**Camera.** `pitch_degrees` 18 → **30**, `zoom` 13 → **9**, `minimum_width`
+18 → **13**, `distance` 24 → 26. Yaw stays 30. The old 18 was nearly side-on,
+which is why the village ramps read as flat rectangles: every top face was a
+sliver. The alphabet no longer fits on screen at once, which the user
+explicitly chose in favour of immersion.
+
+**CVC Land.** One row of 26 became **two rows of 13**, a–m at local Z=11.2 and
+n–z at Z=13.8, columns 1.9 apart. That leaves 1.1-unit gaps between blocks and
+a 1.8-unit lane between the rows, both wider than Chuck's 0.6-wide body;
+`tests/layout.gd` drives him through each.
+
+**Phoneme Village.** The six roofed structures were scattered at random angles.
+They are now six identical cottages in an L around the green — three on the
+north rim facing south, three down the west side facing east, 5.0 apart — with
+a new stone lane running in front of both rows to meet the main path. The camp
+tent and its fire were squared up and paired; two stray pots became a doorway
+pair. **All 36 spawn markers were regenerated** so that no letter can be hidden
+behind a structure. Because the camera is orthographic and never turns, "behind"
+is a single fixed direction (village-local `(-0.224, 0.5, 0.837)` toward the
+camera), which makes this checkable: `tests/village.gd` now walks the AABB of
+every mesh in Buildings/Props/Terrain/Trees/Path/Annette and fails if the line
+from any spawn to the camera crosses one. Verified the check can fail by moving
+a spawn behind a cottage. Roof overhangs, boulders and tree canopies have NO
+collider, so this walks visuals, not physics rays.
+`tools/village_spawn_probe.gd` regenerates the list — an aid, not a build step.
+
+**Controls.** The on-screen joystick and Pick/Put button are gone;
+`ui/touch_controls.gd` draws nothing. The first pointer anywhere is a floating
+walking stick whose anchor trails the finger; any second finger taps the action;
+a single quick tap that never moved does too, so the lever stays one-handed.
+**Pickup is no longer a button at all** — `player.gd` picks up any loose block
+Chuck walks within 0.95 of. Blocks on a pedestal are excluded, or crossing the
+pedestal row would strip the word he just built, and the action's empty-handed
+branch now ONLY retrieves from a pedestal. A block just put down is ignored
+until he is 1.5 away, or he would grab it back the same frame.
+
+### Traps found while doing this
+
+- The action must be a PULSE held across two physics frames. Godot does not
+  always flush a synthesised input event in the frame it was parsed, and the
+  player polls `is_action_just_pressed` in `_physics_process`; a shorter pulse
+  is silently missed. Test the EFFECT (the block was put down), not the action
+  flag.
+- A lost mouse-up leaves Chuck walking forever. Reproduced in the browser with
+  a synthetic drag. `_process` now polls the real mouse button state and lets
+  go. Touch reports its own cancellation, which was already handled.
+- `tests/village.gd`'s terrace-drop check was flaky once pickup became
+  contact-based: it fetched `queue[0]`, a different random letter each run.
+  It now puts the block in Chuck's hands directly — the check is about drop
+  height, not about reaching that particular block. Ran it three times clean.
+
+### Checks
+
+All five suites pass headless (smoke, layout, lever, feedback, village).
+Rendered captures reviewed at every step: `--river`, `--overview`,
+`--village`, `--village-close` and a new `--village-houses` mode.
+**Exported the Web preset and loaded it in Chrome from a local server**: the
+scene renders with the new light and camera, scripts compile, the village round
+scatters, drag-to-walk works and Chuck stops on release, no console errors.
+
+No commit or push yet at the time of writing; audio, the word list, the deploy
+workflow and the export preset are untouched. The earlier uncommitted
+source-audit and permission work is preserved.
+
+# Session handoff — 2026-09-23
+
+## Pronunciation Studio permission received
+
+Milo supplied a permission grant signed by Scott Bessett of Pronunciation Studio
+for the “Learn the 44 Sounds of British English” IPA Chart, recordings and
+related educational content. Saved the full text in
+[docs/pronunciation-studio-permission.md](docs/pronunciation-studio-permission.md).
+This supersedes the earlier permission-outstanding status for non-profit
+educational use, including public educational apps/websites and classroom use.
+
+The project must remain exclusively educational and non-profit. No sale,
+licensing, sublicensing, ads, paid subscriptions or other monetization without
+prior written commercial permission. Voluntary support donations are permitted
+if access stays free and the project is not operated for commercial gain.
+Provide attribution to Pronunciation Studio and its website whenever reasonably
+possible. Copyright/IP remain with the original creator; this is a limited,
+non-exclusive, revocable permission with other rights reserved.
+
+Updated the phoneme asset README's current permission status and persistent
+Phonics Farm audio memory/index. Earlier source/hash findings are retained;
+older handoffs describe historical permission status. The source-audit mapping
+and q/l provenance notes are unchanged. No game, audio, deployment, commit or
+push changes. Existing uncommitted source-audit work was preserved.
+
+Checks: reviewed the saved grant and summaries against the user-provided text;
+`git diff --check` passed. No Godot tests run for this memory/documentation-only
+update. These changes and the earlier audit remain uncommitted.
+
+# Session handoff — 2026-09-22
+
+## Phoneme source identified; permission still outstanding
+
+Investigated s5k/ipa at the user's request. All 46 chart MP3s are byte-identical
+to Pronunciation Studio's The Sound of English 2023 web sample, which credits
+Joseph Hudson 2021–23. Compared publisher downloads with GitHub's blob hashes
+from tree a48f42073ff705cc373562e6089360edaa227b1e and saved SHA-256 hashes too.
+No reuse licence found. Earlier publisher copyright text provides a written
+permission route, including school enquiries; it does not grant reuse of these
+MP3s. Source identification is resolved, distribution rights are not.
+
+Updated assets/audio/phonemes/README.md with evidence links and practical scope
+of the permission needed. Added source-audit.json there (hashes and runtime
+mapping) and docs/phoneme-permission-request.md, an UNSENT draft addressed to
+info@pronunciationstudio.com. No external contact made. Permission or replacement
+audio remains necessary to establish documented distribution rights. Do not
+assume the user-supplied q/l are independent recordings solely from filenames.
+
+Checks: all 46 publisher MP3 hashes match the repository blobs; all 26 runtime
+WAV hashes and every local source hash match manifest.json. The historical
+extraction mapping links 24 outputs to 22 publisher MP3s; extraction not rerun.
+No audio, gameplay, export configuration, or deployment changes; Godot tests not
+rerun for documentation/evidence changes. Git diff whitespace check passed.
+Started clean at 1c2c760; this task remains uncommitted. No commit or push.
+
 # Session handoff — 2026-09-20 (k)
 
 ## Deployed to GitHub Pages via Actions; two export bugs found and fixed
@@ -581,8 +719,9 @@ The chart uses a modern SSB transcription: /a/ for TRAP, /ɛː/ for SQUARE,
 /ʌɪ/ for PRICE, /əː/ for NURSE. Game letters map to a SUBSET of these 46;
 that letter->phoneme mapping is NOT yet decided.
 
-⚠️ The source repo has **no LICENSE file**. Fine for classroom use; if the game
-is ever distributed, provenance needs checking.
+The source repo has **no LICENSE file**. Correction (2026-09-22): the earlier
+claim that this was automatically fine for classroom use was unsupported.
+See the latest source investigation above; distribution permission is outstanding.
 
 ### Also on disk from the abandoned TTS work
 

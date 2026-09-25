@@ -9,8 +9,10 @@ extends Camera3D
 # player.gd reads its walking axes off this camera's basis.
 
 ## Downward tilt. Shallower shows more of each object's sides; steeper tends
-## toward a flat top-down map.
-@export_range(5.0, 80.0) var pitch_degrees := 18.0:
+## toward a flat top-down map. 30 is the isometric compromise: enough of every
+## top face to read a ramp as a slope rather than a painted rectangle, without
+## flattening the world into a map.
+@export_range(5.0, 80.0) var pitch_degrees := 30.0:
 	set(value):
 		pitch_degrees = value
 		place()
@@ -24,25 +26,26 @@ extends Camera3D
 
 ## How far back along that angle the camera sits. Orthographic, so this does
 ## not change the framing -- only what can clip in front of it.
-@export var distance := 24.0:
+@export var distance := 26.0:
 	set(value):
 		distance = value
 		place()
 
 ## Framing. Smaller is more zoomed in. The width fallback keeps a very wide
-## window from cropping the top and bottom off the clearing.
-@export var zoom := 13.0:
+## window from cropping the top and bottom off the play area. Deliberately
+## close: being in the world beats seeing every letter at once.
+@export var zoom := 9.0:
 	set(value):
 		zoom = value
 		fit_clearing()
 
-@export var minimum_width := 18.0:
+@export var minimum_width := 13.0:
 	set(value):
 		minimum_width = value
 		fit_clearing()
 
 var target: Node3D
-var follow_offset := Vector3(11.41, 7.42, 19.77)
+var follow_offset := Vector3(11.26, 13.0, 19.5)
 
 
 func _ready() -> void:
