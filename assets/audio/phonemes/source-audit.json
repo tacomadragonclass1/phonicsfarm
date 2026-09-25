@@ -1,0 +1,631 @@
+{
+  "checked_on": "2026-09-22",
+  "repository": "https://github.com/s5k/ipa",
+  "repository_tree_sha": "a48f42073ff705cc373562e6089360edaa227b1e",
+  "publisher_sample": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/index.html",
+  "comparison": "SHA-1 of Git blob header plus publisher response bytes compared with GitHub tree blob SHA; SHA-256 also recorded.",
+  "files": [
+    {
+      "file": "SOUND 1.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%201.mp3",
+      "bytes": 38552,
+      "sha256": "937491142f81ed89aa4358375b777f9b1e5f29664ba231dfe05351c8a3dd50bb",
+      "publisher_git_blob_sha1": "52540db50be0d6229ec41c16f6869507f817e74d",
+      "repository_git_blob_sha1": "52540db50be0d6229ec41c16f6869507f817e74d",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 2.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%202.mp3",
+      "bytes": 25640,
+      "sha256": "0049a93999167689e50dca2c860ff89a167cb1093fde93cec5fa09e605151cf7",
+      "publisher_git_blob_sha1": "1c114310039623c84b55c41637d4e8f766f88ad0",
+      "repository_git_blob_sha1": "1c114310039623c84b55c41637d4e8f766f88ad0",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 3.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%203.mp3",
+      "bytes": 28424,
+      "sha256": "520fe86c1102453269335d54740d39237f99643e45eb8e17a8aae18c51351d13",
+      "publisher_git_blob_sha1": "f9ba3ddbf216527d2bcb38b8a477a1a7d79e1737",
+      "repository_git_blob_sha1": "f9ba3ddbf216527d2bcb38b8a477a1a7d79e1737",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 4.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%204.mp3",
+      "bytes": 36730,
+      "sha256": "1b443fbc768d0e4b4cbbcde57a1e75589bdee4d99c4930295e734715d85196dc",
+      "publisher_git_blob_sha1": "7231c19b97f900cfa158b42093d8ac2cf371137f",
+      "repository_git_blob_sha1": "7231c19b97f900cfa158b42093d8ac2cf371137f",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 5.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%205.mp3",
+      "bytes": 30440,
+      "sha256": "62d1c2aa67248f9c58fe554055304d3118c362f29967b171672816c97b28f635",
+      "publisher_git_blob_sha1": "6c8d6363f56ce3571e850ba53ec5a662fb7420fd",
+      "repository_git_blob_sha1": "6c8d6363f56ce3571e850ba53ec5a662fb7420fd",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 6.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%206.mp3",
+      "bytes": 43330,
+      "sha256": "4be5438dcdf779540f4700350e92ae0abbbe084d2e5f44ecc5ceb511463d1a37",
+      "publisher_git_blob_sha1": "03cdbcd2883b1a0e3366d1d20485a137e1fdafec",
+      "repository_git_blob_sha1": "03cdbcd2883b1a0e3366d1d20485a137e1fdafec",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 7.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%207.mp3",
+      "bytes": 34644,
+      "sha256": "ab66581c3f54699118e61bb72eacac978fdbeaeef8e1eea78ef91ff75bb15935",
+      "publisher_git_blob_sha1": "02091e193a0a9b567d6d7012cc1ccb8410193d0e",
+      "repository_git_blob_sha1": "02091e193a0a9b567d6d7012cc1ccb8410193d0e",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 8.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%208.mp3",
+      "bytes": 41606,
+      "sha256": "093b364bef0c419e45caa8c25aaa741e3a090656aedbdcc3d34263122ea19e7e",
+      "publisher_git_blob_sha1": "39f3a2a78afd437e7d66d4940cb62f46faa062ba",
+      "repository_git_blob_sha1": "39f3a2a78afd437e7d66d4940cb62f46faa062ba",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 9.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%209.mp3",
+      "bytes": 37144,
+      "sha256": "56cd34fd042ffe55dcd56ee55250a46d5161db5489f3ebc2768d5e3d4f07c848",
+      "publisher_git_blob_sha1": "bbc6510537a9c6d66405c3adcf08ee1d0ec490f1",
+      "repository_git_blob_sha1": "bbc6510537a9c6d66405c3adcf08ee1d0ec490f1",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 10.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2010.mp3",
+      "bytes": 40218,
+      "sha256": "f2d20fccb656a8aa542793904593f1b2d518cc665266d4f9fa8b663adb654057",
+      "publisher_git_blob_sha1": "165efe928652bf5c13aa5d0be98f6bac9303fcc8",
+      "repository_git_blob_sha1": "165efe928652bf5c13aa5d0be98f6bac9303fcc8",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 11.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2011.mp3",
+      "bytes": 37628,
+      "sha256": "4963929cbcb278f15606601cdb43e6376c9134930408937939cf2179cbb4977d",
+      "publisher_git_blob_sha1": "1a7d248433c3664c8b08e3afb6164b08b615dba5",
+      "repository_git_blob_sha1": "1a7d248433c3664c8b08e3afb6164b08b615dba5",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 12.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2012.mp3",
+      "bytes": 43759,
+      "sha256": "616f58be8e3e1746001ab6234f071e57bcd363adb51640f6daa99ef745491f00",
+      "publisher_git_blob_sha1": "bb67002d0b5a7451f522533374d2f053dadd3456",
+      "repository_git_blob_sha1": "bb67002d0b5a7451f522533374d2f053dadd3456",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 13a.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2013a.mp3",
+      "bytes": 32757,
+      "sha256": "59f6feb319b1c2ae5d0ad51b64c782ec3930f721ff6454e74ff0395cd950d9ff",
+      "publisher_git_blob_sha1": "c7bba185c81416eee1cd7ee1df928158ff18a6eb",
+      "repository_git_blob_sha1": "c7bba185c81416eee1cd7ee1df928158ff18a6eb",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 14.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2014.mp3",
+      "bytes": 40148,
+      "sha256": "576fee1c767c4a823f73fe2188255b93f4a498bec330a69edc560212bf5de645",
+      "publisher_git_blob_sha1": "5b6f402f32a2f56fe5997c085837da761f3baaa5",
+      "repository_git_blob_sha1": "5b6f402f32a2f56fe5997c085837da761f3baaa5",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 15.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2015.mp3",
+      "bytes": 40246,
+      "sha256": "d4cac6f5cbc69525d3956c29cd34cd55e6dde39c10e98f9d663707384fd74993",
+      "publisher_git_blob_sha1": "ce7603d3ca4250a3e00e83c8a945af5ad8383f66",
+      "repository_git_blob_sha1": "ce7603d3ca4250a3e00e83c8a945af5ad8383f66",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 16.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2016.mp3",
+      "bytes": 43512,
+      "sha256": "88b5d0305338e51e4420a6988b6fd93ce67abba4a01f0f9426dbe95dfc527292",
+      "publisher_git_blob_sha1": "b55add319635029ba546be218817dc11f1315df6",
+      "repository_git_blob_sha1": "b55add319635029ba546be218817dc11f1315df6",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 17.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2017.mp3",
+      "bytes": 39914,
+      "sha256": "b04342759c5abbaa09327beed3b7eff8a73fd59b4eef06c66c7b066387fc0de8",
+      "publisher_git_blob_sha1": "4da2ecc75ccc993458940e9941644809bf1d01ec",
+      "repository_git_blob_sha1": "4da2ecc75ccc993458940e9941644809bf1d01ec",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 18.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2018.mp3",
+      "bytes": 43660,
+      "sha256": "3da614875f3032419b8db5f93c87c4d3f63e94976bf23a37ebca2fb21bc2a337",
+      "publisher_git_blob_sha1": "cc4ab7a7f2e76ce397efc477beda32ef7a9e033e",
+      "repository_git_blob_sha1": "cc4ab7a7f2e76ce397efc477beda32ef7a9e033e",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 19.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2019.mp3",
+      "bytes": 40374,
+      "sha256": "187af248dac2868fd85c3003e57bacb3ae015896f7d6ff71a69959e5792176c4",
+      "publisher_git_blob_sha1": "4aaf14b282a4e09cd322dc23974cf618cbaf6410",
+      "repository_git_blob_sha1": "4aaf14b282a4e09cd322dc23974cf618cbaf6410",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 20.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2020.mp3",
+      "bytes": 45632,
+      "sha256": "303810a47649c5fe9835d8ab8c428f335fcf020c490c4900b6a9f93ad76dd9bb",
+      "publisher_git_blob_sha1": "df8c1578a33e071fc9750f5f544074bfa466fb5f",
+      "repository_git_blob_sha1": "df8c1578a33e071fc9750f5f544074bfa466fb5f",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 21.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2021.mp3",
+      "bytes": 43834,
+      "sha256": "3e99f8fe3e21b4e7d84081653da49de97ef229eade0bb5a5d27e699e73cbcb46",
+      "publisher_git_blob_sha1": "e4a51051a5d65a711c1a2aebfa36763daf33155c",
+      "repository_git_blob_sha1": "e4a51051a5d65a711c1a2aebfa36763daf33155c",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 22.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2022.mp3",
+      "bytes": 44916,
+      "sha256": "655a174aacdf7917a50180e19445dc6eba615670d347b8ec65f5394b0223a8b4",
+      "publisher_git_blob_sha1": "152f52de76699bc727f4d248b6d12193e80e67c4",
+      "repository_git_blob_sha1": "152f52de76699bc727f4d248b6d12193e80e67c4",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 23.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2023.mp3",
+      "bytes": 46070,
+      "sha256": "d829aa539f2333537ca1b3d4a775bcdedd2a91f8d0fd77ff361f23d49de38f44",
+      "publisher_git_blob_sha1": "a1f3c8b66b63336a4072f578f787e5c41855b554",
+      "repository_git_blob_sha1": "a1f3c8b66b63336a4072f578f787e5c41855b554",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 24.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2024.mp3",
+      "bytes": 52576,
+      "sha256": "2bf45bf33ef2408d8d65b33cb234161bbd622c31c30c7c38ae59bfea6b7a8369",
+      "publisher_git_blob_sha1": "783884143073e718b40a95895cf6cd62372b690c",
+      "repository_git_blob_sha1": "783884143073e718b40a95895cf6cd62372b690c",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 25.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2025.mp3",
+      "bytes": 48714,
+      "sha256": "60c76c7baf24038e423d84450706483af4de294d917b8e1e75b943e29137b012",
+      "publisher_git_blob_sha1": "fb983917a74a4eefce8853821c908969dc450675",
+      "repository_git_blob_sha1": "fb983917a74a4eefce8853821c908969dc450675",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 26.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2026.mp3",
+      "bytes": 55844,
+      "sha256": "baa2400eba584e2f4246e3c1d1632bb9251a11a7d2ac2044504a00c80544cc47",
+      "publisher_git_blob_sha1": "23ce1792c68de70376ad4174712208ebddebe9e5",
+      "repository_git_blob_sha1": "23ce1792c68de70376ad4174712208ebddebe9e5",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 27.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2027.mp3",
+      "bytes": 51046,
+      "sha256": "a12e5e9930d16f309bcf900a64abf5f8536574db70c39bcd19b6161d80f7ecd5",
+      "publisher_git_blob_sha1": "30a44730943fce4a6ef27847e16f03dc4ac58674",
+      "repository_git_blob_sha1": "30a44730943fce4a6ef27847e16f03dc4ac58674",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 28.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2028.mp3",
+      "bytes": 51168,
+      "sha256": "7d6e49361753b1a37f8e7d8e9d69d914007451f1823c4badc1fff263b063e5e3",
+      "publisher_git_blob_sha1": "6bb085f6b362e5cdc3c4e5871ff7efe4e873109e",
+      "repository_git_blob_sha1": "6bb085f6b362e5cdc3c4e5871ff7efe4e873109e",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 29.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2029.mp3",
+      "bytes": 40970,
+      "sha256": "d4640ca9bab3df4bfb5f8bd4ec64e0ae98d1703d82da974d300bcddef91b23ca",
+      "publisher_git_blob_sha1": "f4a7e31c1f62ae23bbb571c90e977b84916f9b04",
+      "repository_git_blob_sha1": "f4a7e31c1f62ae23bbb571c90e977b84916f9b04",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 30.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2030.mp3",
+      "bytes": 40036,
+      "sha256": "2cf47cfbe96b220c3856ddd6299fbd2fdc315fb5901ddf2b567cd46832c182fd",
+      "publisher_git_blob_sha1": "bcb633f632e036cfb14f0b72077c8385715cb1cd",
+      "repository_git_blob_sha1": "bcb633f632e036cfb14f0b72077c8385715cb1cd",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 31.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2031.mp3",
+      "bytes": 46470,
+      "sha256": "279b973111f3ed7452cd65d0255e3e4a70cc84b62cd0b05981263bb8ad37456e",
+      "publisher_git_blob_sha1": "fa7347875b697e511348abaa153f1a8e547a4b64",
+      "repository_git_blob_sha1": "fa7347875b697e511348abaa153f1a8e547a4b64",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 32.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2032.mp3",
+      "bytes": 50456,
+      "sha256": "3a315a5cef7752fea877052a86f2c3e7c9ad1dc9bc15fbf8f754ae041f43f9a7",
+      "publisher_git_blob_sha1": "bbbbfff6973ea6d92dc66c7cd26403188295bf3e",
+      "repository_git_blob_sha1": "bbbbfff6973ea6d92dc66c7cd26403188295bf3e",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 33.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2033.mp3",
+      "bytes": 47074,
+      "sha256": "6f3e42ddfec7ec0ca5dac12a3759c841a30fde18716fa499b79281c20640eac9",
+      "publisher_git_blob_sha1": "aa7617929db301a418bc2cec10b519553ca6af28",
+      "repository_git_blob_sha1": "aa7617929db301a418bc2cec10b519553ca6af28",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 34.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2034.mp3",
+      "bytes": 52812,
+      "sha256": "8b338cfec9f81858ee266a9ae351aef22e2548470cb646dc41a4f6442d327b7b",
+      "publisher_git_blob_sha1": "9803f9cb8c5d0f86f85d83600ab80f0cef8c1ebc",
+      "repository_git_blob_sha1": "9803f9cb8c5d0f86f85d83600ab80f0cef8c1ebc",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 35.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2035.mp3",
+      "bytes": 52142,
+      "sha256": "330ede5dbab97e55fc3cb23792a36ad17a3a6dca264986e242890ea5bae360af",
+      "publisher_git_blob_sha1": "50715b0befa4aa23439e9e0a59577353a30a247a",
+      "repository_git_blob_sha1": "50715b0befa4aa23439e9e0a59577353a30a247a",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 36.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2036.mp3",
+      "bytes": 55482,
+      "sha256": "69e2e670b13736916e2d0e1496d3aa621ee19e9cd870fb7f00c6fd11112214a7",
+      "publisher_git_blob_sha1": "9dc23d19ad7124c98daa913fccf7e44f273dd2f7",
+      "repository_git_blob_sha1": "9dc23d19ad7124c98daa913fccf7e44f273dd2f7",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 37.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2037.mp3",
+      "bytes": 55220,
+      "sha256": "fb087fc969f7011905f4869058f01541d0d5abb6ed6f446254b45d5f53706f01",
+      "publisher_git_blob_sha1": "178c2cde69837326fb150eef2bdcab3b43eca471",
+      "repository_git_blob_sha1": "178c2cde69837326fb150eef2bdcab3b43eca471",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 38.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2038.mp3",
+      "bytes": 53206,
+      "sha256": "b2ccd67c728c175ca303b1b84c59febae1e9a950e987ee84bfb0e018a9e415b8",
+      "publisher_git_blob_sha1": "b76d0730acc340cb5cebc899971f51cb5de61d19",
+      "repository_git_blob_sha1": "b76d0730acc340cb5cebc899971f51cb5de61d19",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 39.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2039.mp3",
+      "bytes": 54744,
+      "sha256": "e554d6154dcda253f723056fc4ce081c57b6f13601b22834943c08de4782ef5e",
+      "publisher_git_blob_sha1": "793be533dd34259dc106028f8147c5b477fdf76e",
+      "repository_git_blob_sha1": "793be533dd34259dc106028f8147c5b477fdf76e",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 40.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2040.mp3",
+      "bytes": 49970,
+      "sha256": "d610a4b3c792f262568fddb7b372294774a57117bf19692ed12b9db9c218f9d2",
+      "publisher_git_blob_sha1": "61aa88746b87396fba6b328f0ab79f6dbf4cb718",
+      "repository_git_blob_sha1": "61aa88746b87396fba6b328f0ab79f6dbf4cb718",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 41.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2041.mp3",
+      "bytes": 49852,
+      "sha256": "4cff363e20b28341333ce901d9fd38a274f2d260322dd952cef0c081002e875d",
+      "publisher_git_blob_sha1": "11678ba9fa161fc96a3811e9f481bb076fc9dbc2",
+      "repository_git_blob_sha1": "11678ba9fa161fc96a3811e9f481bb076fc9dbc2",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 42.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2042.mp3",
+      "bytes": 56600,
+      "sha256": "1c4791c57f1bacb426be169d78868a5c54624b1034f483fa51cd8dc2360ca123",
+      "publisher_git_blob_sha1": "de707674eb68032eef424121122974c07bb8e604",
+      "repository_git_blob_sha1": "de707674eb68032eef424121122974c07bb8e604",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 43.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2043.mp3",
+      "bytes": 52138,
+      "sha256": "9b02ba5c5626982392c689646e5d8a6acff2c5c23d8ce0689b19c0ba9ba3c5a4",
+      "publisher_git_blob_sha1": "d8b797272284866b1a08cb4b9588900364badea2",
+      "repository_git_blob_sha1": "d8b797272284866b1a08cb4b9588900364badea2",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 44.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2044.mp3",
+      "bytes": 55908,
+      "sha256": "8863d94108c024889654df739ea36682e77b069e29d32256d9a059b5f94924ae",
+      "publisher_git_blob_sha1": "ff08ec573ebf2e3275a188e1d93c749a2f267991",
+      "repository_git_blob_sha1": "ff08ec573ebf2e3275a188e1d93c749a2f267991",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 45.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2045.mp3",
+      "bytes": 49528,
+      "sha256": "9f12c628cbefcc7255b821b570b80f254061aecc2ff76bf7f6a31ef0a3860a81",
+      "publisher_git_blob_sha1": "9dfaa1e8af4dc986441ccf603a855725c3697793",
+      "repository_git_blob_sha1": "9dfaa1e8af4dc986441ccf603a855725c3697793",
+      "exact_match": true
+    },
+    {
+      "file": "SOUND 46.mp3",
+      "publisher_url": "https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/assets/media/SOUND%2046.mp3",
+      "bytes": 56502,
+      "sha256": "8f71727582f1b71e100619cc72f002d95cf529899aaa746808b5774bc2d2a41f",
+      "publisher_git_blob_sha1": "b675cdd02a9ce2565b0a24784d938dd70b3da4a8",
+      "repository_git_blob_sha1": "b675cdd02a9ce2565b0a24784d938dd70b3da4a8",
+      "exact_match": true
+    }
+  ],
+  "runtime_mapping": [
+    {
+      "letter": "a",
+      "runtime_sha256": "e8eacf6cc943ad5c0156f4281124311af8299cfea44b1da60e1810dd9a49abae",
+      "upstream_files": [
+        "SOUND 5.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "b",
+      "runtime_sha256": "343a3b4420a98ec4dc7e7122b90ab8e294469c87a2fe0fe751083c776c3a1559",
+      "upstream_files": [
+        "SOUND 31.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "c",
+      "runtime_sha256": "33d6e55b534ee3b1f890c4932f0d7477235db01bcaaab9aa9d9ce5982dd097fc",
+      "upstream_files": [
+        "SOUND 34.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "d",
+      "runtime_sha256": "272bd1e7b0c78628ccdc223f7f09f69263d0bc25cee6b80166a1fdade84d410f",
+      "upstream_files": [
+        "SOUND 33.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "e",
+      "runtime_sha256": "e8998c5d9d1a823eb74310c2ea01f6192af765e61dd7124d0b1c8e1482c545f5",
+      "upstream_files": [
+        "SOUND 3.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "f",
+      "runtime_sha256": "80efa9fc0a164b61a1915c4fa4aba93a4dc37021c2ff3bc7f9afe87f91c53756",
+      "upstream_files": [
+        "SOUND 21.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "g",
+      "runtime_sha256": "3e7a90a3d466742fb608355d06cfa75b64fac662eb27f282299aeeaa410940ef",
+      "upstream_files": [
+        "SOUND 35.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "h",
+      "runtime_sha256": "17d0a75c6bf70e07f6afe993ac49bbb446620bf33533e1f7f64c49b465d0117f",
+      "upstream_files": [
+        "SOUND 29.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "i",
+      "runtime_sha256": "89c72d07fd05a7827bdd17a93ae8abccaa540631652612790597b35651981f98",
+      "upstream_files": [
+        "SOUND 2.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "j",
+      "runtime_sha256": "4b42cfe92d420bee04addd313fc3fdf6bad606afe701ede321ed23d05aa54ff4",
+      "upstream_files": [
+        "SOUND 37.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "k",
+      "runtime_sha256": "33d6e55b534ee3b1f890c4932f0d7477235db01bcaaab9aa9d9ce5982dd097fc",
+      "upstream_files": [
+        "SOUND 34.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "l",
+      "runtime_sha256": "aa7305c3cb9b24944d014f38f46b6365eed1ca94882be4a3ede072cd20f6ae4a",
+      "upstream_files": [],
+      "user_supplied_override": true
+    },
+    {
+      "letter": "m",
+      "runtime_sha256": "5bd57fc552bd887f3ef8a73f5a083704b20b535e53cecc71f751c3c2820924f4",
+      "upstream_files": [
+        "SOUND 42.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "n",
+      "runtime_sha256": "b86e5c5c348f4791b7b974b988c3787fb629c3bbc24ffcb160d0d9d24a940bd3",
+      "upstream_files": [
+        "SOUND 43.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "o",
+      "runtime_sha256": "4f2a3d7bea31182b5a6527b42f62279f6cf43782fae1584f0af1aaa002a72186",
+      "upstream_files": [
+        "SOUND 13a.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "p",
+      "runtime_sha256": "5965e51fe89cc22e134535c4e70ae0bb19d5dad03c8b46f23c1f09d6f1ca5db5",
+      "upstream_files": [
+        "SOUND 30.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "q",
+      "runtime_sha256": "e2b9645487f50db260491564694c5d7cd22ad0779de81ba82cb79483decf09d2",
+      "upstream_files": [],
+      "user_supplied_override": true
+    },
+    {
+      "letter": "r",
+      "runtime_sha256": "0d9f48d60b9b2d646ccd9005af224d179681bac0fb3ef3dcbc3a505ee5c0a8e2",
+      "upstream_files": [
+        "SOUND 39.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "s",
+      "runtime_sha256": "a88a92692d94019b808645f2b7d165af0ccff2509958499a79a31cba926d24d4",
+      "upstream_files": [
+        "SOUND 25.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "t",
+      "runtime_sha256": "b0d02bc266e65b2264be744d5a1727ba7cab5d862b94281d45620a242f7a4cf7",
+      "upstream_files": [
+        "SOUND 32.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "u",
+      "runtime_sha256": "36eb82aca90ad49547566d0c129deea8662ef5263b44b8be15229580ca8e0272",
+      "upstream_files": [
+        "SOUND 9.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "v",
+      "runtime_sha256": "366458059ff8ffe6d953240f3345492bba1d13ddd39b1b41629e8167cd1e0756",
+      "upstream_files": [
+        "SOUND 22.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "w",
+      "runtime_sha256": "67493c4ceb1cb57c306d460b55bbed67558863f39b4feb3bdd68cdf52a107dc0",
+      "upstream_files": [
+        "SOUND 38.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "x",
+      "runtime_sha256": "b0829d276f1338e13fbf07aff59e5bdc0ef1bf3e1a39ddde4cdcf62bff49b5b5",
+      "upstream_files": [
+        "SOUND 34.mp3",
+        "SOUND 25.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "y",
+      "runtime_sha256": "3039f2c769f983d9a4cfe250e155cfa7a7473c7a241c9faacfb9de939052161a",
+      "upstream_files": [
+        "SOUND 40.mp3"
+      ],
+      "user_supplied_override": false
+    },
+    {
+      "letter": "z",
+      "runtime_sha256": "c74514fc5fabab23534e00e2a2200f1b9350a9cea46f902146faaae0166c14ca",
+      "upstream_files": [
+        "SOUND 26.mp3"
+      ],
+      "user_supplied_override": false
+    }
+  ],
+  "runtime_mapping_note": "Runtime and local source WAV hashes verified against manifest.json. Historical extraction manifest maps WAVs to original MP3 names; extraction was not rerun. User-supplied q/l provenance beyond their local source files is not established by this audit."
+}

@@ -37,7 +37,8 @@ Example words identify the source recordings; only isolated sounds play.
 The source chart uses /a/ for the British TRAP vowel. c and k intentionally
 use identical recordings. q uses the usual qu sound /kw/; x uses /ks/.
 
-24 files are unchanged copies of the selected 24 kHz, 16-bit mono PCM WAVs.
+23 files are unchanged copies of the selected 24 kHz, 16-bit mono PCM WAVs.
+The user's replacement l is processed separately, as described below.
 q is an unchanged copy of the user's revised
 `~/Desktop/PhonicsFarm Sound Review/q sound.wav` (also 24 kHz, 16-bit mono),
 replacing the earlier automatic k+w assembly. The installer requires that edit
@@ -49,9 +50,50 @@ The checked-in Godot import settings disable compression, trimming,
 normalization and looping to preserve these short recordings.
 
 `manifest.json` records exact source paths, processing and SHA-256 hashes.
-The original extraction source is https://github.com/s5k/ipa, recorded by the
-existing review manifest. The extraction handoff records no source LICENSE;
-no distribution permission has been established by this integration.
+
+## Source and distribution permission — updated 2026-09-23
+
+The recordings obtained from [s5k/ipa](https://github.com/s5k/ipa) are copies
+of audio hosted by **Pronunciation Studio** for
+[*The Sound of English*, 2023 sample](https://pronunciationstudio.com/wp-content/uploads/in5-archives/in5/in5/index.html).
+All 46 chart MP3s matched the publisher's files byte for byte, including
+`SOUND 13a.mp3`. The sample credits **© Joseph Hudson 2021–23**.
+This identifies the published source; it does not establish the speaker's
+identity or the allocation of recording rights between author and company.
+
+**Non-profit educational permission received.** On 2026-09-23 Milo supplied
+Pronunciation Studio's grant, signed by Scott Bessett, for the “Learn the 44
+Sounds of British English” IPA Chart, associated recordings and related
+educational content. The full user-provided text is preserved in
+[the permission record](../../../docs/pronunciation-studio-permission.md).
+
+The grant covers non-profit educational mobile apps, websites, classroom
+resources, language-learning tools and public/private educational projects,
+including use by the general public. Projects must remain exclusively
+educational and not operated for profit. Materials may not be sold, licensed,
+sublicensed or monetized; commercial use, paid subscriptions, advertising and
+other profit-generating uses need prior written permission. Voluntary support
+donations are permitted if access stays free and the project is noncommercial.
+Attribute the original source and website whenever reasonably possible:
+**Pronunciation Studio — http://www.pronunciationstudio.com**.
+
+Original creators retain all copyrights and IP. This is a limited,
+non-exclusive, revocable permission, with all other rights reserved. The audio
+is not public domain or covered by a general open-source licence. This grant
+supersedes the 2026-09-22 permission-outstanding status for non-profit
+educational use; the source identification below remains unchanged.
+
+`source-audit.json` records the upstream tree, publisher URLs, Git blob hashes,
+SHA-256 hashes, and letter mapping. All 26 installed WAV hashes and their local
+source hashes matched the existing manifest. The historical extraction mapping
+was used; extraction was not rerun. The 24 outputs other than q/l derive from
+22 distinct publisher recordings: c/k share one, and x joins k+s. The local
+q/l overrides are user-supplied; this audit does not prove whether they are
+new performances or edits of other recordings.
+
+The earlier [permission request draft](../../../docs/phoneme-permission-request.md)
+is retained as historical context. The user-supplied grant linked above is now
+the permission record. No audio has been replaced by this documentation update.
 
 To rebuild from the selected review folder, from the project root:
 
