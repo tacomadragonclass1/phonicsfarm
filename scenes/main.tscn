@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://c6wyv5o5jr43p"]
+[gd_scene load_steps=24 format=3 uid="uid://c6wyv5o5jr43p"]
 
 [ext_resource type="PackedScene" path="res://alphabet_block/alphabet_block.tscn" id="Block"]
 [ext_resource type="Script" uid="uid://c3vtvkm1ia8nh" path="res://environment/fixed_camera.gd" id="Camera"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" path="res://environment/river.tscn" id="River"]
 [ext_resource type="PackedScene" path="res://environment/tree.tscn" id="Tree"]
 [ext_resource type="PackedScene" path="res://ui/touch_controls.tscn" id="UI"]
+[ext_resource type="PackedScene" path="res://ui/found_counter.tscn" id="Counter"]
 [ext_resource type="PackedScene" path="res://village/phoneme_village.tscn" id="Village"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
@@ -436,3 +437,5 @@ letter = "z"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 2.5)
 
 [node name="TouchControls" parent="." instance=ExtResource("UI")]
+
+[node name="FoundCounter" parent="." instance=ExtResource("Counter")]

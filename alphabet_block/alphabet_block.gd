@@ -13,6 +13,11 @@ signal picked_up(block: AlphabetBlock)
 			update_letter()
 
 var is_carried := false
+## Phoneme Village sets this on its own blocks. A wrong letter put back down
+## there must stay quiet, because playing its sound stops whatever is already
+## playing -- which was Annette halfway through repeating her question.
+## CVC Land leaves it false: every drop there still sounds the letter.
+var silent_drops := false
 var pedestal: Pedestal
 ## Container a dropped block returns to. Keeps Phoneme Village's blocks out of
 ## CVC Land's "Blocks" node so a board refresh can still find and free them.
@@ -63,7 +68,8 @@ func put_on_ground(parent: Node3D, point: Vector3) -> void:
 	is_carried = false
 	collision_layer = 4
 	collision_mask = 2
-	play_sound()
+	if not silent_drops:
+		play_sound()
 
 
 func play_sound() -> void:

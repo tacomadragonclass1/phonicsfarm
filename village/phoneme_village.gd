@@ -27,6 +27,9 @@ const FLASH_WHITE := Color(1.0, 1.0, 1.0)
 signal round_started
 signal prompted(letter: String)
 signal answered(letter: String, correct: bool)
+## Chuck walked in or out. The found-letters counter rides on this, so it is
+## only on screen where it means something.
+signal presence_changed(present: bool)
 
 enum State {
 	ASLEEP,      ## Chuck is not in the village
@@ -53,6 +56,7 @@ var found: Array[String] = []
 var blocks: Array[AlphabetBlock] = []
 var player: CharacterBody3D
 
+@onready var annette: VillageGuide = $Annette
 @onready var spawn_points: Node3D = $SpawnPoints
 @onready var block_root: Node3D = $Blocks
 @onready var audio: Node = get_node("/root/PhonemeAudio")
@@ -79,6 +83,10 @@ func _on_body_entered(body: Node3D) -> void:
 	if not body.has_method("interact"):
 		return
 	player = body
+	# Presence is about Chuck being HERE, not about the round, so it is
+	# reported before the early return -- a round already under way (a capture
+	# script starts one by hand) still puts the counter on screen.
+	presence_changed.emit(true)
 	if state != State.ASLEEP:
 		return
 	resume()
@@ -102,10 +110,14 @@ func _on_body_exited(body: Node3D) -> void:
 		return
 	state = State.ASLEEP
 	audio.stop_sequence()
+	# Nobody is watching: she tidies herself back onto her mark.
+	annette.return_home()
+	presence_changed.emit(false)
 
 
 ## Scatters a fresh set of 26 blocks and starts the alphabet over.
 func start_round() -> void:
+	annette.snap_home()
 	refresh_board()
 	queue = letter_list()
 	queue.shuffle()
@@ -129,6 +141,10 @@ func refresh_board() -> void:
 		var block: AlphabetBlock = BLOCK_SCENE.instantiate()
 		block.letter = letters[index]
 		block.home = block_root
+		# A wrong letter being put down must NOT re-play its sound here: that
+		# stop-and-play cut Annette off halfway through repeating the question.
+		# CVC Land's blocks still sound on every drop.
+		block.silent_drops = true
 		block_root.add_child(block)
 		block.global_position = (markers[index] as Node3D).global_position
 		block.picked_up.connect(_on_block_picked_up)
@@ -155,16 +171,25 @@ func next_prompt() -> void:
 	speak_prompt()
 
 
-func has_block(letter: String) -> bool:
+func find_block(letter: String) -> AlphabetBlock:
 	for block in blocks:
 		if is_instance_valid(block) and block.letter == letter:
-			return true
-	return false
+			return block
+	return null
+
+
+func has_block(letter: String) -> bool:
+	return find_block(letter) != null
 
 
 func speak_prompt() -> void:
 	state = State.LISTENING
 	audio.play_sequence(["annette_find", target] as Array[String])
+	# The quiet clue: she looks at the letter she is asking for. If she is
+	# still walking home she turns once she arrives.
+	var block := find_block(target)
+	if block:
+		annette.face(block.global_position)
 	prompted.emit(target)
 
 
@@ -172,18 +197,26 @@ func _on_block_picked_up(block: AlphabetBlock) -> void:
 	if state != State.LISTENING or not blocks.has(block):
 		return
 	var correct := block.letter == target
-	answered.emit(block.letter, correct)
 	if correct:
 		blocks.erase(block)
 		found.append(target)
+		# Reported only once the letter is in `found`: the on-screen counter
+		# reads that array, and would otherwise always be one behind.
+		answered.emit(block.letter, true)
 		# Cleared immediately: this letter must never be asked for again, not
 		# on resume and not by a stale queue entry.
 		target = ""
 		celebrate(block)
 	else:
+		answered.emit(block.letter, false)
 		# Not a buzzer: he hears what he grabbed, a soft two-note fall, then the
 		# same question again. The wrong block stays in his hands to put down.
 		audio.play_sequence([block.letter, "wrong_chime", "annette_find", target] as Array[String])
+		# And the second clue gets stronger: she walks a few steps toward the
+		# letter she actually asked for.
+		var wanted := find_block(target)
+		if wanted:
+			annette.hint_toward(wanted.global_position)
 
 
 func celebrate(block: AlphabetBlock) -> void:
@@ -202,6 +235,9 @@ func celebrate(block: AlphabetBlock) -> void:
 	release(block)
 	block.queue_free()
 	audio.play_sequence(["annette_good"] as Array[String])
+	# Any steps she took as a clue are undone before the next question, so a
+	# long run of wrong answers cannot walk her across the village.
+	annette.return_home()
 	# Only advance the state if Chuck is still here. Leaving mid-celebration
 	# puts the village back to sleep and that must not be overwritten.
 	if state != State.CELEBRATING:

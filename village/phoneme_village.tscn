@@ -1,7 +1,8 @@
-[gd_scene load_steps=45 format=3]
+[gd_scene load_steps=43 format=3]
 
 [ext_resource type="Script" path="res://village/phoneme_village.gd" id="r0"]
 [ext_resource type="Script" path="res://environment/kenney_props.gd" id="r1"]
+[ext_resource type="Script" path="res://village/annette.gd" id="r26"]
 [ext_resource type="PackedScene" path="res://assets/kenney/mini_forest/building-platform.glb" id="r2"]
 [ext_resource type="PackedScene" path="res://assets/kenney/mini_forest/building-structure.glb" id="r3"]
 [ext_resource type="PackedScene" path="res://assets/kenney/mini_forest/building-roof.glb" id="r4"]
@@ -10,9 +11,6 @@
 [ext_resource type="PackedScene" path="res://assets/kenney/nature/statue_obelisk.glb" id="r7"]
 [ext_resource type="PackedScene" path="res://assets/kenney/nature/sign.glb" id="r8"]
 [ext_resource type="PackedScene" path="res://assets/kenney/nature/pot_large.glb" id="r9"]
-[ext_resource type="PackedScene" path="res://assets/kenney/nature/crops_dirtRow.glb" id="r10"]
-[ext_resource type="PackedScene" path="res://assets/kenney/nature/crop_pumpkin.glb" id="r11"]
-[ext_resource type="PackedScene" path="res://assets/kenney/nature/fence_simple.glb" id="r12"]
 [ext_resource type="PackedScene" path="res://assets/kenney/nature/tent_smallOpen.glb" id="r13"]
 [ext_resource type="PackedScene" path="res://assets/kenney/nature/rock_largeB.glb" id="r14"]
 [ext_resource type="PackedScene" path="res://assets/kenney/nature/rock_smallA.glb" id="r15"]
@@ -296,11 +294,6 @@ position = Vector3(2.400, 0.000, 2.600)
 rotation_degrees = Vector3(0, -40.00, 0)
 scale = Vector3(2.600, 2.600, 2.600)
 
-[node name="SeatLog3" parent="Props" instance=ExtResource("r6")]
-position = Vector3(0.200, 0.000, -1.000)
-rotation_degrees = Vector3(0, 95.00, 0)
-scale = Vector3(2.600, 2.600, 2.600)
-
 [node name="Obelisk" parent="Props" instance=ExtResource("r7")]
 position = Vector3(-4.600, 0.000, -2.000)
 rotation_degrees = Vector3(0, 15.00, 0)
@@ -319,125 +312,6 @@ scale = Vector3(2.000, 2.000, 2.000)
 position = Vector3(-10.600, 0.000, 4.400)
 rotation_degrees = Vector3(0, 40.00, 0)
 scale = Vector3(1.700, 1.700, 1.700)
-
-[node name="DirtRow0" parent="Props" instance=ExtResource("r10")]
-position = Vector3(-12.000, 0.000, 8.000)
-scale = Vector3(4.600, 2.000, 2.200)
-
-[node name="Pumpkin00" parent="Props" instance=ExtResource("r11")]
-position = Vector3(-13.600, 0.060, 8.000)
-scale = Vector3(2.400, 2.400, 2.400)
-
-[node name="Pumpkin01" parent="Props" instance=ExtResource("r11")]
-position = Vector3(-12.000, 0.060, 8.000)
-rotation_degrees = Vector3(0, 29.00, 0)
-scale = Vector3(2.400, 2.400, 2.400)
-
-[node name="Pumpkin02" parent="Props" instance=ExtResource("r11")]
-position = Vector3(-10.400, 0.060, 8.000)
-rotation_degrees = Vector3(0, 58.00, 0)
-scale = Vector3(2.400, 2.400, 2.400)
-
-[node name="DirtRow1" parent="Props" instance=ExtResource("r10")]
-position = Vector3(-12.000, 0.000, 9.400)
-scale = Vector3(4.600, 2.000, 2.200)
-
-[node name="Pumpkin10" parent="Props" instance=ExtResource("r11")]
-position = Vector3(-13.600, 0.060, 9.400)
-rotation_degrees = Vector3(0, 53.00, 0)
-scale = Vector3(2.400, 2.400, 2.400)
-
-[node name="Pumpkin11" parent="Props" instance=ExtResource("r11")]
-position = Vector3(-12.000, 0.060, 9.400)
-rotation_degrees = Vector3(0, 82.00, 0)
-scale = Vector3(2.400, 2.400, 2.400)
-
-[node name="Pumpkin12" parent="Props" instance=ExtResource("r11")]
-position = Vector3(-10.400, 0.060, 9.400)
-rotation_degrees = Vector3(0, 111.00, 0)
-scale = Vector3(2.400, 2.400, 2.400)
-
-[node name="DirtRow2" parent="Props" instance=ExtResource("r10")]
-position = Vector3(-12.000, 0.000, 10.800)
-scale = Vector3(4.600, 2.000, 2.200)
-
-[node name="Pumpkin20" parent="Props" instance=ExtResource("r11")]
-position = Vector3(-13.600, 0.060, 10.800)
-rotation_degrees = Vector3(0, 106.00, 0)
-scale = Vector3(2.400, 2.400, 2.400)
-
-[node name="Pumpkin21" parent="Props" instance=ExtResource("r11")]
-position = Vector3(-12.000, 0.060, 10.800)
-rotation_degrees = Vector3(0, 135.00, 0)
-scale = Vector3(2.400, 2.400, 2.400)
-
-[node name="Pumpkin22" parent="Props" instance=ExtResource("r11")]
-position = Vector3(-10.400, 0.060, 10.800)
-rotation_degrees = Vector3(0, 164.00, 0)
-scale = Vector3(2.400, 2.400, 2.400)
-
-[node name="DirtRow3" parent="Props" instance=ExtResource("r10")]
-position = Vector3(-12.000, 0.000, 12.200)
-scale = Vector3(4.600, 2.000, 2.200)
-
-[node name="Pumpkin30" parent="Props" instance=ExtResource("r11")]
-position = Vector3(-13.600, 0.060, 12.200)
-rotation_degrees = Vector3(0, 159.00, 0)
-scale = Vector3(2.400, 2.400, 2.400)
-
-[node name="Pumpkin31" parent="Props" instance=ExtResource("r11")]
-position = Vector3(-12.000, 0.060, 12.200)
-rotation_degrees = Vector3(0, 188.00, 0)
-scale = Vector3(2.400, 2.400, 2.400)
-
-[node name="Pumpkin32" parent="Props" instance=ExtResource("r11")]
-position = Vector3(-10.400, 0.060, 12.200)
-rotation_degrees = Vector3(0, 217.00, 0)
-scale = Vector3(2.400, 2.400, 2.400)
-
-[node name="CropFenceN0" parent="Props" instance=ExtResource("r12")]
-position = Vector3(-14.600, 0.000, 6.800)
-scale = Vector3(2.000, 2.000, 2.000)
-
-[node name="CropFenceN1" parent="Props" instance=ExtResource("r12")]
-position = Vector3(-12.600, 0.000, 6.800)
-scale = Vector3(2.000, 2.000, 2.000)
-
-[node name="CropFenceN2" parent="Props" instance=ExtResource("r12")]
-position = Vector3(-10.600, 0.000, 6.800)
-scale = Vector3(2.000, 2.000, 2.000)
-
-[node name="CropFenceN3" parent="Props" instance=ExtResource("r12")]
-position = Vector3(-8.600, 0.000, 6.800)
-scale = Vector3(2.000, 2.000, 2.000)
-
-[node name="CropFenceN4" parent="Props" instance=ExtResource("r12")]
-position = Vector3(-6.600, 0.000, 6.800)
-scale = Vector3(2.000, 2.000, 2.000)
-
-[node name="CropFenceN5" parent="Props" instance=ExtResource("r12")]
-position = Vector3(-4.600, 0.000, 6.800)
-scale = Vector3(2.000, 2.000, 2.000)
-
-[node name="CropFenceW0" parent="Props" instance=ExtResource("r12")]
-position = Vector3(-15.000, 0.000, 7.800)
-rotation_degrees = Vector3(0, 90.00, 0)
-scale = Vector3(2.000, 2.000, 2.000)
-
-[node name="CropFenceW1" parent="Props" instance=ExtResource("r12")]
-position = Vector3(-15.000, 0.000, 9.800)
-rotation_degrees = Vector3(0, 90.00, 0)
-scale = Vector3(2.000, 2.000, 2.000)
-
-[node name="CropFenceW2" parent="Props" instance=ExtResource("r12")]
-position = Vector3(-15.000, 0.000, 11.800)
-rotation_degrees = Vector3(0, 90.00, 0)
-scale = Vector3(2.000, 2.000, 2.000)
-
-[node name="CropFenceW3" parent="Props" instance=ExtResource("r12")]
-position = Vector3(-15.000, 0.000, 13.800)
-rotation_degrees = Vector3(0, 90.00, 0)
-scale = Vector3(2.000, 2.000, 2.000)
 
 [node name="CampTent" parent="Props" instance=ExtResource("r13")]
 position = Vector3(12.500, 0.000, 8.600)
@@ -633,11 +507,6 @@ position = Vector3(-6.919, 0.000, 0.270)
 rotation_degrees = Vector3(0, 264.95, 0)
 scale = Vector3(2.793, 2.793, 2.793)
 
-[node name="Scatter9" parent="Props" instance=ExtResource("r20")]
-position = Vector3(-5.500, 0.000, -9.500)
-rotation_degrees = Vector3(0, 142.64, 0)
-scale = Vector3(2.336, 2.336, 2.336)
-
 [node name="Scatter10" parent="Props" instance=ExtResource("r21")]
 position = Vector3(5.304, 0.000, 14.142)
 rotation_degrees = Vector3(0, 257.57, 0)
@@ -658,11 +527,6 @@ position = Vector3(1.758, 0.000, 15.769)
 rotation_degrees = Vector3(0, 48.82, 0)
 scale = Vector3(3.133, 3.133, 3.133)
 
-[node name="Scatter14" parent="Props" instance=ExtResource("r20")]
-position = Vector3(-3.627, 0.000, 5.318)
-rotation_degrees = Vector3(0, 138.29, 0)
-scale = Vector3(2.171, 2.171, 2.171)
-
 [node name="Scatter15" parent="Props" instance=ExtResource("r21")]
 position = Vector3(-0.653, 0.000, 6.277)
 rotation_degrees = Vector3(0, 7.30, 0)
@@ -682,11 +546,6 @@ scale = Vector3(2.435, 2.435, 2.435)
 position = Vector3(5.352, 1.000, -10.624)
 rotation_degrees = Vector3(0, 228.33, 0)
 scale = Vector3(2.959, 2.959, 2.959)
-
-[node name="Scatter19" parent="Props" instance=ExtResource("r20")]
-position = Vector3(4.210, 0.000, 15.008)
-rotation_degrees = Vector3(0, 160.83, 0)
-scale = Vector3(2.610, 2.610, 2.610)
 
 [node name="Scatter20" parent="Props" instance=ExtResource("r21")]
 position = Vector3(0.077, 0.000, -14.965)
@@ -733,11 +592,6 @@ position = Vector3(9.786, 1.000, 1.655)
 rotation_degrees = Vector3(0, 23.29, 0)
 scale = Vector3(2.779, 2.779, 2.779)
 
-[node name="Scatter29" parent="Props" instance=ExtResource("r20")]
-position = Vector3(0.985, 0.000, -7.134)
-rotation_degrees = Vector3(0, 97.60, 0)
-scale = Vector3(2.417, 2.417, 2.417)
-
 [node name="Scatter30" parent="Props" instance=ExtResource("r21")]
 position = Vector3(-4.870, 0.000, -4.996)
 rotation_degrees = Vector3(0, 247.37, 0)
@@ -757,11 +611,6 @@ scale = Vector3(2.366, 2.366, 2.366)
 position = Vector3(13.341, 2.000, -5.310)
 rotation_degrees = Vector3(0, 209.06, 0)
 scale = Vector3(2.787, 2.787, 2.787)
-
-[node name="Scatter34" parent="Props" instance=ExtResource("r20")]
-position = Vector3(5.562, 1.000, -0.819)
-rotation_degrees = Vector3(0, 151.79, 0)
-scale = Vector3(2.734, 2.734, 2.734)
 
 [node name="Path" type="Node3D" parent="."]
 script = ExtResource("r1")
@@ -1378,6 +1227,7 @@ shape = SubResource("TrunkShape")
 [node name="Annette" type="Node3D" parent="."]
 position = Vector3(-2.2, 0, 12.6)
 rotation_degrees = Vector3(0, 8, 0)
+script = ExtResource("r26")
 
 [node name="Model" parent="Annette" instance=ExtResource("r25")]
 scale = Vector3(1.8, 1.8, 1.8)

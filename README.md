@@ -71,11 +71,25 @@ Walk into Annette and she repeats just the sound, without her sentence. She stay
 quiet if she is already speaking, so bumping her on the way in cannot cut the
 question in half. She is not solid — Chuck cannot get wedged against her.
 
+**She shows where to look, twice over.** Whenever she asks, she turns to face the
+letter she is asking for. Get one wrong and she walks four or five steps toward it
+as well, so the clue gets stronger the longer the hunt goes on. Neither clue points
+at the block outright, and she always stops well short of it — she must never end up
+standing on the answer. She walks back to her post after every letter found, so she
+cannot drift across the village.
+
 Pick up the letter she asked for and Chuck raises it over his head, it flashes gold and
 white, then vanishes in a puff of smoke. Annette says *"Good job"* and waits six seconds
 before asking for the next one. Pick up the wrong letter and you hear that letter's own
 sound, a soft two-note chime, and the same question again — the block stays in your
 hands to put down wherever you like. Nothing is lost and nothing buzzes.
+
+Putting a village block back down is **silent**, unlike CVC Land where every drop
+sounds its letter. A sound stops whatever is already playing, and what was playing
+was Annette repeating the question the child still needs to hear.
+
+A small number in the very top-left corner counts the letters found so far. It
+fades in only inside the village, and starts over when the board refreshes.
 
 When all the letters have been found the board refreshes: a fresh set of blocks is
 scattered to **different** places and the alphabet starts over. Walking out of the
@@ -145,6 +159,7 @@ pedestal/                     Reusable Pedestal scene, occupant reference and Sn
 lever/                        Reusable animated lever, with ordered pedestal references
 village/phoneme_village.tscn  Phoneme Village: terrain, props, spawn markers, trigger
 village/phoneme_village.gd    The fetch round: prompts, judging, celebration, refresh
+village/annette.gd            Annette: faces the letter, walks a few steps toward it
 environment/kenney_props.gd  Softens the Nature Kit's metallic imported materials
 assets/audio/voice/           Annette's two spoken lines and the wrong-answer chime
 environment/tree.tscn        Kenney tree model with a simple trunk collider
@@ -152,6 +167,7 @@ environment/fixed_camera.gd  Follows Chuck, with fixed rotation and aspect-aware
 environment/river.tscn       Kenney river tiles, bridge, ramps and water barriers
 environment/river_tile.tscn  Nature Kit tile with materials matching the clearing
 ui/touch_controls.tscn + .gd  Invisible drag/tap pointer layer feeding the Input Map
+ui/found_counter.tscn + .gd   Top-left count of letters found, village only
 tools/village_spawn_probe.gd  One-off aid: prints unobscured village spawn positions
 assets/kenney/                Selected original GLBs, their textures and CC0 licenses
 assets/fonts/                 Fredoka variable font and SIL Open Font License
@@ -190,7 +206,17 @@ into `assets/kenney/`, including each GLB's external `Textures/colormap.png`.
 - `AlphabetBlock.home` is the container a dropped block returns to. It keeps the
   village's blocks out of CVC Land's `Blocks` node so a board refresh can free them.
 - `AlphabetBlock.picked_up` is how the village judges an answer. Nothing in CVC Land
-  connects to it.
+  connects to it. `AlphabetBlock.silent_drops` is the village's other hook: its
+  blocks land without playing their letter, because that sound would cut off
+  Annette's repeated question. Only `put_on_ground` is gated — a village block
+  placed on a CVC pedestal still sounds.
+- `PhonemeVillage.answered` fires AFTER the letter is appended to `found`, so a
+  listener reading that array is not one letter behind. The counter depends on it.
+- Annette's script works entirely in GLOBAL yaw. The village hangs off a
+  45-degree-rotated `Environment` node, so mixing local and global rotation points
+  her 45 degrees wide of the letter she means. She has no collider and no physics
+  body: her walk raycasts down for footing and forward for cottages and trunks,
+  both on layer 1.
 - Phoneme Village's walkable geometry is native Godot boxes with hand-authored
   collision, like the ground and bridge. Imported GLBs carry no colliders, so every
   Kenney model in the village is decoration; the ramps and plateaus underneath are not.
@@ -235,9 +261,15 @@ Trees/plants and characters are the supplied **Kenney Mini Forest / Mini Charact
 GLBs; walking and idle animations come from the character model. Annette is
 `character-female-a` from the same pack. Phoneme Village's cottages are Mini Forest
 `building-platform` + `building-structure` + `building-roof` stacked, and its props
-(campfire, crops, fences, tents, boulders, flowers, path stones, obelisk) come from the
+(campfire, tents, boulders, flowers, mushrooms, path stones, obelisk) come from the
 supplied **Kenney Nature Kit**. Nothing was downloaded; all four supplied packs were
 already in the repository.
+
+The village green was thinned on 2026-09-26 at Milo's request: the pumpkin patch
+(pumpkins, dirt rows and its fence) is gone entirely, the campfire keeps 2 of its 3
+fallen logs, and the leafy bushes are down from 7 to 2. All 20 flowers and all 7
+mushroom clusters stay. `crop_pumpkin.glb`, `crops_dirtRow.glb` and
+`fence_simple.glb` are still in `assets/kenney/nature/` but no scene uses them.
 
 The Nature Kit's GLBs carry their colour in `baseColorFactor` but ship with
 `metallicFactor: 1`, which reads dark and shiny under this project's flat lighting.

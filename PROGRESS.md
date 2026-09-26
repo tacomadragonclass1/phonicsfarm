@@ -1,3 +1,107 @@
+# Session handoff — 2026-09-26
+
+## Annette's two clues, a silent village drop, a de-cluttered green, a counter
+
+Five requested changes, all implemented, all five suites green, and the village
+checked in a rendered capture (`/tmp/phonics-village-close.png`).
+
+**Annette now shows where to look.** `village/annette.gd` (new, class
+`VillageGuide`, attached to the `Annette` node) gives her two clues, both
+deliberately weak:
+
+1. She **turns to face** the letter she is asking for, every time she asks.
+   `speak_prompt()` calls `annette.face(block.global_position)`.
+2. On a **wrong answer** she **walks four or five steps toward** it —
+   `annette.hint_toward(...)` from the wrong branch of `_on_block_picked_up`.
+   The count is `randi_range(4, 5)` per hint so it does not look mechanical;
+   a step is `step_length` 0.55 units, about one stride of the 1.6-unit model.
+
+She is not a physics body, so the walk is hand-rolled: she steps along the
+ground, raycasts DOWN for her footing (the village has three levels, so Y is
+not 0), stops if a feeler ray hits a cottage or trunk on layer 1, and stops at
+`standoff` 2.2 units from the letter — **she must never end up standing on the
+answer**. `max_drift` 7.0 caps how far she can get from her post, and she walks
+back home after every correct answer, when Chuck leaves, and instantly
+(`snap_home()`) on a board refresh, so a long run of wrong answers cannot walk
+her across the village. She also now plays `idle`/`walk` from the GLB; before
+this she had no script and stood in the model's rest pose.
+
+Every yaw in that script is a GLOBAL yaw. The village hangs off a
+45-degree-rotated `Environment` node, so mixing local and global rotation
+points her 45 degrees wide of the letter.
+
+**A village block put down is now silent.** `AlphabetBlock.silent_drops`, set
+on every block the village spawns. The bug it fixes: the block re-played its
+own phoneme as it landed, and `play_sequence` stops whatever is playing — which
+was Annette halfway through repeating her question. CVC Land leaves the flag
+false, so every drop there still sounds the letter, and a village block placed
+on a CVC pedestal still sounds too (only `put_on_ground` is gated). Both halves
+are covered in `tests/village.gd`.
+
+**`answered` now fires AFTER `found.append()`**, so a listener reading
+`village.found` is not one letter behind. Nothing else depended on the order.
+
+**Props removed from Phoneme Village** (scene edits only, no code):
+
+| Removed | Was | Now |
+| --- | --- | --- |
+| The whole pumpkin patch | 12 pumpkins, 4 dirt rows, 10 fence sections | bare grass |
+| Fallen logs (`log.glb`) | 3 around the campfire | 2, the symmetric pair |
+| Leafy bushes (`plant_bushDetailed`) | 7 | 2 |
+
+Milo chose each of those scopes. The pumpkin model "fails to translate on the
+board"; 3 logs and 34 scatter props read as clutter. **Flowers were explicitly
+kept** (all 20), and so were the 7 mushroom clusters — he ruled they are not
+plants. `crops_dirtRow.glb`, `crop_pumpkin.glb` and `fence_simple.glb` are no
+longer referenced by any scene; the files stay in `assets/kenney/nature/`.
+
+**A found-letters counter.** `ui/found_counter.tscn` + `.gd`, a CanvasLayer
+instanced in `scenes/main.tscn` after `TouchControls`. One number, top-left,
+Fredoka to match the blocks, cream with a thin dark outline, 72% alpha, no box
+and no animation on change. It **fades in only inside Phoneme Village** (the
+new `presence_changed` signal) — CVC Land has no round to count and a stray "0"
+over the lever game would be noise. It resets to 0 on a board refresh. The
+digit is sized to about a sixteenth of the viewport height and both the size
+and the margin are exported.
+
+`presence_changed` is emitted BEFORE `_on_body_entered`'s early return, on
+purpose: a capture script that starts a round by hand must still get the
+counter on screen.
+
+## Checks actually run
+
+All five suites, repeatedly. `tests/village.gd` gained checks for: she faces
+the letter she asks for; asking alone does not move her; a wrong answer walks
+her at most five steps and TOWARD the letter; she never ends inside her own
+standoff of it; a village block put down neither re-plays its letter nor
+empties Annette's queue; a CVC Land block still sounds when put down; and the
+counter's value, its fade in/out and its reset. The static no-hidden-letter
+sweep now calls `annette.snap_home()` first — it measures the scene's own
+props, and a hint walk could otherwise park her over a spawn point.
+
+Rendered captures: `--village-close` (counter and both characters) and
+`--village` (the patch is gone). Not checked on a touch device or a phone.
+
+## Known, NOT introduced here
+
+`tests/village.gd` is **flaky at roughly one run in ten, and was before this
+work**. Spawn markers are shuffled with an unseeded RNG, so some runs put
+blocks where a later check needs clear ground. Observed at HEAD (`2209349`)
+without any of these changes: "the refreshed board puts the letters somewhere
+new (17 of 23 moved)". Also seen: "a block dropped on the terrace rests on the
+terrace". This matters because `.github/workflows/deploy.yml` runs the suites
+before publishing, so a flake can block a deploy that has nothing wrong with
+it. Fixing it means seeding the RNG in the test; not done, not requested.
+
+Annette can, in principle, stand between the camera and a letter for the few
+seconds of a hint walk. The standoff makes it unlikely and she walks back, but
+the no-hidden-letter guarantee covers the scene's props, not her.
+
+## Git
+
+Not committed, not pushed. Working tree carries these changes plus the new
+files `village/annette.gd`, `ui/found_counter.gd` and `ui/found_counter.tscn`.
+
 # Session handoff — 2026-09-25 (b)
 
 ## Deployed, then confirmed on real hardware

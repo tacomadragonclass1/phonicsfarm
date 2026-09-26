@@ -47,6 +47,25 @@ func fetch(block: AlphabetBlock) -> void:
 	await frames(2)
 
 
+## Is Annette looking at this point? Her model faces its own local +Z.
+func faces(guide: VillageGuide, point: Vector3) -> bool:
+	var to_point := point - guide.global_position
+	to_point.y = 0.0
+	var facing := guide.global_basis.z
+	facing.y = 0.0
+	if to_point.length_squared() < 0.0001:
+		return false
+	return to_point.normalized().dot(facing.normalized()) > 0.9
+
+
+## Wait for a hint walk to end, rather than guessing how long it takes.
+func settle(guide: VillageGuide) -> void:
+	for i in 300:
+		await frames(1)
+		if not guide.walking:
+			return
+
+
 func find_block(letter: String) -> AlphabetBlock:
 	for block in village.blocks:
 		if block.letter == letter:
@@ -122,9 +141,19 @@ func run() -> void:
 	check(audio.pending_letters.has(target) or heard.has(target),
 		"prompt then plays the target letter's own phoneme")
 
+	# --- the quiet clue: she looks at the letter she asked for -------------
+	var annette: VillageGuide = village.annette
+	var target_block := find_block(target)
+	await frames(40)
+	check(faces(annette, target_block.global_position),
+		"Annette turns to face the letter she just asked for")
+	check(not annette.walking, "asking alone does not make her walk anywhere")
+
 	# --- the wrong letter is corrected, not punished ----------------------
 	var wrong_letter := "a" if target != "a" else "b"
 	var wrong_block := find_block(wrong_letter)
+	var annette_start := annette.global_position
+	var reach_before := annette_start.distance_to(target_block.global_position)
 	heard.clear()
 	await fetch(wrong_block)
 	await frames(4)
@@ -138,10 +167,34 @@ func run() -> void:
 	check(village.target == target, "the question does not change after a wrong letter")
 	check(village.state == PhonemeVillage.State.LISTENING, "Chuck can keep trying")
 
-	# put the wrong block back down
+	# --- the louder clue: four or five steps toward that letter ------------
+	await settle(annette)
+	var travelled := annette_start.distance_to(annette.global_position)
+	var step_cap: float = annette.hint_steps_max * annette.step_length
+	check(travelled <= step_cap + 0.15,
+		"the hint is five steps at most, not a walk to the block (%.2f of %.2f)"
+			% [travelled, step_cap])
+	# She stops well short of the letter, so if she started inside that
+	# standoff there is nowhere for her to go and nothing to measure.
+	if reach_before > annette.standoff + 0.8:
+		check(travelled > 0.3, "a wrong letter makes Annette walk (%.2f)" % travelled)
+		check(annette.global_position.distance_to(target_block.global_position)
+			< reach_before - 0.25, "and she walks TOWARD the letter she asked for")
+	check(annette.global_position.distance_to(target_block.global_position)
+		>= annette.standoff - 0.3, "she never ends up standing on the answer")
+
+	# --- putting the wrong letter down must not cut her off ----------------
+	# Regression: the block re-played its own phoneme as it landed, and that
+	# stop-and-play chopped off the question she had only just started
+	# repeating. Village blocks now land silently; CVC Land's still sound.
+	heard.clear()
 	player.interact()
 	await frames(4)
 	check(player.carried_block == null, "the wrong letter can be put down again")
+	check(not heard.has(wrong_letter),
+		"a village block put down does not re-play its own letter")
+	check(not audio.pending_letters.is_empty(),
+		"so Annette's repeated question is still queued, not cut off")
 
 	# --- the right letter is celebrated and vanishes ----------------------
 	var right_block := find_block(target)
@@ -217,6 +270,11 @@ func run() -> void:
 	# to the camera clears every mesh in the village, that letter is visible no
 	# matter where Chuck is standing. Roof overhangs, boulders and tree canopies
 	# carry no collider, so this walks the visuals instead of casting a ray.
+	# This measures the STATIC layout, so put Annette back on her mark first:
+	# a hint walk could otherwise park her over a spawn point and fail a check
+	# about the scene's own props.
+	annette.snap_home()
+	await frames(2)
 	var camera: Camera3D = scene.get_node("Camera3D")
 	var to_camera: Vector3 = camera.global_basis.z.normalized()
 	var boxes: Array[AABB] = []
@@ -273,6 +331,26 @@ func run() -> void:
 		check(not player.carried_block and village.to_local(carried.global_position).y > 0.8,
 			"a block dropped on the terrace rests on the terrace, not the ground below")
 
+	# --- the found-letters counter ----------------------------------------
+	var count_label: Label = scene.get_node("FoundCounter/Count")
+	check(count_label.text == str(village.found.size()),
+		"the counter shows the letters found so far (%s of %d)"
+			% [count_label.text, village.found.size()])
+	check(count_label.modulate.a > 0.4, "the counter is on screen inside the village")
+
+	# --- CVC Land is untouched by the village's silent drops ---------------
+	var cvc_block: AlphabetBlock = scene.get_node("Blocks/Block_a")
+	await teleport(cvc_block.global_position + Vector3(0.9, 0.02, 0.0))
+	await frames(4)
+	check(player.carried_block == cvc_block, "Chuck picks up CVC Land's own 'a'")
+	heard.clear()
+	player.interact()
+	await frames(4)
+	check(heard.has("a"), "a CVC Land block still plays its letter when put down")
+	# The fade out is a third of a second.
+	await frames(40)
+	check(count_label.modulate.a < 0.05, "and the counter is gone outside the village")
+
 	# --- a finished alphabet refreshes the board --------------------------
 	await teleport(village.to_global(Vector3(0, 0.02, 12)))
 	await frames(6)
@@ -289,6 +367,7 @@ func run() -> void:
 	check(moved >= 18, "the refreshed board puts the letters somewhere new (%d of 23 moved)" % moved)
 	check(scene.get_node("Blocks").get_child_count() == cvc_before,
 		"CVC Land still has its own 26 blocks after a refresh")
+	check(count_label.text == "0", "and the counter starts over at zero")
 
 	print("VILLAGE RESULT: ", failures, " failures")
 	quit(1 if failures else 0)
