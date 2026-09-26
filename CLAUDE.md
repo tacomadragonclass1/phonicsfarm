@@ -34,5 +34,9 @@ re-render them. Only `wrong_chime.wav` is still synthesized and unheard.
 is the source of truth now and the user edits scenes in the editor; do not
 regenerate it with `--force`.
 
+The live build has been played on real hardware (Xbox controller, sound, and the
+touch controls all confirmed 2026-09-25). Older PROGRESS sections saying a
+gamepad or multitouch device is untested are superseded.
+
 Preserve the uncommitted changes and untracked runtime assets. Await the user's
 next task; do not commit, push, regenerate voices or expand gameplay on resume.

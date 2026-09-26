@@ -289,10 +289,11 @@ and `/tmp/phonics-feedback-word.png` after the completed word sparkles.
 with a round scattered -- the last one frames the cottage rows from the green;
 `-- --world` is a diagnostic view of both clearings and the corridor at once.
 
-Native desktop rendering was inspected. A physical gamepad, physical multitouch
-device, and browser export have **not** been tested. Input simulation is not a
-substitute for those device checks. The closer follow camera shows part of the
-board; moving Chuck reveals the rest. Landscape is preferred for the prototype.
+Native desktop rendering was inspected, and the live build has since been played on
+real hardware (see **Confirmed on real hardware** below). Input simulation is not a
+substitute for a device check, so keep confirming anything new on the actual screen.
+The closer follow camera shows part of the board; moving Chuck reveals the rest.
+Landscape is preferred for the prototype.
 
 ## Web / GitHub Pages
 
@@ -343,16 +344,28 @@ The exported build was loaded in Chrome from a local server: no console errors, 
 audio context reaches `running` at 48 kHz once a click or tap provides the user gesture
 every browser requires before sound. On a touchscreen the first tap does that.
 
-Browsers cache the 38 MB `index.wasm` after the first load. A physical gamepad and a
-real multitouch device are still untested.
+Browsers cache the 38 MB `index.wasm` after the first load.
+
+### Confirmed on real hardware
+
+Milo played the **live GitHub Pages build** on 2026-09-25 and confirmed:
+
+- the resident **Xbox controller** works;
+- **sound works** on the real device;
+- the **touch-screen controls work exactly as intended** -- drag anywhere to walk,
+  a second finger taps to put the block down, walking into a block picks it up.
+
+That closes the two longest-standing unknowns on this project: until then a physical
+gamepad and a real multitouch device had only ever been *simulated* by `tests/smoke.gd`.
+What is still untested is whether a **child** discovers the invisible drag control
+without being told -- nothing on screen says "drag to walk".
 
 ## Next small handoff tasks (not implemented)
 
 1. **Listen to Annette.** `assets/audio/voice/` is `pending_user_review`; `bf_emma` was
    assumed because the phoneme review used it, and no voice was ever finally chosen.
-2. Check this build with a real gamepad and multitouch tablet; record device-specific issues.
-3. Export the existing Web preset and test it on a local static server and GitHub Pages.
-4. Adjust only tree/block positions after a kindergarten readability playtest.
-5. Watch a child use the invisible controls. Nothing on screen says "drag to walk";
+2. Adjust only tree/block positions after a kindergarten readability playtest.
+3. Watch a child use the invisible controls. Nothing on screen says "drag to walk";
    if that turns out to need teaching, a one-off fading hint is the smallest fix.
-6. Refine pedestal visuals while preserving the scene origin, collider and SnapPoint.
+   The controls themselves are confirmed working on the classroom screen.
+4. Refine pedestal visuals while preserving the scene origin, collider and SnapPoint.

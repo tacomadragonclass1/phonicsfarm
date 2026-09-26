@@ -1,3 +1,25 @@
+# Session handoff — 2026-09-25 (b)
+
+## Deployed, then confirmed on real hardware
+
+Pushed `303a423` to `main`; the workflow ran all five suites, exported and
+published. Verified the live URL itself serves the new build rather than
+trusting the green tick.
+
+Milo then played the live build and reported: the **resident Xbox controller
+works**, **sound works**, and the **touch-screen controls work exactly as
+intended**. That closes the two oldest open items in this file -- a physical
+gamepad and a real multitouch device had only ever been simulated by
+`tests/smoke.gd`, and every earlier handoff's "remain untested" line about them
+is now superseded. Those older sections are left as written; they were true
+when written.
+
+Still untested: whether a **child** discovers the invisible drag control
+without being told. Nothing on screen says "drag to walk".
+
+Changes here are documentation only -- README's verification section and next
+tasks. No game, audio, export or workflow changes.
+
 # Session handoff — 2026-09-25
 
 ## Sunset light, an isometric camera, two alphabet rows, a laid-out village, and
