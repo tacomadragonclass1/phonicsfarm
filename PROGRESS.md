@@ -85,13 +85,35 @@ Rendered captures: `--village-close` (counter and both characters) and
 ## Known, NOT introduced here
 
 `tests/village.gd` is **flaky at roughly one run in ten, and was before this
-work**. Spawn markers are shuffled with an unseeded RNG, so some runs put
-blocks where a later check needs clear ground. Observed at HEAD (`2209349`)
-without any of these changes: "the refreshed board puts the letters somewhere
-new (17 of 23 moved)". Also seen: "a block dropped on the terrace rests on the
-terrace". This matters because `.github/workflows/deploy.yml` runs the suites
-before publishing, so a flake can block a deploy that has nothing wrong with
-it. Fixing it means seeding the RNG in the test; not done, not requested.
+work**. Diagnosed 2026-09-26; the cause is NOT what an earlier draft of this
+note said.
+
+The root cause is `Player.drop_block()` meeting a randomised board.
+It tries 8 fixed spots in a ring 1.12 units around Chuck and, by design,
+keeps the block if all 8 are obstructed ("If every nearby position is
+obstructed, it stays in your hands"). The test puts Chuck 0.9 units from a
+block that spawned at one of 36 shuffled markers -- and markers sit as close
+as 1.51 apart -- then asserts the drop succeeds. Some layouts ring him with
+blocks, the game correctly refuses, and the check fails. The game is right and
+the test's assumption is wrong.
+
+One failed drop reads as SEVEN failures, because Chuck can carry only one
+block: he can never pick up the right letter, so the celebration, the poof,
+the board count, the reported answer and the next prompt all fail behind it.
+The signature is a `the wrong letter can be put down again` failure with six
+others trailing it.
+
+MEASURED, so it is not re-guessed: 400 board refreshes counting letters that
+land within 0.5 of their old spot never once dropped below 19 of 23, so the
+`moved >= 18` check is NOT the flake it was first blamed on. A single
+standalone `(17 of 23 moved)` failure was seen at HEAD (`2209349`) and remains
+unexplained; it carried no cascade, so it is a second and rarer thing.
+
+This matters because `.github/workflows/deploy.yml` runs the suites before
+publishing, so a flake can block a deploy that has nothing wrong with it.
+The fix is NOT to seed the RNG -- that freezes one lucky layout and hides the
+case. Teleport Chuck onto known-open ground before the drop, so the check
+tests what it means to test. Not done, not requested.
 
 Annette can, in principle, stand between the camera and a letter for the few
 seconds of a hint walk. The standoff makes it unlikely and she walks back, but
