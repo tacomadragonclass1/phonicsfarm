@@ -57,6 +57,16 @@ func capture() -> void:
 		village.start_round()
 		scene.get_node("Player").position = village.to_global(Vector3(0, 0.02, 12))
 		output = "/tmp/phonics-village-close.png"
+	if "--village-postcard" in OS.get_cmdline_user_args():
+		# Wider review view of the complete street; normal gameplay keeps its zoom.
+		var village := scene.get_node("Environment/PhonemeVillage") as PhonemeVillage
+		village.start_round()
+		scene.get_node("Player").position = village.to_global(Vector3(-4, 0.02, -5))
+		var camera := scene.get_node("Camera3D") as Camera3D
+		camera.set_process(false)
+		camera.position = village.to_global(Vector3(-4, 0, -8)) + camera.follow_offset
+		camera.size = 17
+		output = "/tmp/phonics-village-postcard.png"
 	if "--world" in OS.get_cmdline_user_args():
 		var camera := scene.get_node("Camera3D") as Camera3D
 		camera.set_process(false)

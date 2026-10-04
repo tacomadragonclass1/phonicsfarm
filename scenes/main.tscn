@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://c6wyv5o5jr43p"]
+[gd_scene load_steps=27 format=3 uid="uid://c6wyv5o5jr43p"]
 
 [ext_resource type="PackedScene" path="res://alphabet_block/alphabet_block.tscn" id="Block"]
 [ext_resource type="Script" uid="uid://c3vtvkm1ia8nh" path="res://environment/fixed_camera.gd" id="Camera"]
@@ -14,9 +14,13 @@
 [ext_resource type="PackedScene" path="res://ui/found_counter.tscn" id="Counter"]
 [ext_resource type="PackedScene" path="res://village/phoneme_village.tscn" id="Village"]
 
+[ext_resource type="Shader" path="res://environment/meadow.gdshader" id="Meadow"]
+[ext_resource type="Script" path="res://environment/path_materials.gd" id="PathMaterials"]
+[ext_resource type="Script" path="res://environment/forest_materials.gd" id="ForestMaterials"]
+
 [sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
-sky_top_color = Color(0.2, 0.28, 0.54, 1)
-sky_horizon_color = Color(0.97, 0.62, 0.36, 1)
+sky_top_color = Color(0.48, 0.69, 0.77, 1)
+sky_horizon_color = Color(0.83, 0.86, 0.75, 1)
 sky_curve = 0.12
 ground_bottom_color = Color(0.32, 0.25, 0.3, 1)
 ground_horizon_color = Color(0.86, 0.55, 0.36, 1)
@@ -31,18 +35,18 @@ sky_material = SubResource("SkyMaterial")
 background_mode = 2
 sky = SubResource("Sky")
 ambient_light_source = 2
-ambient_light_color = Color(0.5, 0.56, 0.9, 1)
-ambient_light_energy = 0.72
+ambient_light_color = Color(0.83, 0.88, 0.94, 1)
+ambient_light_energy = 0.35
 reflected_light_source = 0
 fog_enabled = true
-fog_light_color = Color(1, 0.68, 0.45, 1)
+fog_light_color = Color(0.78, 0.85, 0.76, 1)
 fog_light_energy = 1.0
-fog_density = 0.0018
+fog_density = 0.0007
 fog_aerial_perspective = 0.15
 fog_sky_affect = 0.2
 
-[sub_resource type="StandardMaterial3D" id="GrassMat"]
-albedo_color = Color(0.46, 0.65, 0.38, 1)
+[sub_resource type="ShaderMaterial" id="GrassMat"]
+shader = ExtResource("Meadow")
 
 [sub_resource type="BoxMesh" id="GroundMesh"]
 material = SubResource("GrassMat")
@@ -71,19 +75,21 @@ size = Vector3(40.5, 4, 0.5)
 environment = SubResource("Environment")
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.93973503, 0.16047874, -0.30190171, -0, 0.88300245, 0.46936839, 0.3419036, -0.44108191, 0.82978833, 0, 0, 0)
-light_color = Color(1, 0.58, 0.3, 1)
-light_energy = 1.55
-light_angular_distance = 1.0
+rotation_degrees = Vector3(-52, -25, 0)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 0.75
+light_angular_distance = 4.0
 shadow_enabled = true
+shadow_opacity = 0.65
+shadow_blur = 2.0
 shadow_bias = 0.09
 shadow_normal_bias = 2.0
 directional_shadow_max_distance = 24.0
 
 [node name="Skylight" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.93973503, -0.21046002, 0.2694525, 0, 0.78809495, 0.61555369, -0.3419036, 0.57845737, -0.74060043, 0, 0, 0)
-light_color = Color(0.56, 0.66, 1, 1)
-light_energy = 0.45
+light_color = Color(0.76, 0.85, 1, 1)
+light_energy = 0.12
 shadow_enabled = false
 
 [node name="Camera3D" type="Camera3D" parent="."]
@@ -204,6 +210,7 @@ transform = Transform3D(-0.5995411, 0, -0.82519716, 0, 1.02, 0, 0.82519716, 0, -
 transform = Transform3D(0.32453236, 0, -1.0614984, 0, 1.11, 0, 1.0614984, 0, 0.32453236, 18.353, 0, 16.471)
 
 [node name="Plants" type="Node3D" parent="Environment"]
+script = ExtResource("ForestMaterials")
 
 [node name="Plant0" parent="Environment/Plants" instance=ExtResource("Plant")]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -15.765, 0, -10.588)
@@ -233,7 +240,7 @@ transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -9.412, 0, 15.765)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -48)
 
 [node name="Corridor" type="Node3D" parent="Environment"]
-script = ExtResource("Props")
+script = ExtResource("PathMaterials")
 
 [node name="Stone01" parent="Environment/Corridor" instance=ExtResource("PathStone")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0.01, -17)

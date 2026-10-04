@@ -2,8 +2,8 @@
 
 Godot **4.5.2**, GDScript, Compatibility renderer. Two clearings joined by a corridor,
 one walking character, and 26 lowercase letter blocks in CVC Land and 23 in the village.
-The world is lit for late golden hour: a low warm sun, long shadows and a cool blue
-skylight filling the shade so a letter standing in shadow is still easy to read.
+The world has a painted wooden-toy palette: warm daylight, short translucent
+shadows, muted meadow greens and sandy paths. Letter faces stay readable in shade.
 
 **CVC Land** (south) has the river, the bridge, two alphabet rows of 13, three pedestals
 and a playback lever that checks short English words after sounding out the occupied
@@ -95,10 +95,12 @@ When all the letters have been found the board refreshes: a fresh set of blocks 
 scattered to **different** places and the alphabet starts over. Walking out of the
 village pauses the round; walking back in asks the same letter again.
 
-The village is laid out, not scattered. Six identical cottages stand in an L around the
-green -- three along the north rim facing south, three down the west side facing east,
-all evenly spaced -- and a stone lane runs in front of both rows to meet the main path
-from the south gate. The camp (tent and its fire) sits square on the east side. **No
+Six distinct wooden buildings form an L around the green: a windmill, bakery and
+clock house along the north rim, and a bookshop, flower shop and workshop down the
+west side, angled toward the green and camera. Chamfered timber, painted roofs,
+shutters, striped awnings and oversized carved symbols give them their identities.
+Bunting joins the north row; warm stepping stones sit within sandy lanes that
+connect the village square to the south gate. The camp stays on the east side. **No
 letter is ever hidden behind a structure**: the camera is orthographic and never turns,
 so "behind" is one fixed direction for the whole board, and `tests/village.gd` checks
 every spawn point against the visuals of every building, boulder, prop and tree.
@@ -161,6 +163,12 @@ village/phoneme_village.tscn  Phoneme Village: terrain, props, spawn markers, tr
 village/phoneme_village.gd    The fetch round: prompts, judging, celebration, refresh
 village/annette.gd            Annette: faces the letter, walks a few steps toward it
 environment/kenney_props.gd  Softens the Nature Kit's metallic imported materials
+environment/meadow.gdshader World-space meadow variation and connected sandy paths
+environment/path_materials.gd Warm matte stepping stones, including Web export
+environment/forest_materials.gd Muted tint over the original forest texture atlas
+village/buildings/            Six editable wooden-toy buildings and street bunting
+assets/toy_village/           Original shared chamfered cube mesh
+tools/build_toy_village.py    Authoring tool for those static building scenes
 assets/audio/voice/           Annette's two spoken lines and the wrong-answer chime
 environment/tree.tscn        Kenney tree model with a simple trunk collider
 environment/fixed_camera.gd  Follows Chuck, with fixed rotation and aspect-aware zoom
@@ -234,8 +242,8 @@ into `assets/kenney/`, including each GLB's external `Textures/colormap.png`.
   backed off by `distance`; it never turns with the character. All of those, plus
   `zoom` and `minimum_width`, are exported on `environment/fixed_camera.gd`, which
   derives BOTH the camera's position and its rotation — moving the camera node in
-  the editor viewport will be overwritten. Current values: 18 degrees down, 30
-  around, orthographic size max(13, 18/aspect).
+  the editor viewport will be overwritten. Current values: 30 degrees down, 30
+  around, orthographic size max(9, 13/aspect).
 - **Yaw 45 is the axis-aligned view**: at 45 the board's local +X is exactly
   screen-right and the river runs flat across the screen, but every box shows one
   face and the scene reads nearly top-down. The current 30 turns the board 15
@@ -259,8 +267,10 @@ into `assets/kenney/`, including each GLB's external `Textures/colormap.png`.
 
 Trees/plants and characters are the supplied **Kenney Mini Forest / Mini Characters**
 GLBs; walking and idle animations come from the character model. Annette is
-`character-female-a` from the same pack. Phoneme Village's cottages are Mini Forest
-`building-platform` + `building-structure` + `building-roof` stacked, and its props
+`character-female-a` from the same pack. Phoneme Village's six buildings are original
+static Godot scenes in `village/buildings/`, built from a shared chamfered cube and
+native primitive meshes. `tools/build_toy_village.py` can regenerate them, overwriting
+those building scenes only; the village layout remains separately editable. Its props
 (campfire, tents, boulders, flowers, mushrooms, path stones, obelisk) come from the
 supplied **Kenney Nature Kit**. Nothing was downloaded; all four supplied packs were
 already in the repository.
@@ -320,6 +330,10 @@ and `/tmp/phonics-feedback-word.png` after the completed word sparkles.
 `-- --village`, `-- --village-close` and `-- --village-houses` capture Phoneme Village
 with a round scattered -- the last one frames the cottage rows from the green;
 `-- --world` is a diagnostic view of both clearings and the corridor at once.
+`-- --village-postcard` gives a wider review view of the six buildings and bunting;
+it does not change gameplay framing. Local before/after captures and a comparison
+page are in `visual-review/` (ignored by Godot and Git). These are direct engine
+screenshots, without retouching.
 
 Native desktop rendering was inspected, and the live build has since been played on
 real hardware (see **Confirmed on real hardware** below). Input simulation is not a

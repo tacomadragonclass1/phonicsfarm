@@ -1,3 +1,61 @@
+# Wooden-toy visual pass — 2026-10-04
+
+Milo approved softer lighting, ground/path improvements, and a much more distinctive
+wooden-toy village. Pedestals explicitly left alone. Implemented locally, not deployed.
+
+- Warm daylight with a 52-degree sun, reduced direct/ambient energy, lighter short
+  shadows and less fog. Gameplay camera framing is unchanged.
+- `environment/meadow.gdshader` adds subtle world-space meadow variation, sandy
+  connected lanes and an oval at the word-building station. The riverbank shares
+  the meadow shader; terrace/lookout keep separate green shades without paths.
+- Runtime material overrides give stepping stones, imported props and forest
+  foliage a coordinated matte palette, including the Web export.
+- Six original static scenes in `village/buildings/`: windmill, bakery, clock house,
+  bookshop, flower shop and workshop. Painted roofs, chamfered timber, shutters,
+  awnings, carved symbols, flower boxes and north-street bunting. North buildings
+  face south; west buildings face southeast (-145 degrees), toward the green and
+  visible from the fixed camera. `Cottage1..6` roots remain for existing tools.
+- `tools/build_toy_village.py` authors those scenes and the shared original
+  `assets/toy_village/beveled_cube.obj`. No downloaded assets or new dependencies.
+  Re-running overwrites those generated assets, never the village layout.
+- Slightly widened cottage colliders and regenerated all 36 explicit spawn markers
+  with `tools/village_spawn_probe.gd`, accounting for the new visual silhouettes.
+
+Validation: clean final editor import and Web export. All five existing suites
+passed; village was rerun after the final building orientation/spawn changes and
+passed, including visibility, ramps, prompts and board refresh. Fresh native
+clearing/street/entrance/postcard captures inspected. Export loaded in headless
+Chromium WebGL: no console/page errors, walking and camera follow visibly worked.
+Real classroom hardware/performance and child readability were not retested.
+The pre-existing village ObjectDB/resource-in-use exit warning remains; the
+previously documented randomized drop-test flake was not changed.
+
+Screenshots are direct engine/browser captures, never retouched. Original review
+PNGs were copied from `/tmp` before modification. Both versions now live under
+`visual-review/before/` and `visual-review/after/`, with `visual-review/index.html`
+as a comparison page. This folder is ignored by Godot and Git. New capture option
+`--village-postcard` uses a wider review camera only. README updated.
+
+Git: preserved the earlier review note below. Milo reviewed the captures, approved
+the result, and requested commit and push to GitHub. This visual pass is prepared
+for `main`; the push triggers the existing test-and-deploy workflow. Local review
+PNGs remain in the ignored `visual-review/` folder. `git diff --check` passes.
+
+# Visual review — 2026-10-04
+
+Milo asked to review status and discuss improving the appearance. No visual or
+gameplay changes chosen or implemented. Fresh native captures reviewed:
+`/tmp/phonics-clearing.png`, `/tmp/phonics-village-houses.png`, and
+`/tmp/phonics-village-close.png`. Main discussion points: strong yellow/orange
+lighting, heavy long shadows across letters, flat ground, bright stepping stones,
+and simple pedestal geometry. These are observations, not an agreed work plan.
+
+GitHub's latest test-and-deploy run for current HEAD `1502d40` succeeded on
+2026-09-26 (run 36252604255). No test suites rerun for this discussion. All three
+captures rendered; village-close logged an ObjectDB/resource-in-use warning at
+exit. Working tree was clean on arrival; only this review note changed. No commit
+or push. The previously documented intermittent village-test failure remains.
+
 # Session handoff — 2026-09-26
 
 ## Annette's two clues, a silent village drop, a de-cluttered green, a counter
