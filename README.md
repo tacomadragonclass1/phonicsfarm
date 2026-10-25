@@ -18,7 +18,7 @@ Import `project.godot` in Godot 4.5.2 or a compatible newer Godot 4 version and 
 **F6** on `scenes/main.tscn`, or **F5** from anywhere. This machine's official binary:
 
 ```sh
-/home/milo/.local/opt/godot-4.5.2/Godot_v4.5.2-stable_linux.x86_64 --path /home/milo/vibecodeprojects/phonicsfarm
+~/.local/opt/godot-4.5.2/Godot_v4.5.2-stable_linux.x86_64 --path ~/vibecodeprojects/phonicsfarm
 ```
 
 ## Controls
@@ -275,7 +275,7 @@ those building scenes only; the village layout remains separately editable. Its 
 supplied **Kenney Nature Kit**. Nothing was downloaded; all four supplied packs were
 already in the repository.
 
-The village green was thinned on 2026-09-26 at Milo's request: the pumpkin patch
+The village green was thinned on 2026-09-26 at the owner's request: the pumpkin patch
 (pumpkins, dirt rows and its fence) is gone entirely, the campfire keeps 2 of its 3
 fallen logs, and the leafy bushes are down from 7 to 2. All 20 flowers and all 7
 mushroom clusters stay. `crop_pumpkin.glb`, `crops_dirtRow.glb` and
@@ -307,7 +307,7 @@ The font and asset licenses are included alongside the runtime assets. Kenney so
 
 ```sh
 # Set GODOT to your Godot 4 executable, or use the full path above.
-GODOT=/home/milo/.local/opt/godot-4.5.2/Godot_v4.5.2-stable_linux.x86_64
+GODOT=~/.local/opt/godot-4.5.2/Godot_v4.5.2-stable_linux.x86_64
 "$GODOT" --headless --path . --editor --import
 "$GODOT" --headless --path . --script res://tests/smoke.gd
 "$GODOT" --headless --path . --script res://tests/layout.gd
@@ -377,7 +377,7 @@ Only needed to test a build locally; `F5` in the editor is the normal way to pla
 Install the 4.5.2 export templates through Godot's export-template manager, then:
 
 ```sh
-GODOT=/home/milo/.local/opt/godot-4.5.2/Godot_v4.5.2-stable_linux.x86_64
+GODOT=~/.local/opt/godot-4.5.2/Godot_v4.5.2-stable_linux.x86_64
 "$GODOT" --headless --path . --export-release "Web" build/web/index.html
 python3 -m http.server 8899 --directory build/web   # then open localhost:8899
 ```
@@ -394,7 +394,7 @@ Browsers cache the 38 MB `index.wasm` after the first load.
 
 ### Confirmed on real hardware
 
-Milo played the **live GitHub Pages build** on 2026-09-25 and confirmed:
+The owner played the **live GitHub Pages build** on 2026-09-25 and confirmed:
 
 - the resident **Xbox controller** works;
 - **sound works** on the real device;

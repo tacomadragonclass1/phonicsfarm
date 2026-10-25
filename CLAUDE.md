@@ -27,7 +27,7 @@ letter is hidden behind a structure. Like `build_phoneme_village.py` it is an
 aid, NOT a build step; the scene is the source of truth. `tests/village.gd`
 enforces the no-hidden-letter rule on every run.
 
-Annette's two sentences are now **Milo's own recordings**, not TTS -- do not
+Annette's two sentences are now **the owner's own recordings**, not TTS -- do not
 re-render them. Only `wrong_chime.wav` is still synthesized and unheard.
 
 `tools/build_phoneme_village.py` was a one-time scaffold. `village/phoneme_village.tscn`

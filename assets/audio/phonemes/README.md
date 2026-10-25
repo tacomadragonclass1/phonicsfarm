@@ -61,7 +61,7 @@ All 46 chart MP3s matched the publisher's files byte for byte, including
 This identifies the published source; it does not establish the speaker's
 identity or the allocation of recording rights between author and company.
 
-**Non-profit educational permission received.** On 2026-09-23 Milo supplied
+**Non-profit educational permission received.** On 2026-09-23 the owner supplied
 Pronunciation Studio's grant, signed by Scott Bessett, for the “Learn the 44
 Sounds of British English” IPA Chart, associated recordings and related
 educational content. The full user-provided text is preserved in
@@ -105,7 +105,7 @@ The desktop source files and their historical review metadata are untouched.
 
 ## User replacements
 
-Two letters are Milo's own audio, not the IPA recording, and `tools/
+Two letters are the owner's own audio, not the IPA recording, and `tools/
 install_ipa_block_audio.py` must preserve both on any rerun — they are listed
 in its `OVERRIDES` table. Sources live in `~/Desktop/PhonicsFarm Sound Review/`
 and are never modified.

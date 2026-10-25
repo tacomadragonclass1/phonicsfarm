@@ -1,6 +1,6 @@
 # Wooden-toy visual pass — 2026-10-04
 
-Milo approved softer lighting, ground/path improvements, and a much more distinctive
+The owner approved softer lighting, ground/path improvements, and a much more distinctive
 wooden-toy village. Pedestals explicitly left alone. Implemented locally, not deployed.
 
 - Warm daylight with a 52-degree sun, reduced direct/ambient energy, lighter short
@@ -36,14 +36,14 @@ PNGs were copied from `/tmp` before modification. Both versions now live under
 as a comparison page. This folder is ignored by Godot and Git. New capture option
 `--village-postcard` uses a wider review camera only. README updated.
 
-Git: preserved the earlier review note below. Milo reviewed the captures, approved
+Git: preserved the earlier review note below. The owner reviewed the captures, approved
 the result, and requested commit and push to GitHub. This visual pass is prepared
 for `main`; the push triggers the existing test-and-deploy workflow. Local review
 PNGs remain in the ignored `visual-review/` folder. `git diff --check` passes.
 
 # Visual review — 2026-10-04
 
-Milo asked to review status and discuss improving the appearance. No visual or
+The owner asked to review status and discuss improving the appearance. No visual or
 gameplay changes chosen or implemented. Fresh native captures reviewed:
 `/tmp/phonics-clearing.png`, `/tmp/phonics-village-houses.png`, and
 `/tmp/phonics-village-close.png`. Main discussion points: strong yellow/orange
@@ -107,7 +107,7 @@ are covered in `tests/village.gd`.
 | Fallen logs (`log.glb`) | 3 around the campfire | 2, the symmetric pair |
 | Leafy bushes (`plant_bushDetailed`) | 7 | 2 |
 
-Milo chose each of those scopes. The pumpkin model "fails to translate on the
+The owner chose each of those scopes. The pumpkin model "fails to translate on the
 board"; 3 logs and 34 scatter props read as clutter. **Flowers were explicitly
 kept** (all 20), and so were the 7 mushroom clusters — he ruled they are not
 plants. `crops_dirtRow.glb`, `crop_pumpkin.glb` and `fence_simple.glb` are no
@@ -190,7 +190,7 @@ Pushed `303a423` to `main`; the workflow ran all five suites, exported and
 published. Verified the live URL itself serves the new build rather than
 trusting the green tick.
 
-Milo then played the live build and reported: the **resident Xbox controller
+The owner then played the live build and reported: the **resident Xbox controller
 works**, **sound works**, and the **touch-screen controls work exactly as
 intended**. That closes the two oldest open items in this file -- a physical
 gamepad and a real multitouch device had only ever been simulated by
@@ -291,7 +291,7 @@ source-audit and permission work is preserved.
 
 ## Pronunciation Studio permission received
 
-Milo supplied a permission grant signed by Scott Bessett of Pronunciation Studio
+The owner supplied a permission grant signed by Scott Bessett of Pronunciation Studio
 for the “Learn the 44 Sounds of British English” IPA Chart, recordings and
 related educational content. Saved the full text in
 [docs/pronunciation-studio-permission.md](docs/pronunciation-studio-permission.md).
@@ -412,7 +412,7 @@ screen). Export templates are now installed locally too, so hand exports work.
 
 ## New letter l phoneme, and the installer no longer reverts hand-made letters
 
-`assets/audio/phonemes/l.wav` is now Milo's `~/Desktop/PhonicsFarm Sound Review/
+`assets/audio/phonemes/l.wav` is now the owner's `~/Desktop/PhonicsFarm Sound Review/
 new letter l phoneme.wav`; the IPA `41_l_look.wav` clip was not right. Nothing
 else referenced that source, and `l` is one shared file, so both CVC Land and
 Phoneme Village pick it up.
@@ -442,7 +442,7 @@ Git checkpoint remains `ba152a3`; everything still uncommitted.
 
 # Session handoff — 2026-09-20 (i)
 
-## Annette's two lines replaced with Milo's own recordings
+## Annette's two lines replaced with the owner's own recordings
 
 Swapped `assets/audio/voice/annette_find.wav` and `annette_good.wav` for
 `~/Desktop/PhonicsFarm Sound Review/annnette find the letter.wav` (three n's, as
@@ -461,7 +461,7 @@ wanted. Both files are 24 kHz 16-bit mono, matching the phonemes.
 
 `manifest.json` now records each clip's source path, source hash and output
 hash. The **`pending_user_review` caveat no longer applies to these two** --
-they are Milo's own voice. `wrong_chime.wav` is still synthesized and unheard.
+they are the owner's own voice. `wrong_chime.wav` is still synthesized and unheard.
 
 Separately, `~/Desktop/tts app.html` was patched (backup alongside it): its
 "Save .wav..." dialog called `showSaveFilePicker`, which Chromium refuses on
@@ -954,7 +954,7 @@ covers model and voices, so clips can ship inside a distributed Godot game —
 cleaner than the edge-tts licensing question. Maisie is not available by this
 route; the 8 British Kokoro voices are the substitute and the user picks by ear.
 
-Environment: `/home/milo/.local/share/phonicsfarm-tts/venv` (uv, Python 3.12,
+Environment: `~/.local/share/phonicsfarm-tts/venv` (uv, Python 3.12,
 CPU-only torch, 1.2 GB). Deliberately NOT the system Python (3.14, which kokoro
 does not support) and NOT GPU torch (avoids VRAM contention with ComfyUI).
 The venv lives outside the repo so Godot does not try to import it.
@@ -1043,7 +1043,7 @@ a clean-stop preference. Use hard c/g, unvoiced s, consonant y, short UK vowels.
 Proposed q=/kw/ and x=/ks/ remain reviewable choices.
 
 Prepared `tools/prepare_phoneme_review.py` and the desktop folder
-`/home/milo/Desktop/PhonicsFarm Sound Review/` with README, listening index,
+`~/Desktop/PhonicsFarm Sound Review/` with README, listening index,
 manifest, and exact SSML requests. There are 33 candidates: two versions for
 b/c/d/g/k/p/t (without requested schwa and with requested schwa), one for every
 other letter. Labels are synthesis targets, not verified pronunciations. The
@@ -1074,7 +1074,7 @@ updates this handoff. Desktop files are outside Git. No commit or push.
 
 ## Documentation task — desktop editing guide
 
-Created `/home/milo/Desktop/PhonicsFarm-LLM-Edit-Instructions.md` at the user's
+Created `~/Desktop/PhonicsFarm-LLM-Edit-Instructions.md` at the user's
 request. It explains play-space vocabulary, screen directions and local-coordinate
 caveats, asset/scene locations, instance versus shared-asset edits, and reusable
 prompts with practical acceptance checks. Facts were checked against README.md,
@@ -1087,7 +1087,7 @@ below remain unchanged.
 
 ## Current state
 
-Playable Godot 4.5.2 prototype in /home/milo/vibecodeprojects/phonicsfarm.
+Playable Godot 4.5.2 prototype in ~/vibecodeprojects/phonicsfarm.
 The user authorized saving this working state and handoff together in the commit
 "Fix clearing layout, river crossing, and Chuck controls". Find its hash with
 `git log -1 --oneline` immediately after this handoff. The earlier recovery point
@@ -1152,9 +1152,9 @@ distinct from physical device testing.
 
 Run from project directory:
 ```sh
-/home/milo/.local/opt/godot-4.5.2/Godot_v4.5.2-stable_linux.x86_64 --headless --path . --script res://tests/smoke.gd
-/home/milo/.local/opt/godot-4.5.2/Godot_v4.5.2-stable_linux.x86_64 --headless --path . --script res://tests/layout.gd
-/home/milo/.local/opt/godot-4.5.2/Godot_v4.5.2-stable_linux.x86_64 --path . --script res://tests/capture.gd -- --river
+~/.local/opt/godot-4.5.2/Godot_v4.5.2-stable_linux.x86_64 --headless --path . --script res://tests/smoke.gd
+~/.local/opt/godot-4.5.2/Godot_v4.5.2-stable_linux.x86_64 --headless --path . --script res://tests/layout.gd
+~/.local/opt/godot-4.5.2/Godot_v4.5.2-stable_linux.x86_64 --path . --script res://tests/capture.gd -- --river
 ```
 
 The installed Godot binary exists even though it is not named godot on PATH.
@@ -1163,7 +1163,7 @@ F5 plays and F8 stops in the editor. Capture needs a real rendered window;
 
 ## Next session: Claude Code or OpenCode/Qwen
 
-Start in /home/milo/vibecodeprojects/phonicsfarm. Read AGENTS.md, this note, and
+Start in ~/vibecodeprojects/phonicsfarm. Read AGENTS.md, this note, and
 README.md, then run `git status --short` and inspect any existing diff. The requested
 repairs are complete; await the user's next task rather than extending the game.
 Use the full Godot binary path below/above; absence of `godot` on PATH does not mean

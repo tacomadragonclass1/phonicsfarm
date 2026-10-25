@@ -151,7 +151,7 @@
       "ipa": "l",
       "file": "l.wav",
       "source_files": [
-        "/home/milo/Desktop/PhonicsFarm Sound Review/new letter l phoneme.wav"
+        "~/Desktop/PhonicsFarm Sound Review/new letter l phoneme.wav"
       ],
       "source_sha256": [
         "7fb36d7abc8934f290071859e1177dd20e5a476e83d566d59f93c0546d549916"
@@ -216,7 +216,7 @@
       "ipa": "kw",
       "file": "q.wav",
       "source_files": [
-        "/home/milo/Desktop/PhonicsFarm Sound Review/q sound.wav"
+        "~/Desktop/PhonicsFarm Sound Review/q sound.wav"
       ],
       "source_sha256": [
         "e2b9645487f50db260491564694c5d7cd22ad0779de81ba82cb79483decf09d2"

@@ -15,6 +15,6 @@ state. Do not describe untested changes as verified. Commit or push only when
 the user requests it.
 
 Godot is installed at
-`/home/milo/.local/opt/godot-4.5.2/Godot_v4.5.2-stable_linux.x86_64`.
+`~/.local/opt/godot-4.5.2/Godot_v4.5.2-stable_linux.x86_64`.
 Use this path for checks even when `godot` is not on PATH. See README.md for
 the smoke and layout tests. Rendered captures must run without --headless.

@@ -9,8 +9,8 @@ the blocks.
 
 | Clip | Words | Source |
 | --- | --- | --- |
-| `annette_find.wav` | "Please find the letter that says" | **Milo's own recording** |
-| `annette_good.wav` | "Good job!" | **Milo's own recording** |
+| `annette_find.wav` | "Please find the letter that says" | **the owner's own recording** |
+| `annette_good.wav` | "Good job!" | **the owner's own recording** |
 | `wrong_chime.wav` | — | synthesized two-note fall, no speech |
 
 24 kHz 16-bit mono PCM WAV, trimmed and normalized to match the phoneme clips.
@@ -18,7 +18,7 @@ the blocks.
 
 ## Status
 
-The two sentences were **replaced with Milo's own recordings on 2026-09-20**,
+The two sentences were **replaced with the owner's own recordings on 2026-09-20**,
 superseding the Kokoro `bf_emma` renderings. Sources live in
 `~/Desktop/PhonicsFarm Sound Review/` as `annnette find the letter.wav` (three
 n's, as spelled there) and `annette good job.wav`; `manifest.json` records both

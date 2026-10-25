@@ -1,6 +1,6 @@
 # Pronunciation Studio — non-profit educational permission
 
-Recorded 2026-09-23 from the permission text supplied by Milo, who reports
+Recorded 2026-09-23 from the permission text supplied by the owner, who reports
 receiving it for Phonics Farm. This is the user-provided text, with paragraph
 spacing normalized; the original message date was not supplied. Signatory:
 Scott Bessett, “Asset Team Manger” (as written), Pronunciation Studio.
