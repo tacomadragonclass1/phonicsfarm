@@ -1,3 +1,46 @@
+# ⛔⛔ THE PREVIEW CRASHED THE BROWSER — texture memory — 2026-11-03
+
+The first published `/preview/` took Chrome down on first load. Not slow:
+the renderer stopped answering, three screenshot attempts timed out, and
+Chrome was down to two processes afterwards.
+
+## The cause, measured
+
+Fifteen assets at 1024 squared is **70 MB of UNCOMPRESSED texture**, loaded
+at once, on top of a 38 MB wasm and a 32 MB pck. Everything dropped to 512
+except the terrain:
+
+    uncompressed texture   70 MB -> 28 MB
+    preview pck            33 MB -> 27 MB
+
+The resolution was never being earned. The camera is 142 px per metre, so a
+3.5 m building is about 500 px on screen and a 1024 sheet is four times more
+texels than pixels. The terrain keeps 1024 because it is 26 m across and is
+already the blurriest thing in the frame.
+
+## ⛔ The mistake behind the mistake
+
+Download size had been explicitly ruled out as a concern at this scale, and
+that got filed as "texture size does not matter". It does -- just not for
+the reason that was dismissed. **This is a RUNTIME MEMORY fault, not a
+download one**, and the two are easy to confuse because the same number
+controls both.
+
+The figure that mattered was never the kB in a report line. It was texel
+count multiplied by every asset resident at once, and nothing in the build
+output showed it. `[asset]` lines report kB and tris; neither would ever
+have caught this.
+
+⭐ For a web build, measure the sum of (width x height x 4) across every
+texture a SCENE loads, not the size of any one asset.
+
+## ⛔ And it only showed up in the published build
+
+The local slice -- six assets, about 20 MB of texture -- ran in the browser
+all session. The preview adds twenty more. Nothing in the headless checks,
+the suites or the Blender renders touches a GPU, so none of them could have
+caught it. The first thing that exercised the real load was the real URL.
+
 # DEPLOYED — the new art lives at /preview/ — 2026-11-03
 
     the game     https://tacomadragonclass1.github.io/phonicsfarm/
