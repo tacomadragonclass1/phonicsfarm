@@ -1,0 +1,56 @@
+[gd_scene load_steps=5 format=3]
+
+; FOUNDATION Chuck -- a drop-in replacement for player/player.tscn.
+;
+; The SCRIPT, the collision layers and the CarryAnchor are carried across
+; unchanged, because player.gd depends on all three: it finds an
+; AnimationPlayer under Visual/Model and plays "idle"/"walk" BY NAME, it
+; rotates Visual assuming the model faces local +Z, and it parents carried
+; blocks to Visual/CarryAnchor.
+;
+; The GLB satisfies that contract and it was checked rather than assumed --
+; `foundation_chuck.glb` exports one skin of 14 joints, the Chuck mesh
+; skinned to it with JOINTS_0/WEIGHTS_0, and exactly two animations named
+; `idle` and `walk`.
+;
+; Two numbers changed from the phase-1 scene, and both follow from the
+; redesign rather than taste:
+;
+;   CAPSULE. He is 1.35 m where phase 1 was 1.18, so height 1.16 -> 1.33 and
+;   the centre 0.58 -> 0.665. The RADIUS stays 0.3, which is deliberately
+;   narrower than the straw hat: the brim reaches 0.385 from his centre, so
+;   sized to the hat he would stop 8 cm short of every doorway he owns. A
+;   brim clipping a wall is the cheaper error.
+;
+;   CARRY ANCHOR. Scaled with him, 0.8/0.62 -> 0.90/0.70. The block's ORIGIN
+;   IS ITS BOTTOM FACE, so the anchor is where the bottom of a carried block
+;   sits, not its centre -- which is why that y looks high for a character
+;   this size and is correct.
+
+[ext_resource type="Script" path="res://player/player.gd" id="1"]
+[ext_resource type="PackedScene" path="res://assets/storybook/explore/foundation_chuck.glb" id="2"]
+[ext_resource type="Script" path="res://storybook/storybook_surface.gd" id="Surface"]
+
+[sub_resource type="CapsuleShape3D" id="Capsule"]
+radius = 0.3
+height = 1.33
+
+[node name="Player" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 13
+floor_snap_length = 0.2
+script = ExtResource("1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.665, 0)
+shape = SubResource("Capsule")
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Model" parent="Visual" instance=ExtResource("2")]
+
+[node name="CarryAnchor" type="Marker3D" parent="Visual"]
+position = Vector3(0, 0.9, 0.7)
+
+[node name="SurfaceFix" type="Node" parent="."]
+script = ExtResource("Surface")

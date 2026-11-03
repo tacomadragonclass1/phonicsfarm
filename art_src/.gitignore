@@ -1,0 +1,5 @@
+# Blender's rolling backups and Python bytecode. The .blend sources themselves
+# ARE tracked: they are the editable art, and the .glb files beside them are
+# only the export.
+*.blend1
+__pycache__/

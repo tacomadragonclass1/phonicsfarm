@@ -1,0 +1,199 @@
+[gd_scene load_steps=15 format=3]
+
+; PAINTED STORYBOOK -- VERTICAL SLICE
+;
+; A separate scene. scenes/main.tscn, the village, CVC Land and every original
+; asset are untouched and still run; nothing here is wired into the game.
+;
+; Everything on screen is new except the camera and the control scheme, both of
+; which are the SHIPPING ones on purpose: environment/fixed_camera.gd at its
+; production pitch 30 / yaw 30 / zoom 9, and ui/touch_controls.tscn, so the
+; assets are judged at the size and angle a child actually sees, and so touch,
+; keyboard and gamepad can all be tried on the new Chuck.
+;
+; LIGHTING. Lower than scenes/main.tscn's, with filmic tonemapping added. The
+; storybook assets arrive with their own ambient occlusion and value variation
+; already baked into the albedo, so lighting them as hard as the old untextured
+; primitives needed blew every light surface out -- the meadow went fluorescent
+; and the cottage plaster went white.
+;
+; Composition is laid out in SCREEN axes and converted to world coordinates --
+; at yaw 30 one unit of world +X is not one unit of screen right, and placing
+; scenery by world coordinates at this angle gives a scene that is accidental
+; rather than composed. See art_src/README.md.
+
+[ext_resource type="PackedScene" path="res://storybook/alphabet_block_storybook.tscn" id="Block"]
+[ext_resource type="PackedScene" path="res://storybook/chuck.tscn" id="Chuck"]
+[ext_resource type="PackedScene" path="res://storybook/cottage.tscn" id="Cottage"]
+[ext_resource type="PackedScene" path="res://storybook/pedestal_storybook.tscn" id="Pedestal"]
+[ext_resource type="PackedScene" path="res://storybook/tree_storybook.tscn" id="Tree"]
+[ext_resource type="PackedScene" path="res://storybook/path_stone.tscn" id="Stone"]
+[ext_resource type="PackedScene" path="res://storybook/meadow.tscn" id="Meadow"]
+[ext_resource type="PackedScene" path="res://ui/touch_controls.tscn" id="UI"]
+[ext_resource type="Script" path="res://environment/fixed_camera.gd" id="Camera"]
+[ext_resource type="Script" path="res://storybook/storybook_slice.gd" id="Slice"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
+sky_top_color = Color(0.45, 0.66, 0.76, 1)
+sky_horizon_color = Color(0.85, 0.86, 0.73, 1)
+sky_curve = 0.12
+ground_bottom_color = Color(0.3, 0.26, 0.28, 1)
+ground_horizon_color = Color(0.86, 0.57, 0.38, 1)
+sun_angle_max = 24.0
+sun_curve = 0.08
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMaterial")
+
+[sub_resource type="Environment" id="Environment"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 2
+ambient_light_color = Color(0.82, 0.87, 0.94, 1)
+ambient_light_energy = 0.28
+reflected_light_source = 0
+tonemap_mode = 2
+tonemap_white = 1.15
+fog_enabled = true
+fog_light_color = Color(0.8, 0.85, 0.75, 1)
+fog_light_energy = 1.0
+fog_density = 0.0009
+fog_aerial_perspective = 0.18
+fog_sky_affect = 0.2
+
+[sub_resource type="BoxShape3D" id="GroundShape"]
+size = Vector3(44, 0.6, 44)
+
+[node name="StorybookSlice" type="Node3D"]
+script = ExtResource("Slice")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-50, -28, 0)
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 0.78
+light_angular_distance = 4.0
+shadow_enabled = true
+shadow_opacity = 0.62
+shadow_blur = 2.0
+shadow_bias = 0.09
+shadow_normal_bias = 2.0
+directional_shadow_max_distance = 26.0
+
+[node name="Skylight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.93973503, -0.21046002, 0.2694525, 0, 0.78809495, 0.61555369, -0.3419036, 0.57845737, -0.74060043, 0, 0, 0)
+light_color = Color(0.74, 0.84, 1, 1)
+light_energy = 0.1
+shadow_enabled = false
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.8660254, 0, -0.5, -0.25, 0.8660254, -0.4330127, 0.4330127, 0.5, 0.75, 11.25833, 13, 19.5)
+projection = 1
+current = true
+size = 9.0
+far = 140.0
+script = ExtResource("Camera")
+
+[node name="Ground" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 2
+
+[node name="Meadow" parent="Ground" instance=ExtResource("Meadow")]
+transform = Transform3D(1.25, 0, 0, 0, 1, 0, 0, 0, 1.25, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.3, 0)
+shape = SubResource("GroundShape")
+
+[node name="Scenery" type="Node3D" parent="."]
+
+[node name="Cottage" parent="Scenery" instance=ExtResource("Cottage")]
+transform = Transform3D(0.9272, 0, -0.3746, 0, 1.0000, 0, 0.3746, 0, 0.9272, -5.0221, 0.0000, 0.3014)
+
+[node name="Tree1" parent="Scenery" instance=ExtResource("Tree")]
+transform = Transform3D(-0.9613, 0, 0.2756, 0, 1.0000, 0, -0.2756, 0, -0.9613, 2.9667, 0.0000, -5.0615)
+
+[node name="Tree2" parent="Scenery" instance=ExtResource("Tree")]
+transform = Transform3D(0.6391, 0, -0.5755, 0, 0.8600, 0, 0.5755, 0, 0.6391, -6.0854, 0.0000, 3.8598)
+
+[node name="Tree3" parent="Scenery" instance=ExtResource("Tree")]
+transform = Transform3D(0.5914, 0, 0.7048, 0, 0.9200, 0, -0.7048, 0, 0.5914, 7.1024, 0.0000, -1.0983)
+
+[node name="Tree4" parent="Scenery" instance=ExtResource("Tree")]
+transform = Transform3D(-0.3380, 0, -0.6357, 0, 0.7200, 0, 0.6357, 0, -0.3380, -4.2124, 0.0000, -4.4962)
+
+[node name="Path" type="Node3D" parent="Scenery"]
+
+[node name="Stone01" parent="Scenery/Path" instance=ExtResource("Stone")]
+transform = Transform3D(0.8600, 0, -0.0000, 0, 0.8600, 0, 0.0000, 0, 0.8600, -4.2664, 0.0100, -1.2896)
+
+[node name="Stone02" parent="Scenery/Path" instance=ExtResource("Stone")]
+transform = Transform3D(0.5446, 0, -0.8387, 0, 1.0000, 0, 0.8387, 0, 0.5446, -3.4258, 0.0100, -0.8685)
+
+[node name="Stone03" parent="Scenery/Path" instance=ExtResource("Stone")]
+transform = Transform3D(-0.4637, 0, -1.0414, 0, 1.1400, 0, 1.0414, 0, -0.4637, -2.6089, 0.0100, -0.4337)
+
+[node name="Stone04" parent="Scenery/Path" instance=ExtResource("Stone")]
+transform = Transform3D(-0.8494, 0, -0.1345, 0, 0.8600, 0, 0.1345, 0, -0.8494, -1.8333, 0.0100, 0.0250)
+
+[node name="Stone05" parent="Scenery/Path" instance=ExtResource("Stone")]
+transform = Transform3D(-0.6691, 0, 0.7431, 0, 1.0000, 0, -0.7431, 0, -0.6691, -1.1062, 0.0100, 0.5116)
+
+[node name="Stone06" parent="Scenery/Path" instance=ExtResource("Stone")]
+transform = Transform3D(0.2951, 0, 1.1012, 0, 1.1400, 0, -1.1012, 0, 0.2951, -0.4223, 0.0100, 1.0232)
+
+[node name="Stone07" parent="Scenery/Path" instance=ExtResource("Stone")]
+transform = Transform3D(0.8179, 0, 0.2658, 0, 0.8600, 0, -0.2658, 0, 0.8179, 0.2346, 0.0100, 1.5504)
+
+[node name="Stone08" parent="Scenery/Path" instance=ExtResource("Stone")]
+transform = Transform3D(0.7771, 0, -0.6293, 0, 1.0000, 0, 0.6293, 0, 0.7771, 0.8875, 0.0100, 2.0799)
+
+[node name="Stone09" parent="Scenery/Path" instance=ExtResource("Stone")]
+transform = Transform3D(-0.1192, 0, -1.1338, 0, 1.1400, 0, 1.1338, 0, -0.1192, 1.5605, 0.0100, 2.5978)
+
+[node name="Stone10" parent="Scenery/Path" instance=ExtResource("Stone")]
+transform = Transform3D(-0.7663, 0, -0.3904, 0, 0.8600, 0, 0.3904, 0, -0.7663, 2.2727, 0.0100, 3.0931)
+
+[node name="Stone11" parent="Scenery/Path" instance=ExtResource("Stone")]
+transform = Transform3D(-0.8660, 0, 0.5000, 0, 1.0000, 0, -0.5000, 0, -0.8660, 3.0329, 0.0100, 3.5606)
+
+[node name="Pedestals" type="Node3D" parent="."]
+
+[node name="Pedestal1" parent="Pedestals" instance=ExtResource("Pedestal")]
+transform = Transform3D(1.0000, 0, -0.0000, 0, 1.0000, 0, 0.0000, 0, 1.0000, -2.5821, 0.0000, -0.4722)
+
+[node name="Pedestal2" parent="Pedestals" instance=ExtResource("Pedestal")]
+transform = Transform3D(1.0000, 0, -0.0000, 0, 1.0000, 0, 0.0000, 0, 1.0000, -0.8500, 0.0000, -1.4722)
+
+[node name="Pedestal3" parent="Pedestals" instance=ExtResource("Pedestal")]
+transform = Transform3D(1.0000, 0, -0.0000, 0, 1.0000, 0, 0.0000, 0, 1.0000, 0.8821, 0.0000, -2.4722)
+
+[node name="Blocks" type="Node3D" parent="."]
+
+[node name="Placed1" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(1.0000, 0, -0.0000, 0, 1.0000, 0, 0.0000, 0, 1.0000, -2.5821, 0.6200, -0.4722)
+
+[node name="Placed2" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(1.0000, 0, -0.0000, 0, 1.0000, 0, 0.0000, 0, 1.0000, -0.8500, 0.6200, -1.4722)
+
+[node name="Placed3" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(1.0000, 0, -0.0000, 0, 1.0000, 0, 0.0000, 0, 1.0000, 0.8821, 0.6200, -2.4722)
+
+[node name="Loose1" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.9511, 0, -0.3090, 0, 1.0000, 0, 0.3090, 0, 0.9511, 2.4347, 0.0000, -1.9830)
+letter = "s"
+
+[node name="Loose2" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.4067, 0, 0.9135, 0, 1.0000, 0, -0.9135, 0, 0.4067, -1.3615, 0.0000, 3.4419)
+letter = "u"
+
+[node name="Loose3" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(-0.7880, 0, -0.6157, 0, 1.0000, 0, 0.6157, 0, -0.7880, 5.1641, 0.0000, 0.9445)
+letter = "n"
+
+[node name="Player" parent="." instance=ExtResource("Chuck")]
+transform = Transform3D(1.0000, 0, -0.0000, 0, 1.0000, 0, 0.0000, 0, 1.0000, 0.0000, 0.0200, -0.0000)
+
+[node name="TouchControls" parent="." instance=ExtResource("UI")]

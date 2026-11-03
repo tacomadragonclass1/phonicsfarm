@@ -1,3 +1,1306 @@
+# THE RE-PLANNED VILLAGE — generated, verified, committed — 2026-11-03
+
+`village/foundation_village.tscn`, built by
+`tools/build_foundation_village.py`.
+
+⛔ It is a NEW scene. `village/phoneme_village.tscn` is untouched: it is the
+shipping village, the owner's source of truth, edited by hand in the editor,
+and CLAUDE.md says not to regenerate it. `tests/village.gd` loads
+`scenes/main.tscn` and still tests that one. Both pass.
+
+⛔ Like `tools/build_phoneme_village.py` before it, the generator is a
+SCAFFOLD and not a build step. Once the scene is edited in the editor the
+scene is the truth and the script is history.
+
+## ⛔ THE CAMERA DECIDES WHERE THE BUILDINGS GO
+
+It is orthographic, at pitch 30 / yaw 30, and never turns -- so "behind" is
+one fixed direction for the whole board, and anything at higher X and Z
+stands between the viewer and everything past it. The first layout arranged
+the six buildings in a ring and put the flower shop and workshop on the +Z
+side; 15 of 35 markers failed the no-hidden-letter rule immediately.
+
+The village sits on the FAR half now and the green -- where the letters are
+-- is the near half. That is also simply the better picture: you look across
+an open green AT the village.
+
+For the same reason the mound is TURNED 200 degrees. Its shelf and steps are
+built on one side of the asset, and unrotated that side faced away: the
+mound hid its own middle level and every shelf marker failed.
+
+## ⭐ THE GENERATOR CHECKS VISIBILITY ITSELF
+
+Nudging marker positions by hand until the Godot check passes is the wrong
+loop -- it is slow, and the next person to move a building silently breaks
+it. The engine's occlusion rule is implemented in the generator, so the
+layout is correct BY CONSTRUCTION and the Godot check confirms rather than
+searches. Two refinements it needed:
+
+- **An occluder the point stands inside is skipped**, exactly as the Godot
+  check skips a box containing the sample. Without it the mound's own 8.4 m
+  footprint rejected every marker on its shelf and the middle level vanished.
+- **The rule also runs BACKWARDS.** Markers are fixed first, then every
+  scattered prop -- mushrooms, blossom, bushes, wall runs, all 51 lane
+  stones and the planters -- is offered a position and refused it if it
+  would stand on somebody's sight-line. A gap in a lane reads as a missing
+  stone, which is what an old path looks like anyway.
+
+⛔ And when one marker still failed after two rounds of widening occluder
+boxes, the fix was to make the check NAME THE CULPRIT rather than guess
+again. It was a planter. Anything decorative whose exact spot does not
+matter should be searched, not modelled and hoped for.
+
+## A middle level is a requirement, not a flourish
+
+`tests/village.gd` checks for spawn markers at three heights snapped to 0.5,
+because the village is meant to scatter its letters "across all three
+walkable levels". A mound with a top and a bottom gives two. The step
+landing is therefore a real grassed terrace at 1.05 m with room to stand a
+block on -- which is also what a flight that long would have anyway.
+
+## Result
+
+    46 spawn markers, three levels [0.0, 1.0, 2.0]
+    51 lane stones, 26 trees alternating two silhouettes
+    no letter can be hidden behind a structure
+
+`tools/check_foundation_village.gd` is the check; it is separate from
+`tests/village.gd` because that one tests the shipping village.
+
+## State at commit
+
+All five shipping suites: 0 failures. `verify_rig.py`: Chuck and Annette both
+match the shipping skeleton. `scenes/main.tscn` and
+`village/phoneme_village.tscn` untouched -- the game runs exactly as it did.
+
+⚠️ Nothing is wired in. To see any of this you have to point
+`run/main_scene` at `scenes/foundation_slice.tscn`, or instance
+`village/foundation_village.tscn`. Adopting it in the real game is a
+separate, deliberate step: it also means adopting a TONEMAPPER, because
+`scenes/main.tscn` has none and the palette renders raw without one.
+
+# THE MILL MOUND — what replaces the terrace and ramps — 2026-11-03
+
+He called the ramp terrace garbage and asked for a clever, beautiful, TIGHT
+way up onto a plain that looks over the village -- one with a reason for
+being.
+
+## ⭐ THE WHOLE THING FOLLOWS FROM ONE FACT: A WINDMILL NEEDS WIND
+
+That is a real and legible reason for the ground to be raised exactly where
+the windmill stands. It is not a ramp placed so the player can get up; it is
+a mound that had to exist, with the ways up that such a mound would have.
+Once the mound has a reason, everything attached to it gets one:
+
+- **The way up is the miller's CART TRACK**, and a loaded cart cannot take a
+  steep gradient. So it cannot go straight up -- it has to WRAP the mound.
+  That is what makes this tight instead of a long diagonal ramp eating the
+  map, and it means the village turns below you as you climb, which is the
+  view the feature exists for. 174 degrees of wrap at **6.3 degrees**.
+- **Nobody on foot walks the cart track.** A short flight of stone steps
+  cuts up the bank on the far side. Two routes up, which is also simply
+  better to play.
+- **A bank cut that steep has to be held**, so it is revetted in drystone --
+  the same wall vocabulary as the field boundary.
+- **A dry bank with a door in it is a ROOT CELLAR.** Tucked under the
+  flight, where a real one would be: the steps give it a dry lintel and the
+  bank gives it a cold store. Strap hinges and a ring handle.
+- At the top, a mill yard that is a place of WORK -- grain sacks, a
+  hand-cart, a parapet to lean on and a bench facing the village.
+
+## ⛔ Gameplay shaped the numbers, it did not decorate them
+
+The village scatters 23 letter blocks over its levels, so:
+
+- the **top is flat**. A block on a slope reads as a mistake and
+  `drop_block` would roll it.
+- the cart track is **6.3 degrees** and the steps **27**, both well under
+  `move_and_slide`'s 45-degree floor limit. Chuck has no jump.
+- ⛔ The steps are 27 degrees because cutting them straight INTO the bank
+  gives only 2.2 m of run for a 2.15 m rise -- 44 degrees, which Godot would
+  technically allow and which would feel like climbing a ladder. Projecting
+  the flight OUT from the bank buys 3.8 m. The landing a third of the way up
+  is there for the same reason a real flight has one.
+- Mound height **2.15 m**: Chuck is 1.35, so his eyeline from the top clears
+  a 2.05 m cottage eave. High enough to look over, not a cliff.
+
+## ⛔⛔ A transform bug that NO RENDER WOULD EVER HAVE CAUGHT
+
+`_spin_z` rotates raw `vert.co` about a world pivot. That is correct for
+everything `forms` makes -- those generators write world coordinates into the
+mesh and leave the object at the origin. `meshtools.torus` does NOT: it keeps
+its offset in `obj.location`. Spinning one about a pivot five metres away
+treats near-origin LOCAL coordinates as world ones and flings it five metres
+the opposite way.
+
+The cellar door's ring handle ended up **5 m underground**, and took the
+asset's whole bounding box with it: `base_z = -4.995`, height 7.81 for a
+2.15 m mound. Every render looked completely fine, because the thing that
+moved was far too small to see. It was caught by reading the REPORT LINE, not
+by looking. `_spin_z` now bakes `matrix_world` into the vertices first.
+
+## ⛔ And one that a render did catch
+
+The first outer revetment stacked a column of stones at each sampled angle.
+The samples are half a metre apart and the stones are not, so it rendered as
+free-standing stone pillars with daylight between them. The retaining FACE is
+painted onto the causeway's own outer skirt now -- it costs nothing, it is the
+face you see from the village, and all the stones add is the coping along the
+top. 17,218 tris -> 11,226.
+
+Wheel ruts are painted for the same reason: dents of 0.03 on a 2.3 m road are
+invisible at 142 px per metre; two darker bands at wheel spacing are not.
+
+## Cost
+
+mill_mound: 11,226 tris, 1,486 kB, 16.7 m across, 2.84 m tall.
+
+## Still to do
+
+Collision (the `terrain_collision.gd` trimesh pattern already exists), and the
+re-planned layout scene that places all of this with its 36 spawn points.
+
+# DE-KENNIFIED — every village asset replaced — 2026-11-03
+
+144 Kenney instances across 17 assets, plus seven buildings made of
+`beveled_cube.obj`. All gone. The brief was to judge whether each asset
+belongs in a Shire-like village at all, not to swap them one for one.
+
+## ⛔ CUT, because they are the wrong REGISTER (35 instances)
+
+- **campfire x2, tent x1, seat logs x2.** A campsite says "adventurer
+  passing through". This is a settled village: it has hearths and benches,
+  not a fire ring on the green.
+- **statue obelisk x1.** A standing stone is fantasy-adventure furniture.
+  A WELL does the same job of giving the green a centre and is the thing a
+  village actually gathers at.
+- **rocks x29.** A ring of boulders is the asset-pack answer to "edge of the
+  world". A field is bounded by something somebody BUILT, and the foundation
+  set already speaks drystone wall and hedgerow.
+
+## Kept and rebuilt
+
+| was | now | why |
+|---|---|---|
+| sign x1 | `fingerpost` | a fingerpost at a lane junction is as Shire as it gets |
+| pot_large x2 | `planter` | a half-barrel, hooped, planted |
+| mushroom_redGroup x7 | `mushrooms` | ⭐ KEPT deliberately -- hobbits prize them |
+| plant_bushDetailed x2 | `bush` | cushion at shrub size, with berries |
+| flowers x20 (3 assets) | `blossom` | one clump whose colours vary WITHIN it |
+| path_stone x51 | `lane_stone` | 154 tris, 83 kB |
+| tree x18 + tree-high x8 | foundation tree + `tree_b` | see below |
+| (new) | `well`, `bench`, `wall_run`, `bunting` | what the place was missing |
+
+## ⛔ A prop used 26 times is ONE PROP USED 26 TIMES
+
+`tree_b` exists for that reason alone, and is deliberately NOT a tweak of
+the foundation tree: that one is a broad fanned crown on an S-curve, this is
+a tall upright cone of smaller cushions on a trunk that leans and recovers.
+Two silhouettes alternating read as a wood; one repeated reads as wallpaper.
+The same rule governs the lane stones, which take a yaw and a size per
+instance -- 51 identical stones is a zip fastener.
+
+## The bunting was beveled cubes too
+
+A flag is a TRIANGLE and the line it hangs on is a CATENARY. Both are three
+lines of maths and neither is a box, and the sag is the whole charm. Each
+flag also hangs at its own angle: a row of identical pennants is a printed
+border, not cloth.
+
+## Cost -- the whole replacement set
+
+| | tris | glb |
+|---|---|---|
+| well | 1,396 | 441 kB |
+| fingerpost | 332 | 311 kB |
+| bench | 384 | 388 kB |
+| planter | 2,212 | 446 kB |
+| bunting | 402 | 186 kB |
+| tree_b | 2,940 | 942 kB |
+| bush | 1,632 | 402 kB |
+| mushrooms | 1,048 | 357 kB |
+| blossom | 1,880 | 389 kB |
+| lane_stone | 154 | 83 kB |
+| wall_run | 1,692 | 429 kB |
+
+Textures are 256-512 for everything but `tree_b`, because these are props
+seen at a distance and placed in quantity.
+
+## Still to do
+
+The village TERRAIN (terrace, lookout, two ramps) and the re-planned LAYOUT
+scene with its 36 spawn points and the no-hidden-letter rule. Every asset the
+layout needs now exists.
+
+# VILLAGE REDESIGN — the six buildings and Annette — 2026-11-03
+
+Scope agreed with him: everything including Annette, the six building
+identities kept, and the layout re-planned. ⛔ Re-planning the layout means a
+NEW scene -- `village/phoneme_village.tscn` is his source of truth, he edits
+it in the editor, and CLAUDE.md says not to regenerate it. The shipping
+village and `tests/village.gd` (which loads `scenes/main.tscn`) stay exactly
+as they are.
+
+## ⛔ THE VILLAGE IS THE PUREST CASE OF WHAT PHASE 1 WAS REJECTED FOR
+
+Every one of the six buildings is `assets/toy_village/beveled_cube.obj`,
+instanced over and over with flat colour materials. A windmill, a bakery and
+a clock tower, all made of the same box. That is the asset-pack vocabulary in
+its most literal form and no amount of retexturing reaches it.
+
+## The six, rebuilt out of `sb_lib/forms`
+
+Each is designed around the ONE thing that makes it legible:
+
+- **Windmill** -- the only true solid of revolution in the game, and the
+  clearest case for `lathe`: a battered, pinched, flaring tower is six
+  numbers and is flatly impossible out of a cube. Gallery with a rail, lathed
+  slate cap, weathervane, and four sails that are a swept spar plus a lattice
+  of bars plus canvas DOWN ONE SIDE ONLY, which is what stops the cross
+  reading as a plus sign.
+- **Bakery** -- read from the OVEN, so the coursed brick stack is the biggest
+  thing on it and the arch of the oven mouth is repeated in the door. Striped
+  awning, three loaves on the sill.
+- **Clock house** -- read from the DIAL: lathed, pale, high, with twelve
+  marks and hands at ten past ten. Open belfry with a bell on four posts, so
+  the tower reads hollow at the top instead of as a stump with a hat.
+- **Bookshop** -- read from the JETTY. Upper storey overhanging on brackets,
+  a three-sided bay window with five leaning books in it, and the whole
+  building leans 1.3 degrees because a bookshop should look oldest.
+- **Flower shop** -- read from the STOCK. The building is deliberately the
+  plainest of the six; everything legible about it is the awning, the trough
+  of buckets, the window boxes and the rose climbing past the sign.
+- **Workshop** -- read from being OPEN. Three walls and a header instead of
+  four, a bench with a vice and tools under the opening, and a lean-to of
+  stacked timber. It is the only building you can see INTO.
+
+⛔ **Two corrections after the first lineup render.** Six buildings in a row
+made faults invisible on any one of them obvious:
+
+- They were all the same cream. A village of six cream buildings is one
+  building six times. The bakery is ochre, the bookshop sage, the flower shop
+  rose -- the limewash a shop can afford is part of what it is.
+- They all had the same roof. Identical course tables gave six copies of one
+  barrel-vaulted hut. The pitch now differs per building, and the last two
+  courses collapse faster so the ridge is a crisp line rather than rounded
+  over.
+
+## Annette, as a classic librarian
+
+She has one hard job: never be mistaken for Chuck at gameplay distance. So
+every silhouette decision is the opposite of his.
+
+| | Chuck | Annette |
+|---|---|---|
+| height | 1.35 m, 2.9 heads | 1.58 m, nearer 4.5 -- an adult |
+| widest at | a hat brim | the hem of a long skirt |
+| legs | bare and apart | one unbroken cone |
+| hair | a wild black spray | a smooth bun, closed outline |
+| glasses | LOST in his redesign | HERS now |
+
+⭐ The glasses are the useful accident. Round spectacles were the old Chuck's
+only distinguishing feature and dropping them was the risk in his pass;
+moving them to Annette spends the idea instead of wasting it, and gives the
+two characters one shared piece of visual language.
+
+⭐ The skirt is a `lathe`, which is what an A-line skirt literally is: one
+drawn silhouette revolved. Four shallow dents deny the lampshade.
+
+Her rig is Chuck's skeleton so one set of motion ideas serves both, verified
+against the shipping control:
+
+    CONTROL chuck.glb    joints 14  skinned True  idle 9  walk 13
+    ANNETTE annette.glb  joints 14  skinned True  idle 7  walk 9
+
+Fewer moving channels BY DESIGN -- half his leg swing and twice his hip sway,
+because a skirt that counter-swings with the thighs under it reads as
+trousers, and almost all of the motion a viewer reads is in the hips and hem.
+
+⛔ Three fixes from the close-up: her hands did not reach the book (the arms
+ran straight down and she stood with a hardback floating in front of her
+stomach), the spectacles were bright gold and read as goggles, and the loose
+strands at her temples were thick enough to look like bolts screwed into her
+head.
+
+## Cost
+
+| | tris |
+|---|---|
+| windmill | 2,812 |
+| clock house | 2,444 |
+| bakery | 3,036 |
+| bookshop | 2,280 |
+| flower shop | 14,192 |
+| workshop | 2,352 |
+| annette | 4,412 |
+
+Flower shop is the outlier and it is the flowers: every bloom is petals, a
+centre and a stem, and there are five bucketfuls plus a climbing rose.
+
+## Still to do on the village
+
+The Kenney NATURE props the village scene still references directly -- 18 rim
+rocks, trees, flowers, mushrooms, bushes, path stones, tent, obelisk,
+signpost, campfire, bunting. The village terrain (terrace, lookout, two
+ramps). And the re-planned layout itself, as a new scene, with its 36 spawn
+points re-derived and the no-hidden-letter rule verified.
+
+⛔ Contract any new village scene must satisfy, read out of
+`phoneme_village.gd` and `tests/village.gd`: root carries `phoneme_village.gd`
+in group `phoneme_village`; `$Annette` is a VillageGuide with an `$Annette/Touch`
+Area3D; `$SpawnPoints` holds the markers; `$Blocks` is the container; and
+`$Trigger` is an Area3D. 23 letters -- k, q and x are out because they collide
+with c by ear.
+
+# PHASE 2 — the set is in the engine — 2026-11-02
+
+Approved, and run. Everything that was a Blender render is now a Godot scene:
+Chuck is RIGGED and is the avatar rather than a display model, the terrain has
+real collision and is not flat, and the slice is walkable in the real web
+export. `scenes/main.tscn` is still untouched.
+
+## What was built
+
+- `storybook/foundation/chuck.tscn` -- a drop-in for `player/player.tscn`.
+  Capsule 1.16 -> 1.33 and its centre 0.58 -> 0.665 for a 1.35 m character.
+  The capsule RADIUS stays 0.3, deliberately narrower than the straw hat: the
+  brim reaches 0.385, and sized to the hat he would stop 8 cm short of every
+  doorway he owns. A brim clipping a wall is the cheaper error.
+- `storybook/foundation/{cottage,tree,terrain,props,garden}.tscn` and the
+  block scene from the previous pass.
+- `storybook/foundation/terrain_collision.gd` -- `create_trimesh_collision()`
+  at load, on collision LAYER 1, which is what the rest of the game expects
+  of ground (`ground_height()` raycasts mask 1; `can_reach()` mask 13
+  includes it).
+- `scenes/foundation_slice.tscn` -- the whole world, walkable. ⛔ Every
+  object's Y is `foundation.terrain_height()` at its own x,z, not 0. The play
+  area rolls 0.35 m, so y = 0 either floats or sinks an object by up to 20 cm.
+- `art_src/explore/verify_rig.py` -- a real check, see below.
+
+## The rig
+
+Bone layout and motion are phase 1's, unchanged and on purpose: `player.gd`
+has been driving that skeleton on real hardware since September and a
+redesign of the BODY is not a reason to re-solve the MOVEMENT. The anatomy
+constants are now SHARED between the mesh and the rig so they cannot drift.
+Leg swing came in 26 -> 22 degrees and head counter-rotation went up, because
+this Chuck has shorter legs under a much heavier head.
+
+⛔ Scale FIRST, then rig. `facet` welds vertices and `_scale_to_height` moves
+every one of them, so a skeleton built before either is bound to coordinates
+that no longer exist. `_scale_to_height` returns its factor for that reason.
+
+## ⛔⛔ How NOT to verify a rig
+
+The obvious check fails, and fails SILENTLY in two different ways:
+
+1. Importing six copies of the GLB and `frame_set`-ing a different frame
+   before placing each one. Blender evaluates the whole scene at ONE current
+   frame, so all six pose at whichever was set last and the sheet comes out
+   as six identical figures standing still.
+2. Re-importing and reading pose bones. Every rotation read 0.0 at every
+   frame. In Blender 5 an action must be bound to an action SLOT as well as
+   assigned, and without that it quietly does nothing.
+
+Both look exactly like "the animation did not export", which is the wrong
+thing to go and debug. `verify_rig.py` reads the glTF buffers directly --
+no Blender, no failure mode -- and uses the SHIPPING `chuck.glb` as a
+control. Result:
+
+    CONTROL chuck.glb             joints 14  skinned True  idle 9  walk 13
+    SUBJECT foundation_chuck.glb  joints 14  skinned True  idle 9  walk 13
+
+Identical on every count. Run it after any character build.
+
+## ⛔ The engine needs a TONEMAPPER, and this was proved not assumed
+
+The first in-engine export came out markedly more saturated than every
+Blender review of the same assets -- a red roof where the review had
+terracotta. The tempting diagnosis is a colour-management bug, so it was
+tested: exporting the same slice with `albedo_texture_force_srgb` DISABLED
+produced the opposite failure exactly as this file describes it, washed out
+and pale with plaster clipping to white. The sRGB fix is right and still
+needed.
+
+Sampling the baked PNGs settled the rest. They hold the palette bytes
+EXACTLY -- `#E2CFB0` is `s_wall` verbatim, `#9B8E74` is `e_stone` verbatim.
+So the bake is faithful and the whole difference is grade: `scenes/main.tscn`
+has no tonemapper at all, and `render_foundation.py` renders through AgX.
+The slice sets `tonemap_mode = 4` (AgX) with exposure 1.3.
+
+⚠️ That is a DEVIATION from the shipping environment and a decision to take
+deliberately: adopting these assets means adopting a tonemapper with them, or
+re-grading the palette for linear output. The slice still reads hotter than
+the Blender reviews; matching them properly is a grading pass, not a bug.
+
+## ⛔⛔ The terrain's normals pointed DOWN, and it had broken the colour field
+
+Caught only by sampling the baked texture, which is the lesson.
+
+`bmesh.ops.recalc_face_normals` makes normals CONSISTENT, which for a closed
+volume also means outward -- but an open heightfield has no outside, and it
+chose -Z. Measured: nz was -1.0 at every vertex.
+
+`_grass_position` computes `steep = 1 - max(nz, 0)`, so nz = -1 made steep = 1
+EVERYWHERE and added a flat +0.55 to every vertex, saturating the ramp at its
+palest stop. Before the fix the top five colours in the terrain texture were
+five shades of `f_grass_sun` at about 23% of the sheet between them. After,
+no single colour exceeds 0.62%.
+
+The mown line, the tracks and the path edge still read throughout, because
+those return or subtract absolutely -- which is exactly why the bug survived
+three rounds of looking at renders.
+
+⛔ The four field amplitudes were all tuned WHILE `steep` was pinned at 1.0
+and three of the four were doing nothing. With the normals fixed they were
+far too strong and the ground went blotchy, so they are halved and the
+general sward is clamped to 0.38..0.86. The path, tracks and bed still return
+absolutely and keep the full range -- they are the edges, and the edges are
+meant to be the strong thing.
+
+## Still not done
+
+The village redesign. Matching the engine grade to the Blender reviews. The
+1.203x lettering constants, which now have a working browser route to settle
+them. Nothing is committed.
+
+# The block's letters, verified in a browser — 2026-11-02
+
+He asked whether the letters would actually appear on the final blocks,
+because they were not appearing. Correct observation, and the cause was not
+what it looks like.
+
+## ⛔ THE LETTERS ARE NOT IN THE GLB AND NEVER WERE
+
+`foundation_block.glb` ships five BLANK cream plaques named Front / Right /
+Back / Left / Top. Every letter on every face is a runtime `Label3D` living in
+the block's `.tscn`, set by `alphabet_block.gd::update_letter()`. The letters
+in the Blender review renders are geometry that `render_foundation.py` builds
+on the fly purely so a review image is not of a blank toy.
+
+So the block had no letters because **it had no scene**. There was no
+`storybook/foundation/` at all -- nothing in the project referenced a single
+foundation asset. Nothing was broken; a file was missing.
+
+## What was added
+
+- `storybook/foundation/block.tscn` -- the hybrid block scene repointed at
+  `foundation_block.glb`. font_size 83 and the 0.0847 label lift carried over
+  UNCHANGED on purpose: both are believed wrong by 1.203 (see above) and that
+  is a separate fix needing its own check.
+- `scenes/foundation_blocks.tscn` -- six blocks spelling **f g y p a j**: the
+  tallest ascender in the face and every descender there is.
+
+## Verified, not assumed
+
+`tests/capture.gd` hangs on this machine, so the route was the project's
+documented one: set `run/main_scene`, export Web, serve with COOP/COEP, look
+in Chrome, restore `project.godot` and confirm `git diff --quiet`.
+
+**The letters render.** All six, on the front faces and the top faces, inside
+the new tray, with the descenders clear. The inset rim also reads better in
+the engine than it does in the Blender renders -- the shadow line round each
+plaque is crisper under the Compatibility renderer.
+
+⚠️ One honest tradeoff the test exposed: on faces turned more than about 60
+degrees from the camera, the raised rim clips the leading edge of the letter.
+The hybrid block's proud plaque would not do that. Those faces are
+unreadable at that angle anyway, but it IS a cost of making the face inset.
+
+## ⛔ Do not copy the camera basis out of scenes/main.tscn
+
+It is stale, and it cost a whole export-and-look cycle. That camera carries
+`fixed_camera.gd`, which overwrites `rotation` in `_ready()` from its
+pitch/yaw exports -- so the basis stored in the scene file is never used and
+need not be correct. Copied verbatim onto a camera with no script it aimed
+about 25 degrees ABOVE the horizon, and the first browser test rendered
+nothing but sky with no errors in the console. State pitch and yaw outright.
+
+# Edges in the ground — 2026-11-02 (last pass of the day)
+
+The ground had CAUSE after the previous pass but no EDGES, and a field is
+read by its edges: the line a mower left, the track feet wore off the path,
+the strip along a wall nothing reaches. Every one of those is a boundary, and
+a boundary is the one thing the old field could not make.
+
+## ⛔ THE GRID IS THE COLOUR RESOLUTION
+
+This is why every previous attempt came out as soft mottle no matter what was
+driving it. The colour field is evaluated per VERTEX, so at `GROUND_STEP` 0.80
+the sharpest thing the ground can hold is about 1.6 m wide -- which is a
+gradient by definition. No amount of better maths fixes that; the mesh has to
+get denser first.
+
+0.32 m now: 2,048 -> 13,122 triangles, about 300 kB more mesh, and an edge
+around 0.6 m, which is roughly what a mower actually leaves.
+
+`landform()` was split out of `terrain_height()` to pay for it. `local_relief`
+runs nine height lookups per vertex over 7,700 vertices, and going through
+`terrain_height` meant 4.9 million path-distance tests. It is also more
+correct: relief should describe the LANDFORM, and the hollow way and the
+building pad are cuts made into it, not features of it.
+
+## The four edges
+
+- **The mown line.** `MOWN` is the ground somebody actually cuts, round the
+  house and garden. Mowing does not change a field's colour so much as REMOVE
+  ITS VARIATION, so inside the line the ramp is compressed toward the middle
+  and nudged very slightly lighter; rough ground beyond keeps its full range.
+  ⛔ First attempt compressed 0.62 and lifted 0.055 and the kept ground went
+  flat and pale -- a slab of lawn laid over the field, louder than the
+  boundary it was supposed to draw. 0.42 and 0.030 reads as texture instead.
+- **Its fringe.** A 0.5 m band of darker, uncut grass just OUTSIDE the turn,
+  where the mower never quite reached. That band is what actually draws the
+  line; the compression alone is too subtle to find.
+- **Worn tracks.** `TRACKS` are desire lines -- one to the garden gate, one to
+  the tree. A track is not a path: nobody laid it, feet made it, so it is
+  narrow, it lands between the deep grass and the earth (scuffed, not bare),
+  and it has a crisp edge either side.
+- **The headland.** Within 0.45 m of the wall the ground is rougher and
+  darker, with its own edge rather than a falloff.
+
+## ⛔ And the path edge, which was the biggest single offender
+
+The way's transition was 0.85 m. A worn path has an EDGE -- the grass stops
+where the boots are -- and feathering it over most of a metre is most of why
+the whole ground read as gradient. It is 0.30 m now.
+
+## Cost
+
+Terrain: 13,122 tris, 1,426 kB (about 300 kB of that the new mesh; the
+texture did not change). `budget_tris` raised to match.
+
+# Rhyme and reason — grass, ground, rows, flowers — 2026-11-02 (later still)
+
+Four notes on the smallholding pass, all of them fair, all of them the same
+underlying complaint: things had been PLACED rather than caused.
+
+## 1. The grass was a sprinkle; now it is a rule
+
+Tufts were being dropped three-at-a-time around whatever object happened to be
+nearby, at arbitrary angles. That is not a rule, and it read as exactly what
+it was.
+
+The rule now: **grass is long where nothing cuts it.** A boot wears the middle
+of a path and not its verge; nothing mows hard against a wall, a fence or a
+plinth. So `_grass_fringe()` lays CONTINUOUS lines just outside the things
+that keep grass short -- both verges of the worn way, both sides of the wall,
+the foot of the cottage plinth -- and there is no grass at all loose in the
+open field. Blades lean away from what they grow against, into the light.
+
+## 2. ⛔⛔ Why the grass baked BLACK, finally
+
+Three rounds of lightening the colour did nothing, because the colour was
+never the problem.
+
+`atlas_unwrap` packs UV islands by SURFACE AREA. A blade of grass has almost
+none, so on a 1024 sheet shared with a wall and sixty stones its island lands
+a few pixels across -- **smaller than the bake's 10-pixel margin**. What got
+baked into those pixels was margin bleed and ambient occlusion from its
+neighbours, every single time, whatever the vertex colours said.
+
+Two fixes, both of which also happen to be the honest answer:
+
+- A blade is a `ribbon`, not a `sweep`. A sweep is a thin tapering TUBE and
+  three in a clump occlude each other from every direction; ao_strength 0.68
+  and edge_dark 0.20 then stack and crush it. A ribbon is two broad faces
+  that mostly see the sky, and it is also what a blade of grass actually is.
+- Blades are tagged `flat_grass` and `_split_flat_grass()` pulls them out onto
+  a FLAT material, so they never reach the atlas or the bake at all. Same
+  mechanism that keeps the block's letter faces perfectly cream. Grass at
+  142 px per metre wants a flat colour anyway.
+
+## 3. The terrain's colour had no cause
+
+The old field was absolute height plus three sine waves, and a 0.09 wash on
+top. In a play area deliberately kept within 0.35 m of level, absolute height
+returns the same answer everywhere -- so the sines were doing all the work,
+and smooth noise over a whole field reads as smoke. The wash made it worse: at
+0.22 it was the loudest thing on the ground.
+
+The colour comes off the land now, in order of how much each matters:
+
+- **`local_relief()`** -- height against the average of the ground 2.8 m
+  around it, not against sea level. A crown drains and burns off pale; the
+  hollow beside it holds water and stays dark; they can be a metre apart on
+  ground that is level overall. This is the dominant term.
+- **slope** -- a steep face has thin soil and goes pale and strawy.
+- **shade** -- ground against a wall, a hedge, a building or under a canopy
+  stays dark and lush. Driven off the actual positions of those things.
+- **grain** -- a little break-up, LAST, so none of the above reads as a band.
+
+`wash` dropped 0.22 → 0.09. The ramp also widened: the dry stop is strawier
+(0.65) and the damp stop deeper (0.37), so the variation is in HUE and not
+only in tone.
+
+## 4. The garden was too full and the middle too tall
+
+Nothing but the bean frame stands over 0.26 m now, and there is bare earth
+visible between every row -- a row is read from its GAPS as much as from its
+plants. Front to back, low to tall:
+
+- **carrots**, 11, dead straight and evenly spaced, with the orange shoulder
+  of the root breaking the soil. Two centimetres of orange is the entire
+  reason anyone can tell what the row is.
+- **onions**, 9, pale bulbs with upright straps.
+- **cabbages**, 6, moved to the BACK and at half their old size. They were in
+  the middle at full size and the rows stopped reading as rows.
+
+The kitchen garden is also the one place in the scene allowed to be regular,
+because it is the only thing a person measured out. Everything else leans.
+
+## 5. The barrel flowers were lumps
+
+A green cushion with five small coloured cushions sitting in it reads as a
+leafy blob with pink bits. `_flower()` builds the three things a flower
+actually needs -- scalloped petals, a contrasting centre, and a stem -- and
+the heads stand clear ABOVE the foliage at varied heights instead of nesting
+in it.
+
+## On the triangle budget
+
+He asked what it meant. It meant nothing: `budget_tris` only prints a warning,
+enforces nothing, and the numbers were guesses. All seven assets together are
+about 52,000 triangles, which no GPU made this century notices, and **69% of
+the 8 MB download is texture, not mesh**. The budgets are reset to catch a
+runaway rather than to nag, and the number worth watching in each report line
+is the kB.
+
+He has also said explicitly not to worry about download size at this scale:
+the Godot wasm is already 37 MB, so the whole asset set is a ~20% swing on a
+download the engine dominates.
+
+# The smallholding — fences, rows, barrels, a scarecrow — 2026-11-02 (later)
+
+The world was the weakest of the five and he said so. This pass makes the
+place look LIVED IN. It is a seventh asset, `explore/foundation_garden.glb`,
+built by `build_garden()`, plus wildflowers folded into `props`.
+
+Note on the earlier instruction: "do not simply add lots of decorative props"
+is not contradicted here. That note was about substituting props for
+world-building when there was no world yet. The land, the way and the
+boundary exist now, so things standing on them have somewhere to belong --
+and the test for each one is narrower than the Shire test was: does it say
+somebody LIVES here and grows things. A fence encloses, a row is planted, a
+barrel catches water off a roof, a scarecrow is there because the crops are
+worth defending. Nothing is scatter.
+
+## What is in it
+
+- **A low picket fence** round the kitchen garden, with a gateway gap, plus a
+  short second run beside the cottage. 0.66 m against a 1.35 m Chuck: a fence
+  at his shoulder walls the garden off visually, one at his hip encloses it
+  and still lets the rows read over the top.
+- **Three crop rows** -- cabbages, a leaf/leek row, a drill of sprouts -- and
+  a **bean frame** of crossed poles with beans climbing it. The frame is the
+  only diagonal in the entire scene, which is most of why it reads.
+- **Two rain barrels** with flowers spilling out: one under the cottage eave
+  where the water actually comes off, one inside the garden gate where it
+  would actually be used. The iron hoops are PAINTED, not modelled -- the
+  lathe profile carries two deliberately short steps so a height test with
+  `repaint_faces` stamps exactly those rings for nothing.
+- **A scarecrow**, 1.62 m, deliberately taller than Chuck. Post, cross-arm,
+  stuffed shirt, sack head with button eyes and a stitched mouth, a battered
+  lathed hat, and straw bursting from the cuffs and hem. Arms straight out
+  and a slumped head, so its silhouette can never be confused with Chuck's.
+- **Wildflowers in clumps** across the meadow, rejected if they land on the
+  path or inside the fence, each with grass around it.
+
+## ⛔ Five things that each cost a render
+
+- **`press` takes a WORLD plane.** `press(head, "Y", plane=-0.13, ...)`
+  flattened the scarecrow's face toward world y = -0.13 instead of toward its
+  own front, so standing anywhere but the origin turned the sack head into a
+  cone. It needs `plane=y - 0.145`.
+- **The scarecrow was sited three times.** Garden far corner: behind the tree
+  canopy from the gameplay camera, completely invisible. Back-left: merged
+  into the cottage plaster. It needs open grass behind it, which is left of
+  centre and forward of the bean frame.
+- **The second fence run fenced Chuck out of his own house.** Drawn as a
+  dogleg it crossed the path stones outside the front door. It has to stay
+  east of the way.
+- **A flower head is a `pad`, not a `cushion`.** The tree needed masses
+  because foliage has a body; a flower head is a lens. Cushions put props
+  9,500 triangles over budget for detail invisible at 142 px per metre --
+  24 triangles against 126, for a better shape.
+- ⭐⭐ **A thin blade of grass BAKES BLACK.** The gouache recipe runs
+  ao_strength 0.68 and edge_dark 0.20, and on a 19 mm tapering tube standing
+  in a clump almost every point is either self-occluded or on a concave
+  crease, so the two terms stack and crush the whole blade. Every tuft in
+  three rounds of renders read as a black spike. There is one bake recipe per
+  ASSET, so it cannot be fixed per object -- the fix is to start the base
+  colour well above where it should finish: sunlit green on the top AND the
+  middle, deep green only on the undersides, and a slightly fatter blade.
+
+## Also in this pass
+
+The tree moved to (3.95, 0.75); at (3.35, 1.30) its canopy sat over the
+garden's fence corner.
+
+## Cost
+
+| | tris | texture | glb |
+|---|---|---|---|
+| garden | 13,506 | 1024 | 1,407 kB |
+| props | 19,344 | 1024 | 1,535 kB |
+
+⚠️ Props is 19,344 against a 16,000 budget and the warning is left in
+deliberately. The overage is the drystone wall (63 stones) plus the tufts.
+These are REVIEW assets; shipping wants the wall instanced from one stone and
+the tufts cut to the ones the camera actually passes. The garden is a
+separate asset from props for a texture reason rather than an organisational
+one: `atlas_unwrap` packs by surface area into ONE 1024 sheet, so folding the
+garden into props would halve the texel density of the wall and path stones
+along with it.
+
+# Foundation pass — Chuck redesigned, the world built — 2026-11-02
+
+The hybrid set was approved as a DIRECTION with five notes. This pass answers
+those five and nothing else. `hybrid.py` is untouched and still builds the
+approved set; this is `art_src/explore/foundation.py`, which imports it for the
+palette and the measured lettering constants. Nothing is committed, the
+shipping game is untouched, and all five suites still pass.
+
+Review: `art_src/review/foundation_scene.png`, `_chuck`, `_cottage`, `_block`,
+`_tree`. Every one is IN SITU -- same world, same terrain, same light, camera
+moved in. "The scene feels disconnected" is not a question a turntable on a
+grey backdrop can answer.
+
+## 1. Chuck — a character design pass, not a retexture
+
+Luffy crossed with Mowgli, resolved into five decisions:
+
+- **The hat is the identity.** A wide straw brim is the one silhouette no
+  asset pack ships, it reads at any size, and on a game called Phonics FARM it
+  is earned rather than applied. Lathed from a drawn profile -- crown dome,
+  hard turn at the brim line, brim falling away and LIFTING at the rim so the
+  edge catches light as a line all the way round.
+- **2.9 heads tall**, where phase 1 was about 3.6. Head slightly wider than
+  the shoulders, oversized hands and feet. A character averaged toward
+  realistic proportion is what "still feels generic" means.
+- **Bare feet, bare chest, open vest** -- Mowgli's half. Skin stays the
+  largest single colour on him, so the vest red and the straw read as accents.
+  The vest is modelled open (two front panels, a back panel, two straps), not
+  painted open, so the silhouette carries it.
+- **The face is a plane**, pressed flat, tapered to a chin, swollen at the
+  cheeks. Big round eyes set WIDE with a highlight, brows thin and angled up
+  and out, and a wide open grin with a tooth line.
+- **Glasses are gone.** They were the previous Chuck's one distinguishing
+  feature, so this is the reversible decision in the pass: `GLASSES = True` in
+  `foundation.py` brings the rims and bridge back in the new face's geometry.
+
+Three things were measured rather than chosen, and each cost a render:
+
+- ⛔ **The crown radius is a CLEARANCE.** The hair cap is 0.462 across, so the
+  first hat at crown radius 0.172 was swallowed by it and rendered as a black
+  dome with a khaki ring round it -- a beanie. The crown has to be wider than
+  the hair it sits on.
+- ⛔ **A grin is a CURVE.** The first mouth was a wide flat lozenge with a
+  cream band across it and read as gritted teeth on an angry child -- which,
+  under brows angled up and out, is the wrong face entirely. Swept along an
+  arc, thick in the middle and thin at the lifting corners, it reads as a
+  smile at any size.
+- ⛔ **The hat brim tilts BACK 20 degrees.** Not styling: at the game's
+  30-degree camera pitch a level brim puts the whole face in shadow and the
+  expression -- the point of the pass -- is lost.
+
+## 2. The tree — volume, with the approved silhouette kept
+
+`forms.pad` is a LENS: a drawn edge with almost nothing behind it, which is
+right for cut paper and wrong for foliage at a close-up. The new `cushion()`
+generator stacks wavy rings and lofts them into a MASS: the scalloped edge
+that was approved survives, and there is a real domed body behind it. Scallop
+phase rotates as the rings rise, so the lobes spiral rather than stacking into
+a lathe. Two swells and a dent per mass break the revolve for no extra
+triangles.
+
+⛔ Six masses of radius 0.7-0.84 spread across a 2.7 m span at nearly the same
+height is a flat umbrella -- a thicker version of the pad stack. Narrower
+masses lifted up the trunk rebuild the vertical fan. The canopy is now 1.9 m
+wide over 3.1 m tall, where the first attempt was 2.7 wide over 2.95.
+
+The three canopy greens were also re-spread from 0.24-0.53 to 0.21-0.59, and
+the TOP colour now varies per layer. Giving every mass the same light top made
+the whole canopy one value, which is how a layered form loses its layering.
+
+## 3. The cottage — architecture, not trim
+
+Terracotta pantiles as real COURSES: each course emits two loft stations, its
+own plan and the same plan lifted by the lap, so there is a riser and a shadow
+line all the way round at every course. The eave course is scalloped, so the
+bottom edge is a row of pantile ends. Plus a battered base on a stone plinth,
+two dormers of different sizes, a coursed leaning chimney, rafter ends under
+the eave, stone lintels and sills, glazing bars, and a window box.
+
+⛔ **TWO numbers decide whether this is a roof or a dome**, and the first
+build got both wrong. DEPTH must stay nearly constant -- shrinking width and
+depth together hips the roof in from all four sides, which with rounded
+stations is a bulbous cap, and that is exactly what rendered: a mushroom with
+faint steps on one side. CORNER RADIUS must be tiny -- at 0.16 the stations
+are lozenges and the loft between them is a curved shell with no planes in it.
+At 0.05 the same 32 points describe a near-rectangle and `facet` keeps the
+planes.
+
+⛔ **The door stands PROUD of its surround.** In the first build the stone
+arch sat 0.055 in front of the door and was 0.16 wider, so it did not frame
+the door, it covered it -- the entire blue of the front elevation vanished
+behind a grey slab.
+
+⛔ **The dormers took three attempts and each failure was a different kind.**
+(1) They sat on the -Y face; once the roof gabled that face became a vertical
+gable end and both ended up entirely inside it, rendering as nothing at all.
+(2) Reseated on the -X slope with a 0.66-deep box centred on the slope line,
+so half of each hung off into the air -- a red shed floating beside the
+chimney. (3) Still the wrong plane: the ridge is pushed +0.62 so -X is the
+long shallow one, and the reasonable-sounding conclusion was that a dormer
+belongs there -- but the camera sits at +X/-Y and looks back along it, so -X
+is the FAR slope and both read as ridges peeking over the roofline.
+
+They are on +X now, the short steep plane the gameplay camera actually sees,
+seated by a 1.30-deep box running from just outside the slope back INTO the
+roof mass where the far end is swallowed. `roof_edge_x(z, side)` reads the
+plane straight off `ROOF_COURSES`, so this survives the next time those
+numbers are tuned. The rafter ends moved for the first reason: they were
+poking out of a gable, which is simply wrong.
+
+## 4. The world — a field, not a plane
+
+Rolling terrain, a sunken hollow way, a drystone wall, four hedges, a dug
+vegetable bed, and grass at every point where an object meets the ground.
+
+⛔ **"The play area has to stay flat" was an ASSUMPTION, and it was wrong.**
+It was never checked, and the first terrain was built masked to 10% relief
+inside 5 m because of it. The engine walks slopes today:
+
+- `player.gd` is a `CharacterBody3D` with gravity and `move_and_slide()`, and
+  reads `is_on_floor()`. Nothing anywhere pins Y.
+- `player.gd::ground_height()` already raycasts DOWN for the drop point, and
+  its own comment says so: *"Phoneme Village has raised terrain, so a drop
+  cannot assume ground Y = 0."*
+- `village/phoneme_village.tscn` already ships a `Terrain` StaticBody3D with a
+  terrace, a lookout and two ramps, each with its own collision shape.
+- `fixed_camera.gd` tracks `target.global_position` in all three axes and is
+  orthographic, so walking uphill just moves the frame.
+
+So the play area ROLLS now: `PLAY_RELIEF` 0.35 plus an always-on `_gentle()`
+undulation. Measured over r < 5 m: height range **0.352 m**, maximum slope
+**7.8 degrees**.
+
+Gentleness is still required, for three reasons that ARE measured rather than
+assumed:
+
+- `can_reach()` raycasts from +0.6 to +0.4 over at most 1.65 m on collision
+  mask 13, which **includes the ground layer** -- a rise of about half a metre
+  inside that span would make a block unpickable;
+- `pedestal.gd` stretches a 0.5 m `$Base` straight down and lands it back on
+  the ground, so a pedestal wants LEVEL footing;
+- blocks are cubes, and a cube on a slope reads as a mistake.
+
+7.8 degrees clears all three with room. Buildings still get a level pad.
+
+The hills are seven hand-placed lobes, not noise -- a landscape made of noise
+has no composition.
+
+`paint_field()` blends a ramp of palette colours across a form by an arbitrary
+field. `paint_by_normal` can only ask which way a surface faces, which is the
+right question for a canopy and the wrong one for a meadow: a field's colour
+comes from height, slope and distance to the path. Interpolating per corner
+keeps it continuous -- `repaint_faces` would stamp whole 0.8 m quads and the
+terrain would read as a patchwork of squares.
+
+Four things that had to be rebuilt:
+
+- ⛔ **The wall is built from STONES, not a swept band.** Two `ribbon` courses
+  are cheap, correct in plan, and rendered as a smooth white snake lying in
+  the field. A drystone wall is read entirely by the joints between its
+  stones, and a continuous surface has none.
+- ⛔ **The wall line was set OUT from the path.** At 1.4 m off the way it cut
+  straight through the block row with Chuck standing in it. A field boundary
+  belongs at the edge of the field, and the play area is the field.
+- ⛔ **The vegetable bed is PAINTED INTO the terrain.** Two attempts at a
+  ribbon of earth both rendered as a wooden boardwalk with shrubs on it,
+  because a strip of geometry over grass has an EDGE and a dug bed does not.
+- ⛔ **wash_scale 0.11 put three lobes across a 26 m field**, which is
+  indistinguishable from a flat fill at gameplay framing -- the first render
+  still showed exactly the uniform green this pass exists to remove. 0.95 is
+  roughly a one-metre mottle: visible in frame, still far under the texel
+  density. The colour field also needed three octaves; a single long sine put
+  one patch boundary across the whole play area.
+
+## 5. The block — proportions and lettering untouched, faces inset
+
+0.8 cubed, exponent 5.2, the 0.640 plaque, the five plaque node names and the
+single shared flat face material: all exactly as approved. What is new is a
+moulded wooden rim so the cream reads as inset, and four shallow gouges of
+grain in the body.
+
+⛔ **The rim is seated on the superellipsoid's own surface, point by point.**
+The approved plaque is 0.640 across a 0.800 block, leaving 0.080 of wood, and
+the squircle has already curved away by then -- at 0.378 from the centre of a
+face the surface has dropped 0.100 below the face plane. A rim drawn as a flat
+ring at one depth floats off the block everywhere except dead centre, by a gap
+bigger than the rim itself. `block_surface_depth()` solves the superellipsoid
+for the outward axis so the rim grows out of the face instead.
+
+The cream CANNOT move back: `plaque_centre` puts it at 0.413 because the
+Label3D in `block.tscn` sits at 0.4178 and reads that surface as its ground.
+So the wood comes up around it instead, by 0.014 -- enough for a shadow line
+at 142 px per metre, shallow enough that it still reads as wood rather than as
+a well.
+
+⚠️ The rim takes the block's visual extent from 0.826 to 0.854 against a
+0.80 collision box. Hybrid was already 0.826 over 0.80; this adds 14 mm a
+side. Unavoidable given the Label3D contract, and worth knowing before blocks
+are ever placed touching.
+
+## ⭐⭐ The lettering constants in block.tscn are wrong, by a measurable factor
+
+Measured off Fredoka in Blender, a-z, glyph outlines only:
+
+| | recorded in hybrid | measured now | ratio |
+|---|---|---|---|
+| a-z ink span | 0.894 em | **0.744 em** | 1.203 |
+| 'f' top above the text origin | +0.320 em | **+0.266 em** | 1.203 |
+| 'y' bottom below it | -0.575 em | **-0.478 em** | 1.203 |
+| ink centre off the origin | -0.1275 em | **-0.1059 em** | 1.203 |
+
+All four are over by the SAME 1.203, which is a systematic scale error in the
+original measurement rather than four separate mistakes. The span is pure
+glyph outline and depends on no font metric at all, so it is the one number
+that cannot be explained away by Godot and Blender disagreeing about where a
+line box sits.
+
+Two consequences:
+
+1. `block.tscn` lifts every label **0.0847** where **0.0703** is correct. The
+   ink currently clears the plaque by 0.0585 at the top and 0.0873 at the
+   bottom -- it sits 14.4 mm high, which is the whole of the over-lift.
+2. **The letters can be much bigger.** The ink fills 77% of the plaque, not
+   the ~95% the earlier pass believed. Centred properly with a 0.030 margin
+   the font goes 83 -> about **97**, which is +17% x-height over the hybrid
+   block and +27% over the shipping one.
+
+⛔ `block.tscn` was NOT changed. The span proves the headroom, but the OFFSET
+depends on Godot's line box matching Blender's, and `tests/capture.gd` cannot
+verify it on this machine. The honest next step is a web export in Chrome
+spelling `f g y p a j`, which is the project's one working validation path.
+The review render uses the corrected centring, so what is in
+`foundation_block.png` is the fixed lettering at the approved font size 83.
+
+## The lighting changed, and it is a result rather than a presentation choice
+
+The study rig was a 5-degree sun at energy 3.1 against a flat grey background,
+which is a point light in all but name. `render_foundation.py` uses a
+7-degree sun (the shadow-edge fix), a physical sky so shadows fill with blue
+while lit faces stay warm, and one low cool fill.
+
+⛔ Two over-corrections, both caught in a render. The fill started at energy
+110: softening shadows by flooding them with a big cool source REMOVED the
+shadows and took the frame's warmth with it. It is 24 now -- the sun angle
+softens an edge, the fill only keeps detail in the shade. And AgX at "Base
+Contrast" turned terracotta into salmon, straw into khaki and warm plaster
+into grey: the palette's values survived, its hues did not. "Punchy" restores
+the chroma without giving back the clipped highlight.
+
+⛔ **Blender 5 renamed the physical sky models.** What every tutorial still
+calls "Nishita" is `MULTIPLE_SCATTERING`, and the old string is not an alias,
+it raises. `dust_density` is also gone.
+
+`s_wall` was dropped 0.84 -> 0.78 for the same reason: sitting on the palette
+ceiling it rendered as grey-white and the warm plaster stopped being a colour.
+Every relationship in the palette is intact -- the letter face at 0.90 is
+still the lightest thing on screen by a wide margin.
+
+The GAME's lighting needs the same three moves in Godot --
+`DirectionalLight3D.light_angular_distance`, a `WorldEnvironment` with a sky
+and ambient, and one low fill -- and none of them are in the engine yet. These
+renders show the ASSETS under correct light; they are not a claim about the
+shipping scene.
+
+## ⛔ A latent bug in sb_lib, FLAGGED not fixed
+
+`meshtools.drop_to_floor` writes `obj.location.z`, and `obj.matrix_world` does
+not pick that up until the depsgraph is evaluated -- so `meshtools.bounds`,
+which reads `matrix_world @ v.co`, silently returns LOCAL coordinates
+afterwards. Two drops in a row then correct for the same offset twice and the
+object floats by exactly the height it was lifted.
+
+That is why the tree hovered 41 mm above the ground and Chuck did not: Chuck
+runs `forms.facet`, whose Blender operators force an evaluation, and the tree
+runs none. `foundation._scale_to_height` calls `bpy.context.view_layer.update()`
+around its bounds reads.
+
+`sb_lib/meshtools.py` was deliberately left alone -- shipping assets and the
+three study directions were all built through that code path, and changing it
+would move geometry that has already been reviewed. Worth fixing properly
+before the next production run.
+
+## Cost
+
+| | tris | texture | glb |
+|---|---|---|---|
+| chuck | 4,580 | 1024 | 982 kB |
+| tree | 4,566 | 1024 | 1,039 kB |
+| cottage | 3,674 | 1024 | 1,195 kB |
+| block | 3,714 | 512 | 409 kB |
+| terrain | 2,048 | 1024 | 1,390 kB |
+| props | 11,228 | 1024 | 1,155 kB |
+
+Props is the outlier and it is the drystone wall: 63 stones in three staggered
+courses. Shipping would decimate it or instance one stone. Terrain is only
+2,048 triangles but 26 m across a 1024 atlas is about 33 px per metre against
+a screen density of 142, which is why its bake recipe carries NO grain and no
+streak -- any high-frequency term at that density is aliasing, not texture.
+
+## What I would still change
+
+Judged against the five notes: Chuck, the tree, the cottage and the block all
+land. **The world is materially better and is still the weakest of the five.**
+
+- (Answered 2026-11-02 by the "Edges in the ground" pass above -- the mown
+  line, the worn tracks and the crisp path edge. What is still missing is a
+  hedge shadow lying across the grass, which wants the hedges' footprints in
+  the shade sources rather than just their centres.)
+- The hedges are still smooth cushions. Deepening the lobes helped the
+  silhouette; they want actual leaf clumps, which means the `cushion`
+  generator nested one level.
+- The drystone wall is regular: three staggered courses of similarly-sized
+  stones along an even line. It needs size outliers and a few gaps.
+
+None of those is blocking; all three are the same hour of work.
+
+## 👉 Making the rolling terrain real IN GODOT
+
+The renders show it; the engine does not have it yet. What it takes:
+
+1. **Collision.** `scenes/main.tscn`'s ground is a flat `BoxShape3D`. The
+   terrain is a REGULAR 33x33 grid straight out of `terrain_height(x, y)`, so
+   the right shape is a `HeightMapShape3D` fed that array directly -- cheaper
+   and far more robust than a trimesh, and it needs no mesh import step.
+   A `ConcavePolygonShape3D` off the GLB also works; 2,048 triangles is
+   nothing for static collision.
+2. **Seat everything that stands on the ground.** Pedestals, blocks, levers
+   and trees are placed at authored Y in the .tscn and would float or sink.
+   A `@tool` script that raycasts each child down onto the terrain in the
+   editor is the pattern already used by `tools/village_spawn_probe.gd`.
+3. **Level pads under pedestals and the lever**, for the stretch-a-fixed-base
+   reason above. Same trick `terrain_height` already uses for the cottage.
+4. **Choose the terrain's collision layer deliberately** so `can_reach()`'s
+   mask 13 does what is wanted. Blocking reach over a real hill is correct;
+   blocking it over a 20 cm swell is not.
+
+The 40x40-per-clearing field and the single outer boundary are box walls and
+are unaffected.
+
+## Still not done
+
+No rigging and no animation: the walking avatar in `scenes/hybrid_slice.tscn`
+is still phase-1 Chuck, and the new Chuck is a static model. Nothing is wired
+into a Godot scene -- there is no `foundation_slice.tscn`. The village is
+untouched. Adopting the new Chuck means one capsule-height line in a new chuck
+scene; `player.gd` is unchanged.
+
+Git: nothing committed, nothing pushed.
+
+# The chosen set — D2 tree + D3 cottage + D1 block, unified — 2026-11-01 (later still)
+
+Picks from the direction study, made per-object rather than per-direction:
+tree from D2, cottage from D3, block from D1, Chuck delegated (D3 taken).
+
+**The risk that created, and what was done about it.** Three objects from three
+studies means three surface languages — flat-shaded faceting, painterly ink edges,
+soft clay — plus three palettes. That would read as three games sharing a field. The
+FORMS are kept exactly as chosen; everything else is unified in `art_src/explore/hybrid.py`:
+
+- ONE palette. `palette.extend` overwrites the study entries the builders already ask
+  for by name, so `d2_storybook` and `d3_sculptural` need no edits at all.
+- ONE bake recipe, between D3's clean flat fields and D2's painterly wash: real wash,
+  little grain, `edge_dark` 0.20 (D2 was 0.38, D3 was 0.07).
+- Shading angle still varies, because it is a property of what a thing IS, not of the
+  art direction: cottage 10 degrees (cut, faceted), block 18 (moulded), foliage 30.
+
+**The lettering, which turned out to be measurable rather than a matter of taste.**
+Measured from Fredoka: across a-z the glyph ink spans 0.894 em and is NOT centred on
+the text origin — it runs +0.320 em at the top of 'f' to -0.575 em at the bottom of
+'y', because Label3D centres the LINE BOX (ascent + descent) and not the ink.
+
+On the SHIPPING block that means every descender — g j p q y — hangs 0.062 units
+BELOW the plaque, onto the wooden frame, and the ink already fills 95% of the plaque.
+So the choice of block form barely affects letter size; the plaque width and the label
+offset do.
+
+Fixed in `storybook/hybrid/block.tscn`: font_size 76 -> 83 and every Label3D lifted
+0.0847 units, on a plaque widened 0.575 -> 0.640. x-height goes 0.287 -> 0.313 units,
+9.2% larger, with 'f' and 'y' clearing the plaque edge by 0.023. Verified in a browser
+with blocks spelling g y p a j.
+
+A 0.660 plaque at font 86 was built first and gives +13%, but leaves a 0.07 wooden
+frame that reads as a sugar cube rather than a toy. Two constants in `hybrid.py` if the
+lettering should win over the frame.
+
+**Assets** in `assets/storybook/explore/hybrid_*.glb`, Godot scenes in
+`storybook/hybrid/`, composed in `scenes/hybrid_slice.tscn` (walkable, shipping camera,
+live AlphabetBlock instances so the letters are generated at runtime).
+
+| | tris | texture |
+|---|---|---|
+| tree (D2 form) | 1,760 | 1024 |
+| cottage (D3 form) | 724 | 1024 |
+| chuck (D3 form) | 3,044 | 1024 |
+| block (D1 form, re-proportioned) | 2,644 | 512 |
+
+Review: `art_src/review/study_hybrid.png`, `hybrid-in-engine.jpg`.
+
+**Still not done:** no rigging or animation (the walking avatar in the slice is the
+phase-1 Chuck); no environment work; the village is untouched. Adopting this set means
+changing the capsule height in the new chuck scene for the 1.35 m figure — one line, in
+a scene that is not the shipping one.
+
+**Trap worth keeping:** `render_study.py` imports `hybrid` ONLY on demand. Importing it
+at module scope re-points the study palettes onto the house family and silently
+re-renders the d1/d2/d3 sheets in the wrong colours — which it did once.
+
+Git: nothing committed, nothing pushed.
+
+# Direction study — three visual languages — 2026-11-01 (later)
+
+Phase 1's vertical slice was reviewed and the art direction was REJECTED, correctly:
+it still read as an asset pack. The models had moved from Kenney to Blender but the
+vocabulary had not — boxes, cylinders, cones and spheres with better textures. The
+tree was the clearest case: a trunk plus a cluster of spheres.
+
+So this is an exploration, not more production. Three genuinely different visual
+languages applied to the same four subjects — cottage, tree, Chuck, alphabet block.
+Nothing is wired into the game; phase 1's slice and the shipping game are both intact
+and still pass.
+
+**New: `art_src/sb_lib/forms.py`.** Not a primitive in it. `lathe` (revolve a drawn
+silhouette), `loft` (bridge a stack of outlines, so a plan can change with height),
+`sweep` (tube along a path with varying radius), `pad` (scalloped lens), `superform`
+(superellipsoid), `ribbon`, plus `press` / `dents` / `swell` / `facet` / `jitter_verts`.
+This is what the earlier failure actually came down to: the only shapes available were
+asset-pack shapes.
+
+**Three directions**, in `art_src/explore/`, documented in `art_src/explore/README.md`:
+
+| | D1 handcrafted | D2 storybook | D3 sculptural |
+|---|---|---|---|
+| canopy | pressed pads on visible branches | layered painted pads, fanned | interlocking faceted masses |
+| cottage | bulging lofted walls, scalloped thatch | tall, jettied, leaning 2.4 degrees | ridge pushed 1.14 off centre, lean-to |
+| shading | smooth 54 degrees | 33 degrees, edge_dark 0.38 | FLAT, planar-decimated |
+
+Review images in `art_src/review/`: `study_d1/d2/d3.png` (all four subjects in one
+frame per direction), `lineup_tree/cottage/chuck/block.png` (one subject across all
+three), `study-in-engine.jpg`.
+
+**In Godot:** `scenes/direction_study.tscn` — all three side by side, 13 units apart,
+walkable with the real controller under the shipping camera. The blocks are live
+AlphabetBlock instances, so the Label3D letters are generated at runtime exactly as in
+the game. `tools/check_direction_study.gd` asserts the contract holds in all three.
+
+**Deliberately not done:** no rigging or animation (three rigged characters before one
+is chosen is wasted work — the walking avatar is phase-1 Chuck, who is already rigged);
+no environment work; the village is untouched.
+
+**Chuck is now 1.35 m, up from 1.18**, because he read as too small. Adopting any
+direction means changing the capsule height in the new chuck scene — one line, in a
+scene that is not the shipping one. `player.gd` is untouched.
+
+**Correction carried into the repo:** the earlier claim that the cream/ink value gap
+was a low-vision accessibility requirement was WRONG and has been removed from
+`palette.py`, `painter.py`, `build_block.py`, `build_meadow.py` and the README. High
+letter contrast is kept as ordinary legibility for five-year-olds.
+
+**Measured, worth keeping:** `albedo_color` on a plain StandardMaterial3D is consumed
+as LINEAR in this project's Compatibility setup, exactly like the GLB albedo textures
+are. A flat material given sRGB numbers renders as washed out as an unfixed texture.
+Scene-authored colours therefore need linear values.
+
+Validation: all five existing suites pass, `tools/check_storybook.gd` (phase 1) passes,
+`tools/check_direction_study.gd` passes, Web export succeeds and was viewed in a real
+browser. `project.godot` was flipped to the study scene for that export and restored,
+verified clean with `git diff`.
+
+Git: nothing committed, nothing pushed. Only PROGRESS.md is modified; everything else
+is new untracked paths.
+
+# Painted Storybook — visual reinvention, phase 1 (vertical slice) — 2026-11-01
+
+A bespoke art direction built alongside the game, NOT wired into it. `scenes/main.tscn`,
+Phoneme Village, CVC Land, every original asset and every Kenney asset are untouched and
+still run. Nothing is committed or pushed. Awaiting review before phase 2.
+
+**New Blender pipeline** — `art_src/` (`.gdignore`d; read `art_src/README.md` first).
+Parts are coloured by palette NAME as vertex colours, joined, UV-atlassed, surfaced with
+a Cycles "gouache" shader (broad wash + paper grain + brush streaks + ambient occlusion +
+pointiness edge light) and BAKED to one texture per asset. What reaches Godot is one
+material, one base-colour texture, no custom shader, no transparency, metallic 0.
+Blender is needed only to rebuild art; the committed `.glb` files are the contract, so
+GitHub Actions is unchanged and still never needs Blender.
+
+**Seven assets** in `assets/storybook/`, with Godot scenes in `storybook/`:
+
+| asset | tris | texture | notes |
+|---|---|---|---|
+| block | 1,128 | 512 | 0.8³, bottom origin, Cube + 5 named faces |
+| chuck | 4,834 | 1024 | skinned, `idle` + `walk`, 1.18 m |
+| cottage | 4,600 | 1024 | collision is 2 box shapes, kept off the mesh |
+| tree | 2,052 | 1024 | |
+| pedestal_base / _top | 732 / 504 | 512 each | two GLBs — see below |
+| path_stone | 152 | 512 | |
+| meadow | 1,058 | 1024 | slice-scoped ground patch only |
+
+Slice scene: 30,848 triangles, 9 distinct materials.
+
+**Nothing in gameplay was rewritten.** The storybook scenes REUSE `alphabet_block.gd`,
+`player.gd` and `pedestal.gd` unchanged; `tools/check_storybook.gd` asserts the contracts
+those scripts depend on (face node names, the duplicated face material, 0.8 block body,
+runtime Label3D letters, `idle`/`walk` by exact name, CarryAnchor, the 1.16 capsule, the
+0.62 snap height, and that SnapPoint does NOT move during the sound lift).
+
+Three things that look like odd choices but are decisions:
+
+- **The pedestal ships as TWO GLBs.** `pedestal.gd` raises a sounding letter by stretching
+  `$Base` (`scale.y = 1 + lift/0.5`, node moved up by `lift/2`) and translating `$Top`.
+  That only lands the base back on the ground if it is exactly 0.5 m tall with its origin
+  at its own centre, and the cap must be a separate node or it is stretched too.
+- **Every storybook scene carries a `SurfaceFix` child.** Godot's glTF import does not mark
+  these GLB-embedded base-colour textures as sRGB, so the Compatibility renderer treats
+  them as already-linear and everything renders about a gamma too bright. MEASURED: the
+  baked PNG holds the right sRGB bytes, a flat `albedo_color` material rendered identically
+  to the textured mesh, and in the browser the meadow read (254,255,179) against the
+  shipping game's (145,190,115) with roof, plaster and block faces clipping to white.
+  With `albedo_texture_force_srgb` the same measurement reads (149,203,89). Before/after:
+  `art_src/review/slice-before-srgb-fix.jpg` and `slice-in-browser.jpg`.
+- **Letters are still generated at runtime** and are NOT baked into any texture. Fredoka's
+  lowercase `a` and `g` are already single-storey, so the existing font was kept.
+
+**Validation.** All five existing suites pass. `tools/check_storybook.gd` passes. Web
+export succeeds. The slice was reviewed in a real browser via a temporary export whose
+main scene was flipped to the slice; `project.godot` was restored and verified clean with
+`git diff` each time.
+
+**Open and NOT done:**
+
+- `tests/capture.gd` HANGS on this machine. `await RenderingServer.frame_post_draw` never
+  fires under Godot 4.5.2 here, and viewport readback also comes back blank, so rendered
+  captures were replaced by Blender reviews (`art_src/render_review.py`) plus real browser
+  screenshots. Not investigated further; `capture.gd` was left untouched.
+- **The web pck grew from 1.8 MB to 6.0 MB**, almost entirely the seven baked textures.
+  The wasm is already 38 MB so this is about 11% on total download, but it is real. The
+  lever is texture size: dropping cottage/tree/meadow to 512 would give back roughly 1.9 MB.
+- Touch, mouse and Xbox controller were NOT re-tested on hardware. `ui/touch_controls.tscn`
+  is in the slice so it can be, and no input code was changed.
+- Classroom-device frame rate was not measured.
+- The slice's ground is a mesh patch; mounding is 5 cm over 26 m against a flat collision
+  box, so Chuck floats or sinks by up to 5 cm. Fine at this camera, wrong for a real level.
+- Annette, the sound lever, the river, the bridge and the village buildings have NO
+  storybook equivalent yet. That is phase 2 and is deliberately not started.
+
+Git: nothing committed, nothing pushed. New untracked paths only — `art_src/`,
+`assets/storybook/`, `storybook/`, `scenes/storybook_slice.tscn`,
+`tools/check_storybook.gd`. No existing file was modified.
+
 # Wooden-toy visual pass — 2026-10-04
 
 The owner approved softer lighting, ground/path improvements, and a much more distinctive

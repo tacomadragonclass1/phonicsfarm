@@ -1,0 +1,109 @@
+[gd_scene load_steps=6 format=3]
+
+; HYBRID alphabet block -- D1's superellipsoid, re-proportioned around the
+; lettering, in the house palette.
+;
+; The script is alphabet_block.gd, UNCHANGED. What changed is the type:
+;
+;   font_size 76 -> 83, and every Label3D lifted 0.0847 units.
+;
+; Both numbers were measured from Fredoka rather than chosen. Across a-z the
+; glyph ink spans 0.894 em and sits OFF-CENTRE on the text origin, from +0.320
+; em at the top of 'f' to -0.575 em at the bottom of 'y', because Label3D
+; centres the line box (ascent + descent) and not the ink. On the shipping
+; block that dropped every descender -- g j p q y -- 0.062 units below the
+; plaque and onto the wooden frame.
+;
+; Lifting the label by 0.1275 em re-centres the ink on the plaque, and that is
+; what pays for the bigger type: x-height goes 0.287 -> 0.313 units, 9% more,
+; with 'f' and 'y' still clearing the edge by 0.023.
+
+[ext_resource type="Script" path="res://alphabet_block/alphabet_block.gd" id="1"]
+[ext_resource type="FontFile" path="res://assets/fonts/Fredoka.ttf" id="2"]
+[ext_resource type="PackedScene" path="res://assets/storybook/explore/hybrid_block.glb" id="3"]
+[ext_resource type="Script" path="res://storybook/storybook_surface.gd" id="4"]
+
+[sub_resource type="FontVariation" id="LetterFont"]
+base_font = ExtResource("2")
+variation_opentype = {
+2003265652: 600.0
+}
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(0.8, 0.8, 0.8)
+
+[node name="AlphabetBlock" type="StaticBody3D" groups=["alphabet_blocks"]]
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("1")
+
+[node name="Visual" parent="." instance=ExtResource("3")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.4, 0)
+shape = SubResource("Shape")
+
+[node name="SurfaceFix" type="Node" parent="."]
+script = ExtResource("4")
+
+[node name="Letters" type="Node3D" parent="."]
+
+[node name="Front" type="Label3D" parent="Letters"]
+position = Vector3(0.0, 0.4847, 0.417792)
+rotation = Vector3(0, 0, 0)
+pixel_size = 0.008
+font = SubResource("LetterFont")
+font_size = 83
+outline_size = 0
+modulate = Color(0.165, 0.129, 0.110, 1)
+text = "a"
+no_depth_test = false
+shaded = false
+
+[node name="Right" type="Label3D" parent="Letters"]
+position = Vector3(0.417792, 0.4847, 0.0)
+rotation = Vector3(0, 1.5707963267948966, 0)
+pixel_size = 0.008
+font = SubResource("LetterFont")
+font_size = 83
+outline_size = 0
+modulate = Color(0.165, 0.129, 0.110, 1)
+text = "a"
+no_depth_test = false
+shaded = false
+
+[node name="Back" type="Label3D" parent="Letters"]
+position = Vector3(0.0, 0.4847, -0.417792)
+rotation = Vector3(0, 3.141592653589793, 0)
+pixel_size = 0.008
+font = SubResource("LetterFont")
+font_size = 83
+outline_size = 0
+modulate = Color(0.165, 0.129, 0.110, 1)
+text = "a"
+no_depth_test = false
+shaded = false
+
+[node name="Left" type="Label3D" parent="Letters"]
+position = Vector3(-0.417792, 0.4847, 0.0)
+rotation = Vector3(0, -1.5707963267948966, 0)
+pixel_size = 0.008
+font = SubResource("LetterFont")
+font_size = 83
+outline_size = 0
+modulate = Color(0.165, 0.129, 0.110, 1)
+text = "a"
+no_depth_test = false
+shaded = false
+
+[node name="Top" type="Label3D" parent="Letters"]
+position = Vector3(0, 0.822, -0.0847)
+rotation = Vector3(-1.5707963267948966, 0, 0)
+pixel_size = 0.008
+font = SubResource("LetterFont")
+font_size = 83
+outline_size = 0
+modulate = Color(0.165, 0.129, 0.110, 1)
+text = "a"
+no_depth_test = false
+shaded = false

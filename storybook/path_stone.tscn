@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+; A single flagstone, 152 triangles and no collision at all -- it is 0.12 m
+; proud of the ground and Chuck walks straight over it. Rotate and scale each
+; instance so the path never visibly repeats.
+
+[ext_resource type="PackedScene" path="res://assets/storybook/path_stone.glb" id="1"]
+[ext_resource type="Script" path="res://storybook/storybook_surface.gd" id="Surface"]
+
+[node name="PathStone" type="Node3D"]
+
+[node name="Model" parent="." instance=ExtResource("1")]
+
+[node name="SurfaceFix" type="Node" parent="."]
+script = ExtResource("Surface")

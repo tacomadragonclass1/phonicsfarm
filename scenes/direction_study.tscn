@@ -1,0 +1,177 @@
+[gd_scene load_steps=20 format=3]
+
+; DIRECTION STUDY -- three visual treatments of the same four subjects
+;
+; Walk between them. The camera is the SHIPPING one -- environment/fixed_camera.gd
+; at pitch 30 / yaw 30 / zoom 9 -- so each direction is judged at the size and
+; angle a child actually sees, not at a beauty-render distance.
+;
+; Left to right: d1 handcrafted sculpted miniature, d2 dimensional painted
+; storybook, d3 expressive sculptural contemporary. Groups are 13 units apart
+; along the SCREEN-horizontal axis, so walking right moves cleanly from one
+; world to the next.
+;
+; The blocks are live AlphabetBlock instances running the real script, so the
+; Label3D letters are generated at runtime exactly as in the game. Everything
+; else is a static display model: these are direction studies, and rigging
+; three characters before one of them is chosen would be wasted work.
+;
+; The walking avatar is the PHASE 1 Chuck, because he is the one that is
+; already rigged. Each direction's own Chuck stands in its group as a subject.
+; Nothing in this scene is wired into the game.
+
+[ext_resource type="PackedScene" path="res://storybook/explore/d1_cottage.tscn" id="d1_cottage"]
+[ext_resource type="PackedScene" path="res://storybook/explore/d1_tree.tscn" id="d1_tree"]
+[ext_resource type="PackedScene" path="res://storybook/explore/d1_chuck.tscn" id="d1_chuck"]
+[ext_resource type="PackedScene" path="res://storybook/explore/d1_block.tscn" id="d1_block"]
+[ext_resource type="PackedScene" path="res://storybook/explore/d2_cottage.tscn" id="d2_cottage"]
+[ext_resource type="PackedScene" path="res://storybook/explore/d2_tree.tscn" id="d2_tree"]
+[ext_resource type="PackedScene" path="res://storybook/explore/d2_chuck.tscn" id="d2_chuck"]
+[ext_resource type="PackedScene" path="res://storybook/explore/d2_block.tscn" id="d2_block"]
+[ext_resource type="PackedScene" path="res://storybook/explore/d3_cottage.tscn" id="d3_cottage"]
+[ext_resource type="PackedScene" path="res://storybook/explore/d3_tree.tscn" id="d3_tree"]
+[ext_resource type="PackedScene" path="res://storybook/explore/d3_chuck.tscn" id="d3_chuck"]
+[ext_resource type="PackedScene" path="res://storybook/explore/d3_block.tscn" id="d3_block"]
+[ext_resource type="PackedScene" path="res://storybook/chuck.tscn" id="Avatar"]
+[ext_resource type="PackedScene" path="res://ui/touch_controls.tscn" id="UI"]
+[ext_resource type="Script" path="res://environment/fixed_camera.gd" id="Camera"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
+sky_top_color = Color(0.47, 0.67, 0.76, 1)
+sky_horizon_color = Color(0.84, 0.86, 0.75, 1)
+sky_curve = 0.12
+ground_bottom_color = Color(0.3, 0.26, 0.28, 1)
+ground_horizon_color = Color(0.84, 0.58, 0.4, 1)
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMaterial")
+
+[sub_resource type="Environment" id="Environment"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 2
+ambient_light_color = Color(0.82, 0.87, 0.94, 1)
+ambient_light_energy = 0.28
+reflected_light_source = 0
+tonemap_mode = 2
+tonemap_white = 1.15
+
+[sub_resource type="StandardMaterial3D" id="GroundMat"]
+; LINEAR values, not the sRGB ones the palette is written in. Measured in the
+; browser: a plain StandardMaterial3D given sRGB numbers renders exactly as
+; washed out as an unfixed GLB texture does, so albedo_color is consumed as
+; linear here just like the imported textures are. sRGB #8FA06A -> linear.
+albedo_color = Color(0.272, 0.352, 0.152, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="GroundMesh"]
+material = SubResource("GroundMat")
+size = Vector3(70, 0.4, 40)
+
+[sub_resource type="BoxShape3D" id="GroundShape"]
+size = Vector3(70, 0.4, 40)
+
+[node name="DirectionStudy" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-50, -28, 0)
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 0.78
+light_angular_distance = 4.0
+shadow_enabled = true
+shadow_opacity = 0.62
+shadow_blur = 2.0
+shadow_bias = 0.09
+shadow_normal_bias = 2.0
+directional_shadow_max_distance = 30.0
+
+[node name="Skylight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.93973503, -0.21046002, 0.2694525, 0, 0.78809495, 0.61555369, -0.3419036, 0.57845737, -0.74060043, 0, 0, 0)
+light_color = Color(0.74, 0.84, 1, 1)
+light_energy = 0.1
+shadow_enabled = false
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.8660254, 0, -0.5, -0.25, 0.8660254, -0.4330127, 0.4330127, 0.5, 0.75, 11.25833, 13, 19.5)
+projection = 1
+current = true
+size = 9.0
+far = 160.0
+script = ExtResource("Camera")
+
+[node name="Ground" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 2
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
+mesh = SubResource("GroundMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
+shape = SubResource("GroundShape")
+
+[node name="D1" type="Node3D" parent="."]
+
+[node name="Cottage" parent="D1" instance=ExtResource("d1_cottage")]
+transform = Transform3D(0.9272, 0, -0.3746, 0, 1.0000, 0, 0.3746, 0, 0.9272, -14.4038, 0.0000, 4.8519)
+
+[node name="Tree" parent="D1" instance=ExtResource("d1_tree")]
+transform = Transform3D(0.8829, 0, 0.4695, 0, 1.0000, 0, -0.4695, 0, 0.8829, -10.1933, 0.0000, 3.3447)
+
+[node name="Chuck" parent="D1" instance=ExtResource("d1_chuck")]
+transform = Transform3D(0.9613, 0, -0.2756, 0, 1.0000, 0, 0.2756, 0, 0.9613, -11.8244, 0.0000, 7.5196)
+
+[node name="Block1" parent="D1" instance=ExtResource("d1_block")]
+transform = Transform3D(0.9703, 0, -0.2419, 0, 1.0000, 0, 0.2419, 0, 0.9703, -10.2289, 0.0000, 6.4830)
+letter = "c"
+
+[node name="Block2" parent="D1" instance=ExtResource("d1_block")]
+transform = Transform3D(0.8988, 0, 0.4384, 0, 1.0000, 0, -0.4384, 0, 0.8988, -8.7031, 0.0000, 6.5258)
+letter = "a"
+
+[node name="D2" type="Node3D" parent="."]
+
+[node name="Cottage" parent="D2" instance=ExtResource("d2_cottage")]
+transform = Transform3D(0.9272, 0, -0.3746, 0, 1.0000, 0, 0.3746, 0, 0.9272, -3.1454, 0.0000, -1.6481)
+
+[node name="Tree" parent="D2" instance=ExtResource("d2_tree")]
+transform = Transform3D(0.8829, 0, 0.4695, 0, 1.0000, 0, -0.4695, 0, 0.8829, 1.0651, 0.0000, -3.1553)
+
+[node name="Chuck" parent="D2" instance=ExtResource("d2_chuck")]
+transform = Transform3D(0.9613, 0, -0.2756, 0, 1.0000, 0, 0.2756, 0, 0.9613, -0.5660, 0.0000, 1.0196)
+
+[node name="Block1" parent="D2" instance=ExtResource("d2_block")]
+transform = Transform3D(0.9703, 0, -0.2419, 0, 1.0000, 0, 0.2419, 0, 0.9703, 1.0294, 0.0000, -0.0170)
+letter = "c"
+
+[node name="Block2" parent="D2" instance=ExtResource("d2_block")]
+transform = Transform3D(0.8988, 0, 0.4384, 0, 1.0000, 0, -0.4384, 0, 0.8988, 2.5553, 0.0000, 0.0258)
+letter = "a"
+
+[node name="D3" type="Node3D" parent="."]
+
+[node name="Cottage" parent="D3" instance=ExtResource("d3_cottage")]
+transform = Transform3D(0.9272, 0, -0.3746, 0, 1.0000, 0, 0.3746, 0, 0.9272, 8.1129, 0.0000, -8.1481)
+
+[node name="Tree" parent="D3" instance=ExtResource("d3_tree")]
+transform = Transform3D(0.8829, 0, 0.4695, 0, 1.0000, 0, -0.4695, 0, 0.8829, 12.3234, 0.0000, -9.6553)
+
+[node name="Chuck" parent="D3" instance=ExtResource("d3_chuck")]
+transform = Transform3D(0.9613, 0, -0.2756, 0, 1.0000, 0, 0.2756, 0, 0.9613, 10.6923, 0.0000, -5.4804)
+
+[node name="Block1" parent="D3" instance=ExtResource("d3_block")]
+transform = Transform3D(0.9703, 0, -0.2419, 0, 1.0000, 0, 0.2419, 0, 0.9703, 12.2878, 0.0000, -6.5170)
+letter = "c"
+
+[node name="Block2" parent="D3" instance=ExtResource("d3_block")]
+transform = Transform3D(0.8988, 0, 0.4384, 0, 1.0000, 0, -0.4384, 0, 0.8988, 13.8136, 0.0000, -6.4742)
+letter = "a"
+
+[node name="Player" parent="." instance=ExtResource("Avatar")]
+transform = Transform3D(1.0000, 0, 0.0000, 0, 1.0000, 0, -0.0000, 0, 1.0000, -0.5000, 0.0500, -0.8660)
+
+[node name="TouchControls" parent="." instance=ExtResource("UI")]

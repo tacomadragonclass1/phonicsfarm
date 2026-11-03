@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+; Handcrafted sculpted miniature chuck, for the direction study only. No collision: the study
+; scene is for looking at, and giving three sets of scenery colliders would
+; only get in the way of walking between them.
+
+[ext_resource type="PackedScene" path="res://assets/storybook/explore/d1_chuck.glb" id="1"]
+[ext_resource type="Script" path="res://storybook/storybook_surface.gd" id="2"]
+
+[node name="Chuck" type="Node3D"]
+
+[node name="Model" parent="." instance=ExtResource("1")]
+
+[node name="SurfaceFix" type="Node" parent="."]
+script = ExtResource("2")
