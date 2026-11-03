@@ -82,6 +82,39 @@ jobs:
           touch build/web/.nojekyll
           ls -la build/web
 
+      # ⛔ A SECOND export, into /preview/, and it runs AFTER the real one on
+      # purpose. Pages serves one site and this workflow fires only on a push
+      # to main, so the only way to look at the new art on a URL without
+      # taking the classroom game offline is to publish it alongside.
+      # scenes/main.tscn stays the site root; the preview is a side door.
+      #
+      # ⛔ TWO PRESETS, and that is not tidiness. Godot packs every imported
+      # resource, not just the ones the main scene reaches, so simply adding
+      # the new art took the CLASSROOM build's pck from 1.8 MB to 33 MB --
+      # a download the children pay for and never see. The "Web" preset now
+      # excludes the new art; "WebPreview" includes it.
+      #
+      # project.godot is edited in the runner's checkout only. Nothing is
+      # written back, and the working copy on any laptop is untouched.
+      - name: Export the preview build
+        run: |
+          set -euo pipefail
+          cp project.godot /tmp/project.godot.bak
+          sed -i 's|run/main_scene="res://scenes/main.tscn"|run/main_scene="res://scenes/foundation_preview.tscn"|' project.godot
+          grep -q 'foundation_preview' project.godot || { echo "main_scene swap failed"; exit 1; }
+          mkdir -p build/web/preview
+          ~/godot/godot --headless --path . --export-release "WebPreview" build/web/preview/index.html
+          cp /tmp/project.godot.bak project.godot
+          git diff --quiet project.godot || { echo "project.godot not restored"; exit 1; }
+          ls -la build/web/preview
+
+      - name: Fail if the preview produced nothing
+        run: |
+          set -euo pipefail
+          for f in index.html index.wasm index.pck index.js; do
+            test -s "build/web/preview/$f" || { echo "missing: preview/$f"; exit 1; }
+          done
+
       - name: Fail if the export produced nothing
         run: |
           set -euo pipefail

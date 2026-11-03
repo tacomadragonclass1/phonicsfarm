@@ -1,0 +1,119 @@
+[gd_scene load_steps=12 format=3]
+
+; THE PREVIEW BUILD -- everything new, walkable, in one scene.
+;
+; ⛔ This exists so the classroom game does NOT have to be replaced to look
+; at the new art. GitHub Pages serves one site and `deploy.yml` fires only on
+; a push to main, so the only way to see this on a URL is to publish it
+; ALONGSIDE the game: the real game stays at the site root and this is
+; exported a second time into /preview/.
+;
+; scenes/main.tscn is untouched. Nothing here is wired into the game.
+;
+; The home field is on the left, the village across the green to the north.
+; Chuck can walk from one to the other, which is the whole point -- the two
+; sets were built months apart and have to look like one world.
+
+[ext_resource type="PackedScene" path="res://storybook/foundation/terrain.tscn" id="Terrain"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/props.tscn" id="Props"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/garden.tscn" id="Garden"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/cottage.tscn" id="Cottage"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/tree.tscn" id="Tree"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/block.tscn" id="Block"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/chuck.tscn" id="Player"]
+[ext_resource type="PackedScene" path="res://village/foundation_village.tscn" id="Village"]
+[ext_resource type="Script" path="res://environment/fixed_camera.gd" id="Camera"]
+[ext_resource type="PackedScene" path="res://ui/touch_controls.tscn" id="UI"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
+sky_top_color = Color(0.44, 0.65, 0.78, 1)
+sky_horizon_color = Color(0.87, 0.87, 0.76, 1)
+sky_curve = 0.14
+ground_bottom_color = Color(0.32, 0.3, 0.27, 1)
+ground_horizon_color = Color(0.84, 0.72, 0.52, 1)
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMaterial")
+
+; ⭐ AgX. scenes/main.tscn has no tonemapper at all, so the palette renders
+; raw and markedly hotter than every Blender review of the same assets. This
+; is the half of the colour pipeline the engine was missing; the sRGB fix in
+; storybook_surface.gd is the other half and is still required.
+[sub_resource type="Environment" id="Environment"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 2
+ambient_light_color = Color(0.74, 0.82, 0.95, 1)
+ambient_light_energy = 0.46
+tonemap_mode = 4
+tonemap_exposure = 1.3
+tonemap_white = 2.0
+
+[sub_resource type="PlaneMesh" id="GreenMesh"]
+size = Vector2(120, 120)
+
+[sub_resource type="StandardMaterial3D" id="GreenMat"]
+albedo_color = Color(0.482, 0.604, 0.329, 1)
+roughness = 1.0
+
+[node name="FoundationPreview" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.6156615, -0.44961134, 0.6473643, 0, 0.8208, 0.5700135, -0.78802246, -0.35100627, 0.5053817, 0, 9, 0)
+light_color = Color(1, 0.95, 0.87, 1)
+light_energy = 1.55
+light_angular_distance = 4.0
+shadow_enabled = true
+
+; The ground the village green sits on. The village scene carries collision
+; but no ground MESH -- in the real game the Environment supplies that.
+[node name="Green" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.02, -16)
+mesh = SubResource("GreenMesh")
+surface_material_override/0 = SubResource("GreenMat")
+
+[node name="HomeField" type="Node3D" parent="."]
+
+[node name="Terrain" parent="HomeField" instance=ExtResource("Terrain")]
+
+[node name="Props" parent="HomeField" instance=ExtResource("Props")]
+
+[node name="Garden" parent="HomeField" instance=ExtResource("Garden")]
+
+[node name="Cottage" parent="HomeField" instance=ExtResource("Cottage")]
+transform = Transform3D(0.97029574, 0, -0.2419219, 0, 1, 0, 0.2419219, 0, 0.97029574, -2.7, -0.058, -3.0)
+
+[node name="Tree" parent="HomeField" instance=ExtResource("Tree")]
+transform = Transform3D(0.91354546, 0, 0.40673664, 0, 1, 0, -0.40673664, 0, 0.91354546, 3.95, 0.153, -0.75)
+
+[node name="Blocks" type="Node3D" parent="."]
+
+[node name="P" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.78801075, 0, -0.6156615, 0, 1, 0, 0.6156615, 0, 0.78801075, 1.35, -0.047, 2.45)
+letter = "p"
+
+[node name="G" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.98162717, 0, -0.19080898, 0, 1, 0, 0.19080898, 0, 0.98162717, 2.42, 0.083, 1.95)
+letter = "g"
+
+[node name="A" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.91354546, 0, 0.40673664, 0, 1, 0, -0.40673664, 0, 0.91354546, 0.3, -0.073, 3.05)
+letter = "a"
+
+[node name="PhonemeVillage" parent="." instance=ExtResource("Village")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -26)
+
+[node name="Player" parent="." instance=ExtResource("Player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0.05, 1.85)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+projection = 1
+current = true
+size = 9.0
+far = 180.0
+script = ExtResource("Camera")
+
+[node name="UI" parent="." instance=ExtResource("UI")]

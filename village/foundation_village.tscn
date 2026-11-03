@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=32 format=3]
 
 [ext_resource type="PackedScene" path="res://storybook/village/bakery.tscn" id="a0"]
 [ext_resource type="PackedScene" path="res://storybook/village/bench.tscn" id="a1"]
@@ -23,6 +23,21 @@
 [ext_resource type="Script" path="res://village/phoneme_village.gd" id="vs"]
 [ext_resource type="Script" path="res://village/annette.gd" id="as"]
 [ext_resource type="Script" path="res://storybook/foundation/terrain_collision.gd" id="col"]
+
+[sub_resource type="BoxShape3D" id="Box_Bakery"]
+size = Vector3(3.40, 3.60, 2.90)
+
+[sub_resource type="BoxShape3D" id="Box_Bookshop"]
+size = Vector3(3.10, 4.20, 2.80)
+
+[sub_resource type="BoxShape3D" id="Box_ClockHouse"]
+size = Vector3(2.50, 5.60, 2.40)
+
+[sub_resource type="BoxShape3D" id="Box_FlowerShop"]
+size = Vector3(3.20, 3.00, 2.80)
+
+[sub_resource type="BoxShape3D" id="Box_Workshop"]
+size = Vector3(4.80, 3.00, 3.20)
 
 [sub_resource type="BoxShape3D" id="Green"]
 size = Vector3(44, 1, 44)
@@ -55,27 +70,52 @@ position = Vector3(0, -0.5, 0)
 [node name="Bakery" parent="Buildings" instance=ExtResource("a0")]
 transform = Transform3D(0.88295, 0, -0.46947, 0, 1.00000, 0, 0.46947, 0, 0.88295, -4.600, 0.000, -10.400)
 
-[node name="BakeryShape" type="StaticBody3D" parent="Buildings"]
+[node name="BakeryBody" type="StaticBody3D" parent="Buildings"]
+transform = Transform3D(0.88295, 0, -0.46947, 0, 1.00000, 0, 0.46947, 0, 0.88295, -4.600, 0.000, -10.400)
+
+[node name="BakeryShape" type="CollisionShape3D" parent="Buildings/BakeryBody"]
+shape = SubResource("Box_Bakery")
+position = Vector3(0, 1.80, 0)
 
 [node name="Bookshop" parent="Buildings" instance=ExtResource("a3")]
 transform = Transform3D(0.99452, 0, -0.10453, 0, 1.00000, 0, 0.10453, 0, 0.99452, 0.600, 0.000, -11.600)
 
-[node name="BookshopShape" type="StaticBody3D" parent="Buildings"]
+[node name="BookshopBody" type="StaticBody3D" parent="Buildings"]
+transform = Transform3D(0.99452, 0, -0.10453, 0, 1.00000, 0, 0.10453, 0, 0.99452, 0.600, 0.000, -11.600)
+
+[node name="BookshopShape" type="CollisionShape3D" parent="Buildings/BookshopBody"]
+shape = SubResource("Box_Bookshop")
+position = Vector3(0, 2.10, 0)
 
 [node name="ClockHouse" parent="Buildings" instance=ExtResource("a6")]
 transform = Transform3D(0.95106, 0, 0.30902, 0, 1.00000, 0, -0.30902, 0, 0.95106, 6.000, 0.000, -10.200)
 
-[node name="ClockHouseShape" type="StaticBody3D" parent="Buildings"]
+[node name="ClockHouseBody" type="StaticBody3D" parent="Buildings"]
+transform = Transform3D(0.95106, 0, 0.30902, 0, 1.00000, 0, -0.30902, 0, 0.95106, 6.000, 0.000, -10.200)
+
+[node name="ClockHouseShape" type="CollisionShape3D" parent="Buildings/ClockHouseBody"]
+shape = SubResource("Box_ClockHouse")
+position = Vector3(0, 2.80, 0)
 
 [node name="FlowerShop" parent="Buildings" instance=ExtResource("a8")]
 transform = Transform3D(0.69466, 0, 0.71934, 0, 1.00000, 0, -0.71934, 0, 0.69466, 9.800, 0.000, -5.400)
 
-[node name="FlowerShopShape" type="StaticBody3D" parent="Buildings"]
+[node name="FlowerShopBody" type="StaticBody3D" parent="Buildings"]
+transform = Transform3D(0.69466, 0, 0.71934, 0, 1.00000, 0, -0.71934, 0, 0.69466, 9.800, 0.000, -5.400)
+
+[node name="FlowerShopShape" type="CollisionShape3D" parent="Buildings/FlowerShopBody"]
+shape = SubResource("Box_FlowerShop")
+position = Vector3(0, 1.50, 0)
 
 [node name="Workshop" parent="Buildings" instance=ExtResource("a17")]
 transform = Transform3D(0.20791, 0, 0.97815, 0, 1.00000, 0, -0.97815, 0, 0.20791, 11.000, 0.000, 0.800)
 
-[node name="WorkshopShape" type="StaticBody3D" parent="Buildings"]
+[node name="WorkshopBody" type="StaticBody3D" parent="Buildings"]
+transform = Transform3D(0.20791, 0, 0.97815, 0, 1.00000, 0, -0.97815, 0, 0.20791, 11.000, 0.000, 0.800)
+
+[node name="WorkshopShape" type="CollisionShape3D" parent="Buildings/WorkshopBody"]
+shape = SubResource("Box_Workshop")
+position = Vector3(0, 1.50, 0)
 
 [node name="Windmill" parent="Buildings" instance=ExtResource("a16")]
 transform = Transform3D(0.88295, 0, -0.46947, 0, 1.00000, 0, 0.46947, 0, 0.88295, -10.295, 2.150, -5.406)

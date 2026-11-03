@@ -312,8 +312,16 @@ def main():
     for name, x, z, yaw, half in BUILDINGS:
         body.append(instance(name.title().replace("_", ""), ids[name],
                              "Buildings", xform(x, 0.0, z, yaw)))
-        body.append(node(name.title().replace("_", "") + "Shape",
-                         "StaticBody3D", "Buildings"))
+        # ⛔ A StaticBody3D with no CollisionShape child is not collision,
+        # it is an empty node. The first generated scene had six of them and
+        # Chuck walked straight through every building.
+        tag = name.title().replace("_", "")
+        body.append(node(tag + "Body", "StaticBody3D", "Buildings",
+                         transform=xform(x, 0.0, z, yaw)))
+        body.append(node(tag + "Shape", "CollisionShape3D",
+                         "Buildings/" + tag + "Body",
+                         shape='SubResource("Box_%s")' % tag,
+                         position="Vector3(0, %.2f, 0)" % half[1]))
     mill = rot_xz(-1.1, -0.5, MOUND_YAW)
     body.append(instance("Windmill", ids["windmill"], "Buildings",
                          xform(MOUND[0] + mill[0], MOUND_H,
@@ -444,7 +452,9 @@ def main():
                          position="Vector3(%.2f, %.2f, %.2f)" % (x, y, z)))
     body.append(node("Blocks", "Node3D", "."))
 
-    subs = [
+    subs = ['[sub_resource type="BoxShape3D" id="Box_%s"]\nsize = Vector3(%.2f, %.2f, %.2f)\n'
+            % (n.title().replace("_", ""), h[0] * 2, h[1] * 2, h[2] * 2)
+            for n, _, _, _, h in BUILDINGS] + [
         '[sub_resource type="BoxShape3D" id="Green"]\nsize = Vector3(44, 1, 44)\n',
         '[sub_resource type="SphereShape3D" id="Touch"]\nradius = 0.95\n',
         '[sub_resource type="BoxShape3D" id="Trigger"]\nsize = Vector3(40, 6, 40)\n',
