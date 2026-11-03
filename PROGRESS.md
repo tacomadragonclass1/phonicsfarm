@@ -1,3 +1,52 @@
+# DEPLOYED — the new art lives at /preview/ — 2026-11-03
+
+    the game     https://tacomadragonclass1.github.io/phonicsfarm/
+    the new art  https://tacomadragonclass1.github.io/phonicsfarm/preview/
+
+⛔ **The classroom game was not replaced.** Pages serves one site and
+`deploy.yml` fires only on a push to `main`, so putting the new art on a URL
+would ordinarily have meant swapping `run/main_scene` and taking the real
+game offline. It is exported a SECOND time into `/preview/` instead:
+`scenes/main.tscn` stays the site root, the preview is a side door, and
+`scenes/main.tscn`, `village/phoneme_village.tscn`, `project.godot`, `tests/`,
+`player/` and `alphabet_block/` are all verified untouched by the diff
+against 0f4ae53.
+
+`scenes/foundation_preview.tscn` puts the home field and the rebuilt village
+in ONE walkable scene on purpose: the two sets were built weeks apart, and
+the only real test is whether they look like one world when you walk between
+them.
+
+## ⛔⛔ TWO EXPORT PRESETS, and this one nearly shipped silently
+
+Godot packs every imported resource, not only the ones the main scene
+reaches. Merely adding the new art took the CLASSROOM build's pck from
+**1.8 MB to 33 MB** -- a download the children pay for and never see, on a
+game that is meant to open on a school Chromebook.
+
+`Web` now excludes `assets/storybook/explore/*`, `assets/storybook/village/*`
+and the parallel scenes, and is back to **5.8 MB**, which is exactly where
+phase 1 left it. `WebPreview` includes everything and is the 33 MB one, which
+only someone opening `/preview/` pays for.
+
+⭐ The general lesson: adding assets to a Godot project costs download size
+even when nothing references them. Check the pck, not the scene.
+
+## Also fixed on the way
+
+A `StaticBody3D` with no `CollisionShape` child is not collision, it is an
+empty node. The generated village had six of them and Chuck walked through
+every building.
+
+## To put the new art in the real game
+
+Not done, and deliberately a separate decision. It means pointing
+`scenes/main.tscn` at the new village and assets, AND adopting a tonemapper
+-- the shipping environment has none, so the palette renders raw and much
+hotter than every review that was approved. `tests/village.gd` also hard-codes
+the OLD terrace's ramp coordinates, so swapping the village into main.tscn
+breaks it and would block the deploy until those are updated.
+
 # THE RE-PLANNED VILLAGE — generated, verified, committed — 2026-11-03
 
 `village/foundation_village.tscn`, built by
