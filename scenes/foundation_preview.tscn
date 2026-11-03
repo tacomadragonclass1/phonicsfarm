@@ -70,8 +70,13 @@ shadow_enabled = true
 
 ; The ground the village green sits on. The village scene carries collision
 ; but no ground MESH -- in the real game the Environment supplies that.
+; ⛔ -0.62, not -0.02. The home field's terrain ROLLS between -0.48 and
+; +0.35, so a flat plane at -0.02 punched up through every hollow in it and
+; the field was covered in pale mint-green patches where the plane showed.
+; It has to sit below the terrain's lowest point; it is only there to carry
+; the village green beyond the 26 m the sculpted terrain covers.
 [node name="Green" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.02, -16)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.62, -16)
 mesh = SubResource("GreenMesh")
 surface_material_override/0 = SubResource("GreenMat")
 
