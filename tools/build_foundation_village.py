@@ -272,8 +272,11 @@ def main():
                'path="res://village/phoneme_village.gd" id="vs"]')
     ext.append('[ext_resource type="Script" '
                'path="res://village/annette.gd" id="as"]')
-    ext.append('[ext_resource type="Script" '
-               'path="res://storybook/foundation/terrain_collision.gd" '
+    # ⛔ A BAKED collision shape. See storybook/foundation/terrain.tscn:
+    # the web build is single-threaded and building a trimesh at load
+    # freezes the tab.
+    ext.append('[ext_resource type="ConcavePolygonShape3D" '
+               'path="res://assets/storybook/collision/mill_mound.res" '
                'id="col"]')
 
     # Trees first: the spawn test needs to know where they stand.
@@ -300,8 +303,10 @@ def main():
     body.append(node("Terrain", "Node3D", "."))
     body.append(instance("MillMound", ids["mill_mound"], "Terrain",
                          xform(MOUND[0], MOUND[1], MOUND[2], MOUND_YAW)))
-    body.append(node("MoundCollision", "Node", "Terrain/MillMound",
-                     script='ExtResource("col")'))
+    body.append(node("MoundCollision", "StaticBody3D", "Terrain",
+                     transform=xform(MOUND[0], MOUND[1], MOUND[2], MOUND_YAW)))
+    body.append(node("MoundShape", "CollisionShape3D", "Terrain/MoundCollision",
+                     shape='ExtResource("col")'))
     body.append(node("GreenBody", "StaticBody3D", "Terrain"))
     body.append(node("GreenShape", "CollisionShape3D", "Terrain/GreenBody",
                      shape='SubResource("Green")',

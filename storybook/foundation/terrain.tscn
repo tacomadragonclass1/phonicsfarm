@@ -5,7 +5,7 @@
 
 [ext_resource type="PackedScene" path="res://assets/storybook/explore/foundation_terrain.glb" id="1"]
 [ext_resource type="Script" path="res://storybook/storybook_surface.gd" id="2"]
-[ext_resource type="Script" path="res://storybook/foundation/terrain_collision.gd" id="3"]
+[ext_resource type="ConcavePolygonShape3D" path="res://assets/storybook/collision/terrain.res" id="3"]
 
 [node name="terrain" type="Node3D"]
 
@@ -14,5 +14,10 @@
 [node name="SurfaceFix" type="Node" parent="."]
 script = ExtResource("2")
 
-[node name="Collision" type="Node" parent="."]
-script = ExtResource("3")
+; ⛔ A BAKED shape, not `create_trimesh_shape()` at load. The web build is
+; single-threaded, so building 13,122 faces of collision in `_ready` blocks
+; the only thread there is and freezes the tab.
+[node name="Collision" type="StaticBody3D" parent="."]
+
+[node name="Shape" type="CollisionShape3D" parent="Collision"]
+shape = ExtResource("3")

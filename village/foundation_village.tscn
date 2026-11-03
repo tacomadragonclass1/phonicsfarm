@@ -22,7 +22,7 @@
 [ext_resource type="PackedScene" path="res://storybook/village/annette.tscn" id="an"]
 [ext_resource type="Script" path="res://village/phoneme_village.gd" id="vs"]
 [ext_resource type="Script" path="res://village/annette.gd" id="as"]
-[ext_resource type="Script" path="res://storybook/foundation/terrain_collision.gd" id="col"]
+[ext_resource type="ConcavePolygonShape3D" path="res://assets/storybook/collision/mill_mound.res" id="col"]
 
 [sub_resource type="BoxShape3D" id="Box_Bakery"]
 size = Vector3(3.40, 3.60, 2.90)
@@ -56,8 +56,11 @@ script = ExtResource("vs")
 [node name="MillMound" parent="Terrain" instance=ExtResource("a10")]
 transform = Transform3D(-0.93969, 0, 0.34202, 0, 1.00000, 0, -0.34202, 0, -0.93969, -11.500, 0.000, -5.500)
 
-[node name="MoundCollision" type="Node" parent="Terrain/MillMound"]
-script = ExtResource("col")
+[node name="MoundCollision" type="StaticBody3D" parent="Terrain"]
+transform = Transform3D(-0.93969, 0, 0.34202, 0, 1.00000, 0, -0.34202, 0, -0.93969, -11.500, 0.000, -5.500)
+
+[node name="MoundShape" type="CollisionShape3D" parent="Terrain/MoundCollision"]
+shape = ExtResource("col")
 
 [node name="GreenBody" type="StaticBody3D" parent="Terrain"]
 
