@@ -1,0 +1,25 @@
+[gd_scene load_steps=4 format=3]
+
+; Painted Storybook tree. Only the trunk collides -- the canopy is 2.5 m up
+; and nothing in this game can reach it, so giving it a shape would cost
+; queries for an obstacle that can never be touched.
+
+[ext_resource type="PackedScene" path="res://assets/storybook/tree.glb" id="1"]
+[ext_resource type="Script" path="res://storybook/storybook_surface.gd" id="Surface"]
+
+[sub_resource type="CylinderShape3D" id="Trunk"]
+radius = 0.22
+height = 1.8
+
+[node name="Tree" type="StaticBody3D"]
+collision_layer = 1
+collision_mask = 2
+
+[node name="Model" parent="." instance=ExtResource("1")]
+
+[node name="Trunk" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.9, 0)
+shape = SubResource("Trunk")
+
+[node name="SurfaceFix" type="Node" parent="."]
+script = ExtResource("Surface")

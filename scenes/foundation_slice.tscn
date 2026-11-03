@@ -1,0 +1,118 @@
+[gd_scene load_steps=12 format=3]
+
+; THE FOUNDATION SLICE -- the approved set, walkable, in the real engine.
+;
+; Phase 2's first milestone: everything that was a Blender render is now a
+; Godot scene. Chuck is RIGGED and is the avatar rather than a display model,
+; the terrain has real collision and is not flat, and the blocks are live
+; AlphabetBlocks so their letters are generated at runtime.
+;
+; Nothing here is wired into the game. scenes/main.tscn is untouched.
+;
+; ⛔ Every object's Y is the TERRAIN HEIGHT at its own x,z, computed from the
+; same `foundation.terrain_height()` that shaped the mesh -- not 0. The play
+; area rolls about 0.35 m, so an object placed at y = 0 either floats or sinks
+; by up to 20 cm, which is most of what "the objects look dropped onto the
+; surface" means.
+
+[ext_resource type="PackedScene" path="res://storybook/foundation/terrain.tscn" id="Terrain"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/props.tscn" id="Props"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/garden.tscn" id="Garden"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/cottage.tscn" id="Cottage"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/tree.tscn" id="Tree"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/block.tscn" id="Block"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/chuck.tscn" id="Player"]
+[ext_resource type="Script" path="res://environment/fixed_camera.gd" id="Camera"]
+[ext_resource type="PackedScene" path="res://ui/touch_controls.tscn" id="UI"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
+sky_top_color = Color(0.44, 0.65, 0.78, 1)
+sky_horizon_color = Color(0.87, 0.87, 0.76, 1)
+sky_curve = 0.14
+ground_bottom_color = Color(0.32, 0.3, 0.27, 1)
+ground_horizon_color = Color(0.84, 0.72, 0.52, 1)
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMaterial")
+
+[sub_resource type="Environment" id="Environment"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 2
+ambient_light_color = Color(0.74, 0.82, 0.95, 1)
+ambient_light_energy = 0.46
+; ⭐ AGX TONE MAPPING (mode 4). scenes/main.tscn has no tonemapper at all, so
+; the engine writes linear light straight out and the palette renders RAW:
+; the first in-engine export of this slice came out markedly more saturated
+; than every Blender review of the same assets -- a red roof where the review
+; had terracotta, and a vivid meadow where the review had sage.
+;
+; ⛔ That was NOT a colour-management bug, and it was worth proving rather
+; than assuming. Exporting the same slice with `albedo_texture_force_srgb`
+; DISABLED produced the opposite failure exactly as PROGRESS describes it --
+; washed out, pale, plaster clipping to white. So the sRGB fix is right and
+; still needed; what was missing is the tonemapper, which is the other half
+; of what AgX was doing in `render_foundation.py`.
+;
+; This is a DEVIATION from the shipping environment and a decision to make
+; deliberately: adopting these assets means adopting a tonemapper with them,
+; or re-grading the whole palette for linear output.
+tonemap_mode = 4
+tonemap_exposure = 1.3
+tonemap_white = 2.0
+
+[node name="FoundationSlice" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+
+; Matching the Blender review rig as closely as the engine allows: a low,
+; lateral, late-afternoon key with a WIDE angular distance, which is what
+; softens a shadow edge. The study rig's 5-degree sun is a point light in all
+; but name, and hard shadows were the note that started this.
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.6156615, -0.44961134, 0.6473643, 0, 0.8208, 0.5700135, -0.78802246, -0.35100627, 0.5053817, 0, 9, 0)
+light_color = Color(1, 0.95, 0.87, 1)
+light_energy = 1.55
+light_angular_distance = 4.0
+shadow_enabled = true
+
+[node name="World" type="Node3D" parent="."]
+
+[node name="Terrain" parent="World" instance=ExtResource("Terrain")]
+
+[node name="Props" parent="World" instance=ExtResource("Props")]
+
+[node name="Garden" parent="World" instance=ExtResource("Garden")]
+
+[node name="Cottage" parent="World" instance=ExtResource("Cottage")]
+transform = Transform3D(0.97029574, 0, -0.2419219, 0, 1, 0, 0.2419219, 0, 0.97029574, -2.7, -0.058, -3.0)
+
+[node name="Tree" parent="World" instance=ExtResource("Tree")]
+transform = Transform3D(0.91354546, 0, 0.40673664, 0, 1, 0, -0.40673664, 0, 0.91354546, 3.95, 0.153, -0.75)
+
+[node name="Blocks" type="Node3D" parent="."]
+
+[node name="P" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.78801075, 0, -0.6156615, 0, 1, 0, 0.6156615, 0, 0.78801075, 1.35, -0.047, 2.45)
+letter = "p"
+
+[node name="G" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.98162717, 0, -0.19080898, 0, 1, 0, 0.19080898, 0, 0.98162717, 2.42, 0.083, 1.95)
+letter = "g"
+
+[node name="A" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.91354546, 0, 0.40673664, 0, 1, 0, -0.40673664, 0, 0.91354546, 0.3, -0.073, 3.05)
+letter = "a"
+
+[node name="Player" parent="." instance=ExtResource("Player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0.05, 1.85)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+projection = 1
+current = true
+size = 9.0
+far = 140.0
+script = ExtResource("Camera")
+
+[node name="UI" parent="." instance=ExtResource("UI")]

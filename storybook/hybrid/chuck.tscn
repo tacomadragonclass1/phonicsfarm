@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+; HYBRID Chuck. A STATIC display model. Rigging waits until the
+; direction is signed off; the walking avatar is still the phase-1 Chuck.
+
+[ext_resource type="PackedScene" path="res://assets/storybook/explore/hybrid_chuck.glb" id="1"]
+[ext_resource type="Script" path="res://storybook/storybook_surface.gd" id="2"]
+
+[node name="Chuck" type="Node3D"]
+
+[node name="Model" parent="." instance=ExtResource("1")]
+
+[node name="SurfaceFix" type="Node" parent="."]
+script = ExtResource("2")

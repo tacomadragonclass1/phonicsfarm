@@ -1,0 +1,105 @@
+[gd_scene load_steps=6 format=3]
+
+; Painted Storybook alphabet block.
+;
+; A drop-in replacement for alphabet_block/alphabet_block.tscn that reuses the
+; SAME script, so every behaviour -- pickup, carry, pedestal snap, the lever's
+; gold feedback, the sparkle, the village's vanish puff -- is unchanged.
+;
+; Only the Visual subtree differs: it is now assets/storybook/block.glb, whose
+; children are named Cube / Front / Right / Back / Left / Top precisely because
+; alphabet_block.gd repaints every Visual child except "Cube".
+;
+; The Letters node and its five Label3D children are copied over untouched.
+; Letters are generated at runtime from AlphabetBlock.letter and are NOT part
+; of the model.
+
+[ext_resource type="Script" path="res://alphabet_block/alphabet_block.gd" id="1"]
+[ext_resource type="FontFile" path="res://assets/fonts/Fredoka.ttf" id="2"]
+[ext_resource type="PackedScene" path="res://assets/storybook/block.glb" id="3"]
+[ext_resource type="Script" path="res://storybook/storybook_surface.gd" id="Surface"]
+
+[sub_resource type="FontVariation" id="LetterFont"]
+base_font = ExtResource("2")
+variation_opentype = {
+2003265652: 600.0
+}
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(0.8, 0.8, 0.8)
+
+[node name="AlphabetBlock" type="StaticBody3D" groups=["alphabet_blocks"]]
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("1")
+
+[node name="Visual" parent="." instance=ExtResource("3")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.4, 0)
+shape = SubResource("Shape")
+
+[node name="Letters" type="Node3D" parent="."]
+
+[node name="Front" type="Label3D" parent="Letters"]
+position = Vector3(0.0, 0.4, 0.417792)
+rotation = Vector3(0, 0, 0)
+pixel_size = 0.008
+font = SubResource("LetterFont")
+font_size = 76
+outline_size = 0
+modulate = Color(0.141, 0.11, 0.094, 1)
+text = "a"
+no_depth_test = false
+shaded = false
+
+[node name="Right" type="Label3D" parent="Letters"]
+position = Vector3(0.417792, 0.4, 0.0)
+rotation = Vector3(0, 1.5707963267948966, 0)
+pixel_size = 0.008
+font = SubResource("LetterFont")
+font_size = 76
+outline_size = 0
+modulate = Color(0.141, 0.11, 0.094, 1)
+text = "a"
+no_depth_test = false
+shaded = false
+
+[node name="Back" type="Label3D" parent="Letters"]
+position = Vector3(0.0, 0.4, -0.417792)
+rotation = Vector3(0, 3.141592653589793, 0)
+pixel_size = 0.008
+font = SubResource("LetterFont")
+font_size = 76
+outline_size = 0
+modulate = Color(0.141, 0.11, 0.094, 1)
+text = "a"
+no_depth_test = false
+shaded = false
+
+[node name="Left" type="Label3D" parent="Letters"]
+position = Vector3(-0.417792, 0.4, 0.0)
+rotation = Vector3(0, -1.5707963267948966, 0)
+pixel_size = 0.008
+font = SubResource("LetterFont")
+font_size = 76
+outline_size = 0
+modulate = Color(0.141, 0.11, 0.094, 1)
+text = "a"
+no_depth_test = false
+shaded = false
+
+[node name="Top" type="Label3D" parent="Letters"]
+position = Vector3(0, 0.822, 0)
+rotation = Vector3(-1.5707963267948966, 0, 0)
+pixel_size = 0.008
+font = SubResource("LetterFont")
+font_size = 76
+outline_size = 0
+modulate = Color(0.141, 0.11, 0.094, 1)
+text = "a"
+no_depth_test = false
+shaded = false
+
+[node name="SurfaceFix" type="Node" parent="."]
+script = ExtResource("Surface")

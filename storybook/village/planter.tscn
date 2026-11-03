@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+; FOUNDATION-language village asset: planter. Instances the GLB and carries its
+; own sRGB correction, so the asset fixes itself wherever it is used.
+
+[ext_resource type="PackedScene" path="res://assets/storybook/village/planter.glb" id="1"]
+[ext_resource type="Script" path="res://storybook/storybook_surface.gd" id="2"]
+
+[node name="planter" type="Node3D"]
+
+[node name="Model" parent="." instance=ExtResource("1")]
+
+[node name="SurfaceFix" type="Node" parent="."]
+script = ExtResource("2")

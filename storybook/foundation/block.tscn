@@ -1,0 +1,110 @@
+[gd_scene load_steps=6 format=3]
+
+; FOUNDATION alphabet block -- the approved hybrid block with a moulded wooden
+; rim, so the cream letter face reads as INSET rather than applied.
+;
+; ⛔ THE LETTERS ARE NOT IN THE GLB AND NEVER WERE. `foundation_block.glb`
+; ships five BLANK cream plaques named Front/Right/Back/Left/Top; every letter
+; on every face is a runtime Label3D in THIS file, set by
+; `alphabet_block.gd::update_letter()`. That is why the block had no letters
+; until this scene existed -- there was no scene, not a missing texture.
+;
+; The geometry the labels depend on is unchanged from hybrid and is checked at
+; BUILD time by `asset.verify_contract`: the plaque surface sits 0.413 from the
+; block's centre and each label sits 0.4178, which is 0.0048 clear of it. The
+; new rim rises to 0.427, so each letter now sits 0.009 DOWN INSIDE a shallow
+; tray. It is still in front of its own plaque, which is what matters.
+;
+; font_size 83 and the 0.0847 label lift are carried over from hybrid
+; UNCHANGED, deliberately -- see PROGRESS.md: both are believed wrong by a
+; factor of 1.203, and that is a separate fix that needs its own browser check.
+
+[ext_resource type="Script" path="res://alphabet_block/alphabet_block.gd" id="1"]
+[ext_resource type="FontFile" path="res://assets/fonts/Fredoka.ttf" id="2"]
+[ext_resource type="PackedScene" path="res://assets/storybook/explore/foundation_block.glb" id="3"]
+[ext_resource type="Script" path="res://storybook/storybook_surface.gd" id="4"]
+
+[sub_resource type="FontVariation" id="LetterFont"]
+base_font = ExtResource("2")
+variation_opentype = {
+2003265652: 600.0
+}
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(0.8, 0.8, 0.8)
+
+[node name="AlphabetBlock" type="StaticBody3D" groups=["alphabet_blocks"]]
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("1")
+
+[node name="Visual" parent="." instance=ExtResource("3")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.4, 0)
+shape = SubResource("Shape")
+
+[node name="SurfaceFix" type="Node" parent="."]
+script = ExtResource("4")
+
+[node name="Letters" type="Node3D" parent="."]
+
+[node name="Front" type="Label3D" parent="Letters"]
+position = Vector3(0.0, 0.4847, 0.417792)
+rotation = Vector3(0, 0, 0)
+pixel_size = 0.008
+font = SubResource("LetterFont")
+font_size = 83
+outline_size = 0
+modulate = Color(0.165, 0.129, 0.110, 1)
+text = "a"
+no_depth_test = false
+shaded = false
+
+[node name="Right" type="Label3D" parent="Letters"]
+position = Vector3(0.417792, 0.4847, 0.0)
+rotation = Vector3(0, 1.5707963267948966, 0)
+pixel_size = 0.008
+font = SubResource("LetterFont")
+font_size = 83
+outline_size = 0
+modulate = Color(0.165, 0.129, 0.110, 1)
+text = "a"
+no_depth_test = false
+shaded = false
+
+[node name="Back" type="Label3D" parent="Letters"]
+position = Vector3(0.0, 0.4847, -0.417792)
+rotation = Vector3(0, 3.141592653589793, 0)
+pixel_size = 0.008
+font = SubResource("LetterFont")
+font_size = 83
+outline_size = 0
+modulate = Color(0.165, 0.129, 0.110, 1)
+text = "a"
+no_depth_test = false
+shaded = false
+
+[node name="Left" type="Label3D" parent="Letters"]
+position = Vector3(-0.417792, 0.4847, 0.0)
+rotation = Vector3(0, -1.5707963267948966, 0)
+pixel_size = 0.008
+font = SubResource("LetterFont")
+font_size = 83
+outline_size = 0
+modulate = Color(0.165, 0.129, 0.110, 1)
+text = "a"
+no_depth_test = false
+shaded = false
+
+[node name="Top" type="Label3D" parent="Letters"]
+position = Vector3(0, 0.822, -0.0847)
+rotation = Vector3(-1.5707963267948966, 0, 0)
+pixel_size = 0.008
+font = SubResource("LetterFont")
+font_size = 83
+outline_size = 0
+modulate = Color(0.165, 0.129, 0.110, 1)
+text = "a"
+no_depth_test = false
+shaded = false

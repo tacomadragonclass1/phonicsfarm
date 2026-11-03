@@ -1,0 +1,95 @@
+[gd_scene load_steps=7 format=3]
+
+; A BLOCK TEST, not a slice. One job: prove that the foundation block renders
+; its letters in the real engine, in the real web export, in a real browser.
+;
+; `tests/capture.gd` hangs on this machine -- `await
+; RenderingServer.frame_post_draw` never fires and viewport readback comes
+; back blank -- so the project's documented capture workflow cannot answer
+; this. The export-and-look path can.
+;
+; The letters spell f g y p a j on purpose: f has the tallest ascender in the
+; face, g j p y are every descender there is. If the lettering is clipping the
+; plaque top or hanging onto the wooden frame, these six show it.
+
+[ext_resource type="PackedScene" path="res://storybook/foundation/block.tscn" id="Block"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
+sky_top_color = Color(0.47, 0.67, 0.76, 1)
+sky_horizon_color = Color(0.84, 0.86, 0.75, 1)
+sky_curve = 0.12
+ground_bottom_color = Color(0.3, 0.26, 0.28, 1)
+ground_horizon_color = Color(0.84, 0.58, 0.4, 1)
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMaterial")
+
+[sub_resource type="Environment" id="Environment"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 2
+ambient_light_color = Color(0.82, 0.87, 0.94, 1)
+ambient_light_energy = 0.3
+
+[sub_resource type="BoxMesh" id="GroundMesh"]
+size = Vector3(40, 0.5, 40)
+
+[sub_resource type="StandardMaterial3D" id="GroundMaterial"]
+albedo_color = Color(0.545, 0.6, 0.329, 1)
+roughness = 1.0
+
+[node name="FoundationBlocks" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.829, -0.3, 0.472, 0, 0.844, 0.537, -0.559, -0.445, 0.7, 0, 8, 0)
+light_energy = 1.25
+light_angular_distance = 3.0
+shadow_enabled = true
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+mesh = SubResource("GroundMesh")
+surface_material_override/0 = SubResource("GroundMaterial")
+
+; ⛔ Do NOT copy the camera basis out of scenes/main.tscn. It is STALE: the
+; camera there carries `fixed_camera.gd`, which overwrites `rotation` in
+; `_ready()` from its pitch/yaw exports, so whatever basis the scene file
+; stores is never used and need not be correct. Copied verbatim onto a camera
+; with no script it aimed 25 degrees ABOVE the horizon and this test rendered
+; nothing but sky. Stating pitch and yaw outright is both correct and legible.
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(8.66, 10, 15)
+rotation = Vector3(-0.5235988, 0.5235988, 0)
+projection = 1
+current = true
+size = 4.6
+far = 120.0
+
+[node name="Blocks" type="Node3D" parent="."]
+
+[node name="F" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1, 0, 0.9)
+letter = "f"
+
+[node name="G" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.05, 0, 0.9)
+letter = "g"
+
+[node name="Y" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.9)
+letter = "y"
+
+[node name="P" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.575, 0, -0.25)
+letter = "p"
+
+[node name="A" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.525, 0, -0.25)
+letter = "a"
+
+[node name="J" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.525, 0, -0.25)
+letter = "j"
