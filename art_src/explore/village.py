@@ -77,7 +77,17 @@ palette.extend({
 SMOOTH = 11.0
 
 
-def produce(subject, objects, texture=asset.TEXTURE_MEDIUM, budget_tris=None):
+# ⛔⛔ 512, NOT 1024, AND THIS IS A CRASH FIX RATHER THAN A SIZE SAVING.
+# Fifteen assets at 1024 squared is 70 MB of UNCOMPRESSED texture, and with a
+# 38 MB wasm and a 32 MB pck beside it the published preview took Chrome down
+# on first load. The classroom runs on Chromebooks, which have less headroom
+# than the machine it killed.
+#
+# It was never earning the resolution either: the camera is 142 px per metre,
+# so a 3.5 m building is about 500 px on screen and a 1024 sheet is four
+# times more texels than pixels. Only the terrain keeps 1024, because it is
+# 26 m across and already the blurriest thing in the frame.
+def produce(subject, objects, texture=asset.TEXTURE_SMALL, budget_tris=None):
     return asset.produce("village/%s" % subject, objects, texture=texture,
                          roughness=0.93, budget_tris=budget_tris,
                          bake_samples=24, smooth_angle=SMOOTH,
@@ -2048,7 +2058,7 @@ SUBJECTS = {
     "bunting": lambda: produce_prop("bunting", build_bunting(),
                                     budget_tris=2200, texture=512),
     "tree_b": lambda: produce_prop("tree_b", build_tree_b(),
-                                   budget_tris=5000, texture=1024),
+                                   budget_tris=5000, texture=512),
     "bush": lambda: produce_prop("bush", build_bush(), budget_tris=3000,
                                  texture=512),
     "mushrooms": lambda: produce_prop("mushrooms", build_mushrooms(),
@@ -2060,9 +2070,9 @@ SUBJECTS = {
     "wall_run": lambda: produce_prop("wall_run", build_wall_run(),
                                      budget_tris=4000, texture=512),
     "mill_mound": lambda: produce_prop("mill_mound", build_mill_mound(),
-                                       budget_tris=16000, texture=1024),
+                                       budget_tris=16000, texture=512),
     "annette": lambda: asset.produce(
-        "village/annette", build_annette(), texture=asset.TEXTURE_MEDIUM,
+        "village/annette", build_annette(), texture=asset.TEXTURE_SMALL,
         roughness=0.93, budget_tris=9000, bake_samples=26, smooth_angle=18.0,
         with_animation=True, animation_names=["idle", "walk"],
         gouache=F.SURFACE),

@@ -176,7 +176,11 @@ SMOOTH = {"cottage": 10.0, "block": 18.0, "tree": 28.0, "chuck": 20.0,
 # and 69% of the download is TEXTURE rather than mesh. The budgets below are
 # set to "loud enough to catch a runaway, quiet enough to be believed", and
 # the number to actually watch is the kB in each report line.
-def produce(subject, objects, texture=asset.TEXTURE_MEDIUM, budget_tris=None,
+# ⛔ See the note in village.py: 1024 everywhere put 70 MB of uncompressed
+# texture in one scene and crashed the browser. Terrain keeps 1024 because it
+# is 26 m wide; everything else drops to 512, which is still more texels than
+# the 142 px-per-metre camera can show.
+def produce(subject, objects, texture=asset.TEXTURE_SMALL, budget_tris=None,
             surface=None, bake_samples=24, with_animation=False,
             animation_names=None):
     return asset.produce("explore/%s_%s" % (D, subject), objects,
@@ -2548,6 +2552,7 @@ SUBJECTS = {
     "block": lambda: produce("block", build_block(), texture=512,
                              budget_tris=4000, bake_samples=28),
     "terrain": lambda: produce("terrain", build_terrain(), budget_tris=18000,
+                               texture=asset.TEXTURE_MEDIUM,
                                surface=TERRAIN_SURFACE, bake_samples=20),
     "props": lambda: produce("props", build_props(), budget_tris=24000),
     "garden": lambda: produce("garden", build_garden(), budget_tris=22000),
