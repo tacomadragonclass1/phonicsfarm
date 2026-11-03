@@ -1,4 +1,38 @@
-# ⛔⛔ THE PREVIEW CRASHED THE BROWSER — texture memory — 2026-11-03
+# ⛔⛔ I MISDIAGNOSED A CRASH FROM A BROKEN TOOL — 2026-11-03
+
+**Correction to the section below.** I concluded the published preview
+crashed Chrome, because screenshots timed out with "renderer unresponsive"
+and Chrome was left with two processes. Then the SLICE that had worked all
+session failed identically -- and so did **example.com**. Chrome's screenshot
+capability was broken for every page. The evidence proved nothing about the
+build.
+
+⭐⭐ **Before blaming the thing under test, test the TOOL against a known-good
+control.** One screenshot of example.com would have saved an hour and two
+commits of "fixes" for a fault that was never demonstrated. The Godot console
+showed a clean startup banner and no errors throughout -- evidence I had and
+under-weighted, because a screenshot timeout felt more concrete than a log
+that looked normal.
+
+The two changes made on that diagnosis are KEPT, because both are defensible
+anyway, and both are now described as hardening rather than as fixes:
+
+- textures 1024 -> 512 (70 MB -> 28 MB of uncompressed texture). Indefensible
+  on a Chromebook whatever else was true.
+- trimesh collision baked to `.res` instead of built at `_ready`. The web
+  export is SINGLE-THREADED, so 25,000 faces of shape-building block the only
+  thread there is -- and that cost had grown 6x when the terrain grid was
+  densified, with nothing re-testing it in a browser.
+
+⭐ Also found: my local test command was weaker than CI's all along. Running
+`godot ... | grep RESULT` discards the EXIT CODE, which is the only thing CI
+checks. Capture to a file and test `$?`.
+
+⛔ And one CI failure was the repo's OWN known village-suite flake
+(`moved >= 18`), recorded in 1502d40 as able to "block a deploy that has
+nothing wrong with it" -- not my changes.
+
+# The original (wrong) diagnosis follows, kept for the record
 
 The first published `/preview/` took Chrome down on first load. Not slow:
 the renderer stopped answering, three screenshot attempts timed out, and
