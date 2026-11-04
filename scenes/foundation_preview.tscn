@@ -26,11 +26,11 @@
 [ext_resource type="PackedScene" path="res://ui/touch_controls.tscn" id="UI"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
-sky_top_color = Color(0.44, 0.65, 0.78, 1)
-sky_horizon_color = Color(0.87, 0.87, 0.76, 1)
-sky_curve = 0.14
-ground_bottom_color = Color(0.32, 0.3, 0.27, 1)
-ground_horizon_color = Color(0.84, 0.72, 0.52, 1)
+sky_top_color = Color(0.62, 0.66, 0.70, 1)
+sky_horizon_color = Color(0.80, 0.82, 0.82, 1)
+sky_curve = 0.35
+ground_bottom_color = Color(0.46, 0.47, 0.45, 1)
+ground_horizon_color = Color(0.74, 0.75, 0.73, 1)
 
 [sub_resource type="Sky" id="Sky"]
 sky_material = SubResource("SkyMaterial")
@@ -39,15 +39,27 @@ sky_material = SubResource("SkyMaterial")
 ; raw and markedly hotter than every Blender review of the same assets. This
 ; is the half of the colour pipeline the engine was missing; the sRGB fix in
 ; storybook_surface.gd is the other half and is still required.
+;
+; ⛔ OVERCAST, and the saturation adjustment below is NOT optional dressing.
+; The note was that the light should be soft -- "a gray day in england"
+; rather than golden hour -- and the obvious way to get there is to dim
+; everything, which is exactly what bleaches the scene to pastel. AgX
+; desaturates as it rolls off, so dimming AND tone mapping both pull chroma
+; out at once and the roof stops reading as terracotta. Blender's grade
+; solves this with the "Punchy" look; `adjustment_saturation` is the engine's
+; equivalent. Dim the light, then put the colour back. Wet grass under cloud
+; is if anything GREENER than grass in sun, not greyer.
 [sub_resource type="Environment" id="Environment"]
 background_mode = 2
 sky = SubResource("Sky")
 ambient_light_source = 2
-ambient_light_color = Color(0.74, 0.82, 0.95, 1)
-ambient_light_energy = 0.46
+ambient_light_color = Color(0.84, 0.86, 0.87, 1)
+ambient_light_energy = 0.82
 tonemap_mode = 4
-tonemap_exposure = 1.3
+tonemap_exposure = 1.02
 tonemap_white = 2.0
+adjustment_enabled = true
+adjustment_saturation = 1.22
 
 [sub_resource type="PlaneMesh" id="GreenMesh"]
 size = Vector2(120, 120)
@@ -62,21 +74,27 @@ roughness = 1.0
 environment = SubResource("Environment")
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.6156615, -0.44961134, 0.6473643, 0, 0.8208, 0.5700135, -0.78802246, -0.35100627, 0.5053817, 0, 9, 0)
-light_color = Color(1, 0.95, 0.87, 1)
-light_energy = 1.55
-light_angular_distance = 4.0
+; ⛔ Nearly overhead and very wide. A grey day has almost no
+; direction to its light: the whole sky is the source, so the key
+; is dim, 26 degrees across, and its shadows are pale and soft.
+transform = Transform3D(0.86602540, -0.25000000, 0.43301270, 0, 0.86602540, 0.50000000, -0.50000000, -0.43301270, 0.75000000, 0, 11, 0)
+light_color = Color(0.96, 0.97, 1, 1)
+light_energy = 0.40
+light_angular_distance = 26.0
 shadow_enabled = true
+shadow_opacity = 0.34
+shadow_blur = 4.0
 
 ; The ground the village green sits on. The village scene carries collision
 ; but no ground MESH -- in the real game the Environment supplies that.
-; ⛔ -0.62, not -0.02. The home field's terrain ROLLS between -0.48 and
-; +0.35, so a flat plane at -0.02 punched up through every hollow in it and
-; the field was covered in pale mint-green patches where the plane showed.
-; It has to sit below the terrain's lowest point; it is only there to carry
-; the village green beyond the 26 m the sculpted terrain covers.
+; ⛔ It must sit BELOW the terrain's lowest point, not at 0. The play area
+; is dead flat now, but the terrain still falls away past r=9 m on its way
+; up into the far hills, and a plane at 0 punched through every hollow out
+; there and speckled the field with pale mint patches. -0.06 clears it. The
+; plane exists only to carry the village green beyond the 26 m the sculpted
+; terrain covers.
 [node name="Green" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.62, -16)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.06, -16)
 mesh = SubResource("GreenMesh")
 surface_material_override/0 = SubResource("GreenMat")
 
@@ -89,23 +107,23 @@ surface_material_override/0 = SubResource("GreenMat")
 [node name="Garden" parent="HomeField" instance=ExtResource("Garden")]
 
 [node name="Cottage" parent="HomeField" instance=ExtResource("Cottage")]
-transform = Transform3D(0.97029574, 0, -0.2419219, 0, 1, 0, 0.2419219, 0, 0.97029574, -2.7, -0.058, -3.0)
+transform = Transform3D(0.97029574, 0, -0.2419219, 0, 1, 0, 0.2419219, 0, 0.97029574, -2.7, 0, -3.0)
 
 [node name="Tree" parent="HomeField" instance=ExtResource("Tree")]
-transform = Transform3D(0.91354546, 0, 0.40673664, 0, 1, 0, -0.40673664, 0, 0.91354546, 3.95, 0.153, -0.75)
+transform = Transform3D(0.91354546, 0, 0.40673664, 0, 1, 0, -0.40673664, 0, 0.91354546, 3.95, 0, -0.75)
 
 [node name="Blocks" type="Node3D" parent="."]
 
 [node name="P" parent="Blocks" instance=ExtResource("Block")]
-transform = Transform3D(0.78801075, 0, -0.6156615, 0, 1, 0, 0.6156615, 0, 0.78801075, 1.35, -0.047, 2.45)
+transform = Transform3D(0.78801075, 0, -0.6156615, 0, 1, 0, 0.6156615, 0, 0.78801075, 1.35, 0, 2.45)
 letter = "p"
 
 [node name="G" parent="Blocks" instance=ExtResource("Block")]
-transform = Transform3D(0.98162717, 0, -0.19080898, 0, 1, 0, 0.19080898, 0, 0.98162717, 2.42, 0.083, 1.95)
+transform = Transform3D(0.98162717, 0, -0.19080898, 0, 1, 0, 0.19080898, 0, 0.98162717, 2.42, 0, 1.95)
 letter = "g"
 
 [node name="A" parent="Blocks" instance=ExtResource("Block")]
-transform = Transform3D(0.91354546, 0, 0.40673664, 0, 1, 0, -0.40673664, 0, 0.91354546, 0.3, -0.073, 3.05)
+transform = Transform3D(0.91354546, 0, 0.40673664, 0, 1, 0, -0.40673664, 0, 0.91354546, 0.3, 0, 3.05)
 letter = "a"
 
 [node name="PhonemeVillage" parent="." instance=ExtResource("Village")]

@@ -1436,14 +1436,19 @@ WALL = [(-7.60, 0.20), (-6.00, -1.40), (-4.40, -2.90), (-2.80, -4.20),
 # centre_x, centre_y, amplitude, radius -- hand-placed, not noise. A landscape
 # made of noise has no composition; these are chosen so the big rise sits
 # BEHIND the cottage and the eye is carried left to right across the frame.
+# ⛔ Every hill centre is pushed OUTSIDE the play area. Three of them used
+# to sit within 8 m of the origin, suppressed by the play mask -- which was
+# fine while the mask only damped them to 35%, and became a 43-degree WALL
+# the moment the play area went properly flat and the mask had to carry the
+# whole transition. Hills belong where nothing walks.
+# centre_x, centre_y, amplitude, radius
 HILLS = [
-    (-7.00, 8.50, 1.70, 7.60),
-    (7.80, 9.80, 2.30, 8.40),
-    (6.80, 2.60, 0.62, 4.20),
-    (-6.40, -3.20, -0.48, 5.20),
-    (4.40, -6.60, 0.68, 5.00),
-    (-10.5, 1.50, 1.05, 6.00),
-    (0.50, 11.0, 1.45, 7.00),
+    (-13.0, 14.5, 2.30, 10.5),
+    (14.5, 15.0, 2.70, 11.5),
+    (-17.5, 2.5, 1.70, 9.5),
+    (2.0, 18.5, 2.10, 10.5),
+    (16.5, -6.5, 1.30, 8.5),
+    (-9.5, -16.0, 1.50, 9.5),
 ]
 
 
@@ -1470,31 +1475,38 @@ def path_distance(x, y, dense=None):
     return math.sqrt(best)
 
 
-# How much relief the play area is allowed. ⛔ This was 0.10 -- effectively
-# dead flat -- on the assumption that the game needs a level floor. That
-# assumption was wrong and was never checked: `player.gd` is a CharacterBody3D
-# with gravity and `move_and_slide`, `drop_block` already raycasts for the
-# ground ("Phoneme Village has raised terrain, so a drop cannot assume ground
-# Y = 0"), and Phoneme Village already ships a terrace, a lookout and two
-# ramps. The engine walks slopes today.
+# ⛔⛔ THE PLAY AREA IS DEAD FLAT. This has now been decided twice in
+# opposite directions, so the reasoning matters.
 #
-# What the play area DOES need is gentleness, for three measured reasons:
-#   * `can_reach()` raycasts from +0.6 to +0.4 over at most 1.65 m on a mask
-#     that INCLUDES the ground layer, so a rise of about half a metre inside
-#     that span would make a block unpickable;
-#   * `pedestal.gd` stretches a 0.5 m base straight down, so a pedestal wants
-#     a level footing;
-#   * blocks are cubes and a cube on a slope reads as a mistake.
-# GENTLE keeps the play area's slope under about 7 degrees, which clears all
-# three with room to spare.
-PLAY_RELIEF = 0.35
-GENTLE = 0.22
+# It started flat on an unchecked assumption that the engine needed it.
+# That assumption was wrong -- `player.gd` is a CharacterBody3D with gravity
+# and Phoneme Village has shipped raised terrain since September -- so the
+# floor was given 0.35 m of roll at up to 7.8 degrees.
+#
+# Seeing it decided it: "the up and down hill-like nature of the floor was
+# the wrong call, as it doesn't work and even if you got it to work like you
+# have it mapped, it would be wrong." Which is right, and the engine
+# argument was never the point. A floor that rolls fights everything placed
+# on it -- a dropped cube sits crooked, a building needs its own pad, and at
+# this gentle an amplitude it reads as wobble rather than as landscape.
+#
+# So: zero inside the play area, and the hand-placed hills still rise beyond
+# 8 m where nothing is walked on and they are pure horizon. The HOLLOW WAY
+# goes too; the path reads from its colour and its edge, which is where it
+# was always doing the work.
+PLAY_RELIEF = 0.0
+GENTLE = 0.0
 
 
 def _play_mask(x, y):
-    """0 in the play area, 1 out in the landscape."""
+    """0 in the play area, 1 out in the landscape.
+
+    ⛔ Flat to 9 m and the rise spread over the next 7, not 5 m and 3.2. The
+    mask now carries the ENTIRE transition from dead flat to full hills, so
+    a short ramp puts a cliff exactly where the player is standing.
+    """
     distance = math.hypot(x, y)
-    return min(max((distance - 5.0) / 3.2, 0.0), 1.0) ** 1.5
+    return min(max((distance - 9.0) / 7.0, 0.0), 1.0) ** 1.5
 
 
 def _raw_height(x, y):
@@ -1551,11 +1563,8 @@ def terrain_height(x, y):
         blend = 1.0 - min(max((distance - 2.1) / 1.3, 0.0), 1.0)
         height += (pad - height) * blend
 
-    # The hollow way: flattened across its width and sunk below the field.
-    distance = path_distance(x, y)
-    if distance < 1.55:
-        blend = 1.0 - min(max((distance - 0.62) / 0.93, 0.0), 1.0)
-        height -= 0.075 * blend
+    # ⛔ No hollow way. A 75 mm dip is invisible as relief and visible as a
+    # block sitting lower than the one beside it.
     return height
 
 
@@ -1654,33 +1663,28 @@ def _shade_sources():
 def _grass_position(x, y, z, nz, relief, shade):
     """Where a point sits on the earth-to-sunlit-grass ramp.
 
-    Four causes, in order of how much they matter, and a little noise LAST
-    rather than as the driver:
+    ⛔⛔ RE-WEIGHTED FOR A FLAT FLOOR, and this is a consequence of flattening
+    that is easy to miss. The field used to be driven mostly by
+    `local_relief` and by slope -- a crown burns pale, a bank has thin soil.
+    On a dead-flat floor BOTH OF THOSE ARE EXACTLY ZERO, so the ground
+    collapsed to one almost uniform green and all the work that went into
+    giving it causes quietly stopped doing anything.
 
-      relief  a crown drains and burns pale; a hollow holds water and darkens
-      slope   a steep face has thin soil and goes pale and strawy
-      shade   ground against a wall, a hedge or a building stays dark and lush
-      grain   a small amount of break-up so none of the above reads as a band
+    What survives flattening is everything POSITIONAL: the mown line, the
+    worn tracks, the path, the headland, the damp under a wall -- and
+    patchiness, which now has to carry the variation the landform used to.
+    Relief and slope are kept at small weights so the far field, which still
+    rises beyond 9 m, is not flat-coloured.
     """
     steep = 1.0 - min(max(nz, 0.0), 1.0)
-    grain = (0.16 * math.sin(x * 1.47 - 0.4) * math.sin(y * 1.21 + 2.1)
-             + 0.09 * math.sin(x * 3.10 + 1.9) * math.sin(y * 2.70 - 1.1))
-    # ⛔ Amplitudes HALVED after the winding fix. With the normals pointing
-    # the right way these four terms finally all contribute, and at their
-    # original strength the field swung the whole ramp -- from the deep green
-    # to the palest dry stop within a couple of metres -- which in the engine
-    # read as a blotchy patchwork. They were tuned while `steep` was silently
-    # pinned at 1.0 and three of the four were doing nothing.
-    #
-    # Clamped to 0.38..0.86 as well, so the general sward never reaches the
-    # extremes of the ramp. The path, the tracks and the bed still return
-    # absolutely and keep the full range -- they are the EDGES, and the edges
-    # are supposed to be the strong thing.
-    return min(max(0.58
-                   + 0.52 * relief      # the dominant term
-                   + 0.26 * steep       # thin soil on a bank
-                   - 0.24 * shade       # damp against a wall
-                   + grain * 0.6, 0.38), 0.86)
+    patch = (0.52 * math.sin(x * 0.63 + 1.3) * math.sin(y * 0.51 - 0.7)
+             + 0.30 * math.sin(x * 1.47 - 0.4) * math.sin(y * 1.21 + 2.1)
+             + 0.18 * math.sin(x * 3.10 + 1.9) * math.sin(y * 2.70 - 1.1))
+    return min(max(0.56
+                   + 0.34 * patch       # the dominant term on flat ground
+                   + 0.40 * relief      # still real out in the far field
+                   + 0.18 * steep
+                   - 0.24 * shade, 0.34), 0.88)
 
 
 def build_terrain():

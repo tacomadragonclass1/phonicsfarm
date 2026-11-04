@@ -10,10 +10,44 @@ func capture() -> void:
 		push_error("Capture requires a rendered window; omit --headless.")
 		quit(1)
 		return
-	var scene: Node3D = load("res://scenes/main.tscn").instantiate()
+	# ⛔ The preview views load a DIFFERENT scene, so they must be resolved
+	# before the instantiate, not alongside the other flags. scenes/main.tscn
+	# is the classroom game; scenes/foundation_preview.tscn is the storybook
+	# art build that the /preview/ deploy boots, and the two have separate
+	# lighting and a separately generated village. Reviewing the art set in
+	# main.tscn shows neither.
+	var scene_path := "res://scenes/main.tscn"
+	var args := OS.get_cmdline_user_args()
+	var previewing := false
+	for flag in ["--preview", "--preview-village", "--preview-wide"]:
+		if flag in args:
+			scene_path = "res://scenes/foundation_preview.tscn"
+			previewing = true
+	var scene: Node3D = load(scene_path).instantiate()
 	root.add_child(scene)
 	current_scene = scene
 	var output := "/tmp/phonics-clearing.png"
+	if previewing:
+		var camera := scene.get_node("Camera3D") as Camera3D
+		camera.set_process(false)
+		if "--preview" in args:
+			# Over Chuck's shoulder, the gameplay framing of the home field.
+			camera.position = Vector3(9, 10, 15)
+			camera.look_at(Vector3(0, 0.5, 1))
+			camera.size = 22
+			output = "/tmp/phonics-preview.png"
+		elif "--preview-village" in args:
+			# ⛔ The village sits SOUTH of the home field, centred near
+			# z = -13; aiming at the origin frames the cottage instead.
+			camera.position = Vector3(6, 16, 8)
+			camera.look_at(Vector3(2, 0.5, -12))
+			camera.size = 34
+			output = "/tmp/phonics-preview-village.png"
+		else:
+			camera.position = Vector3(26, 34, 34)
+			camera.look_at(Vector3(0, 0, -8))
+			camera.size = 62
+			output = "/tmp/phonics-preview-wide.png"
 	if "--pedestals" in OS.get_cmdline_user_args() or "--feedback" in OS.get_cmdline_user_args():
 		var camera := scene.get_node("Camera3D") as Camera3D
 		camera.set_process(false)

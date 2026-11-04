@@ -63,7 +63,7 @@ BLOCK_LETTERS = ["g", "a", "p"]   # 'g' first: it is the glyph that used to
                                   # hang off the plaque onto the frame
 
 
-def sky_world(strength=0.34):
+def sky_world(strength=0.30):
     """A real sky, not a grey constant.
 
     The shadows in the study renders were dead because nothing was lighting
@@ -82,11 +82,14 @@ def sky_world(strength=0.34):
     # tutorial still call "Nishita" is MULTIPLE_SCATTERING here, and the old
     # string is not an alias -- it raises.
     sky.sky_type = "MULTIPLE_SCATTERING"
-    sky.sun_elevation = math.radians(34.0)
-    sky.sun_rotation = math.radians(-52.0)
-    sky.altitude = 220.0
-    sky.air_density = 1.25      # a little haze: warms the horizon, softens blue
-    sky.ozone_density = 1.0
+    # ⛔ Overcast: the sun high, the air thick. Dense air scatters the blue
+    # out of a clear sky into the flat pale grey a cloud deck actually is,
+    # which is nearer the truth than dimming a blue sky would be.
+    sky.sun_elevation = math.radians(62.0)
+    sky.sun_rotation = math.radians(-40.0)
+    sky.altitude = 180.0
+    sky.air_density = 3.0
+    sky.ozone_density = 1.6
     # The disc would be a blown-out hot spot in any frame that caught it, and
     # the SUN lamp is what actually lights the scene.
     sky.sun_disc = False
@@ -95,34 +98,42 @@ def sky_world(strength=0.34):
 
 
 def light(scene):
+    """⛔ A GREY DAY IN ENGLAND, not golden hour.
+
+    The old rig was a 7-degree sun at energy 2.8, swung low and warm. That
+    is a hard, directional, late-afternoon key and it threw exactly the
+    harsh shadows the review called out.
+
+    Overcast is a different thing, not a dimmer version of the same thing:
+    on a grey day THE SKY IS THE LIGHT. The sun becomes a faint, very wide,
+    nearly overhead hint of direction, the shadows go pale and soft-edged,
+    and almost all the illumination arrives from a bright even dome. So the
+    key drops to a fifth of its old energy and widens to 22 degrees, and the
+    world strength more than doubles to carry the scene instead.
+    """
     sun_data = bpy.data.lights.new("Sun", type="SUN")
-    sun_data.energy = 2.80
-    # 10 degrees, not 5. This one number is the "shadows are quite hard" fix.
-    sun_data.angle = math.radians(7.0)
-    sun_data.color = (1.0, 0.945, 0.855)
+    sun_data.energy = 0.55
+    sun_data.angle = math.radians(22.0)
+    sun_data.color = (0.96, 0.97, 1.0)
     sun = bpy.data.objects.new("Sun", sun_data)
     bpy.context.collection.objects.link(sun)
-    # 34 degrees of elevation rather than 40, and swung further round: a
-    # lower, more lateral sun rakes across the tile courses, the wall joints
-    # and the terrain, which is what makes relief visible at all. It also
-    # matches the shipping game's late-afternoon key.
-    sun.rotation_euler = (math.radians(34.0), 0.0, math.radians(52.0))
+    sun.rotation_euler = (math.radians(16.0), 0.0, math.radians(40.0))
 
-    fill_data = bpy.data.lights.new("Fill", type="AREA")
-    # ⛔ 88 was far too much. Softening the shadows by flooding them with a
-    # big cool source removed the shadows instead, and took the warmth of the
-    # whole frame with it. The sun angle is what softens an edge; the fill is
-    # only there to keep DETAIL in the shade.
-    fill_data.energy = 24.0
-    fill_data.size = 14.0
-    # Cool, but not as cool as the first pass: at 0.80 blue the block's
-    # 0.90-value letter face picked up a grey-blue cast and stopped reading
-    # as cream, which is the one colour relationship the palette protects.
-    fill_data.color = (0.88, 0.92, 1.0)
-    fill = bpy.data.objects.new("Fill", fill_data)
-    bpy.context.collection.objects.link(fill)
-    fill.location = (-11.0, -13.0, 7.5)
-    fill.rotation_euler = (math.radians(52.0), 0.0, math.radians(-40.0))
+    # A broad overhead dome of soft light: the cloud layer itself.
+    dome_data = bpy.data.lights.new("Dome", type="AREA")
+    # ⛔ 900 W over a 46 m panel, on top of a 0.95 sky AND a sun, bleached
+    # the whole frame: everything climbed into the top of the AgX curve and
+    # desaturated to pastel. A grey day is SOFT and LOW CONTRAST, not bright
+    # -- wet grass under cloud is if anything more saturated, not less. The
+    # total light has to land near where the old harsh rig was; only its
+    # DIRECTIONALITY changes.
+    dome_data.energy = 165.0
+    dome_data.size = 46.0
+    dome_data.color = (0.93, 0.95, 0.98)
+    dome = bpy.data.objects.new("Dome", dome_data)
+    bpy.context.collection.objects.link(dome)
+    dome.location = (-3.0, -5.0, 22.0)
+    dome.rotation_euler = (math.radians(12.0), 0.0, 0.0)
 
 
 def studio(res, samples=72):
@@ -144,8 +155,15 @@ def studio(res, samples=72):
     # straw into khaki and a warm plaster wall into grey -- the palette's own
     # value relationships survived, its HUES did not. Punchy restores the
     # chroma without giving back the clipped highlight.
+    # Less punch as well: an overcast day is LOW CONTRAST, and "Punchy" was
+    # chosen to fight a desaturation problem that a bright even sky does not
+    # have in the first place.
+    # ⭐ Punchy, even for overcast. "Base Contrast" desaturates, and the note
+    # was that the light should be SOFT, not that the colour should drain
+    # out of it -- wet grass under cloud is if anything greener. Punchy puts
+    # the chroma back without raising contrast.
     scene.view_settings.look = "AgX - Punchy"
-    scene.view_settings.exposure = -0.10
+    scene.view_settings.exposure = -0.28
     scene.world = sky_world()
     light(scene)
     return scene

@@ -1,3 +1,110 @@
+# Four fixes: flat floor, village spread, village letters, overcast light — 2026-11-03
+
+Four notes from the classroom preview, all four addressed.
+
+## 1. The rolling floor was the wrong call — the play area is FLAT
+
+Rolling terrain worked, which is not the same as being right. Blocks on a
+slope read as tipped, Chuck's feet float or sink by the slope error, and a
+five-year-old aiming a block at a pedestal gets punished for a hill they
+cannot see from a fixed camera.
+
+`PLAY_RELIEF = 0.0` and `GENTLE = 0.0`, the hollow way is gone, and all six
+hill centres moved out to >= 13 m. Measured on the rebuilt mesh:
+
+    r < 9.0 m : height +0.000 .. +0.000, max slope 0.0 deg
+    r < 11  m : max slope  3.9 deg
+    r < 13  m : max slope 15.9 deg
+
+The world still ROLLS where it is only scenery. Flat where it is played on.
+
+## ⭐⭐ 2. Flattening the floor silently killed the ground's colour
+
+This is the trap, and it is the kind that passes every test. The terrain's
+colour field was driven mostly by `local_relief` and by SLOPE -- a crown
+burns pale, a bank shows thin soil. On a dead-flat floor both of those are
+EXACTLY ZERO. Nothing errored. The checks stayed green. The field just
+quietly collapsed to one almost-uniform mint green and every bit of work
+that had gone into giving the ground causes stopped doing anything.
+
+`_grass_position` is re-weighted onto what survives flattening: everything
+POSITIONAL (the mown line, the worn tracks, the path, the headland, damp
+under a wall) plus three octaves of patchiness, which now carry the
+variation the landform used to. Relief and slope are kept at small weights
+so the far field, which still rises past 9 m, is not flat-coloured.
+
+Measured on the baked albedo, which is the only place this shows up:
+
+    hue p5..p95  47.3 .. 91.0 deg  (spread 43.7)
+    val p5..p95   0.49 ..  0.64    (spread 0.149)
+
+⭐ When you remove an INPUT, go and look at what was reading it.
+
+## 3. The phoneme village: structured and spread
+
+The houses were clustered in one central knot. They now front a lane at
+z ~ -13 across 30 m of x, the mill mound moved out to (-16.5, -4.0) and the
+green to (2.0, 1.0), with the trigger and green volumes enlarged to match.
+74 spawn markers, 3 levels, 51 lane stones, 26 trees.
+
+The fingerpost and the bench are now SEARCHED positions like the planters,
+not fixed ones -- the layout generator runs the engine's own occlusion rule
+backwards, so a prop can never end up on a sight-line to a letter. The check
+caught exactly that case (`Spawn12 <- Model/Fingerpost`) before it shipped.
+
+## 4. The village letters were a different typeface from Chuck's
+
+Correct observation. The village was instantiating the OLD block scene while
+the three blocks beside Chuck came from `storybook/foundation/block.tscn`.
+`phoneme_village.gd` now has `@export var block_scene` -- default unchanged,
+so the shipping village is untouched -- and the generated village passes the
+foundation block in.
+
+## 5. Lighting: a grey English day, not golden hour
+
+⛔ The first attempt at "soft" came out BLEACHED PASTEL, and the reason is
+worth keeping. The obvious way to soften light is to dim the key and raise
+the fill, so I raised sky strength, added a 900 W dome AND pushed exposure
+up, all at once -- three light sources stacked. Soft, and completely
+colourless.
+
+⛔ Dimming and AgX both pull chroma out, so doing both at once drains the
+palette twice. Blender's grade solves it with the "Punchy" look; the engine's
+equivalent is `adjustment_saturation`. **Dim the light, then put the colour
+back.** Wet grass under cloud is if anything GREENER than grass in sun.
+
+Landed, Blender and engine matched:
+
+| | Blender | Godot |
+|---|---|---|
+| sky | `sky_world(strength=0.30)` | `ambient_light_energy = 0.82` |
+| key | sun 0.55 at 22 deg, nearly overhead | `light_energy = 0.40` |
+| softness | dome 165 W, size 46 | `light_angular_distance = 26.0` |
+| shadow | -- | `shadow_opacity = 0.34`, `shadow_blur = 4.0` |
+| grade | AgX Punchy, exposure -0.28 | AgX, exposure 1.02, saturation 1.22 |
+
+## ⛔ What is NOT verified
+
+**I have still never seen the village in-engine.** `tests/capture.gd` gained
+`--preview`, `--preview-village` and `--preview-wide`, which load
+`scenes/foundation_preview.tscn` instead of `scenes/main.tscn` -- the
+classroom game and the storybook art build are different scenes with
+different lighting and a separately generated village, so reviewing the art
+set through `main.tscn` shows neither.
+
+The flags are untested. Running capture from this session's shell HANGS at
+the first frame -- and per the lesson at the top of this file I checked the
+TOOL against a control first: the pre-existing `--overview` view on
+`main.tscn` hangs identically. So the harness does not complete from a
+non-session shell; the new flags are not implicated, and are not confirmed
+either. Run them from a desktop terminal.
+
+Everything above is verified by: the six suites green BY EXIT CODE (smoke,
+layout, lever, feedback, village, plus `check_foundation_village.gd`), the
+measured terrain geometry, the measured baked albedo, and the Blender review
+render. The engine lighting numbers are a translation of an approved Blender
+grade, not something I have looked at.
+
 # ⛔⛔ I MISDIAGNOSED A CRASH FROM A BROKEN TOOL — 2026-11-03
 
 **Correction to the section below.** I concluded the published preview

@@ -10,7 +10,14 @@ extends Node3D
 ## same human recording the block itself plays, so the child is matching one
 ## sound against itself rather than against a second voice's imitation.
 
-const BLOCK_SCENE := preload("res://alphabet_block/alphabet_block.tscn")
+## Which block the village scatters.
+##
+## ⛔ It used to be a hard `preload` of the shipping block, which meant a
+## village dressed in new art still spawned the OLD toy: the letters round
+## Chuck and the letters in the village were visibly different objects.
+## Exported so a scene can hand it a different one; the DEFAULT is unchanged,
+## so scenes/main.tscn behaves exactly as before.
+@export var block_scene: PackedScene = preload("res://alphabet_block/alphabet_block.tscn")
 
 ## The village alphabet leaves out k, q and x, because the question
 ## "find the letter that says ___" has to have exactly one right answer.
@@ -138,7 +145,7 @@ func refresh_board() -> void:
 	markers.shuffle()
 	var letters := letter_list()
 	for index in letters.size():
-		var block: AlphabetBlock = BLOCK_SCENE.instantiate()
+		var block: AlphabetBlock = block_scene.instantiate()
 		block.letter = letters[index]
 		block.home = block_root
 		# A wrong letter being put down must NOT re-play its sound here: that

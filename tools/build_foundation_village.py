@@ -44,8 +44,8 @@ OUT = os.path.join(ROOT, "village", "foundation_village.tscn")
 # So the village sits on the FAR half (-X/-Z) and the green -- where the
 # letters are -- is the near half. That is also simply the better picture:
 # you look across an open green AT the village.
-GREEN = (1.5, 3.2)
-MOUND = (-11.5, 0.0, -5.5)
+GREEN = (2.0, 1.0)
+MOUND = (-16.5, 0.0, -4.0)
 # ⛔ The mound is TURNED, and that is a visibility fix not a styling one.
 # Its shelf and its steps are built on one side of the asset; left unrotated
 # that side faced -Z, which is the FAR side from a camera at +X/+Z, so the
@@ -66,17 +66,29 @@ def rot_xz(lx, lz, yaw_deg):
 SHELF_LOCAL = (-0.19, -5.45)
 MOUND_H, SHELF_H = 2.15, 1.05
 
+# ⛔ STRUCTURED AND SPREAD OUT. The first layout bunched all five shops into
+# a 15 m arc on the far side and left the rest of the map empty -- it read as
+# one clump of houses rather than as a place.
+#
+# A village is organised by its LANE. These front a street running east-west
+# at z = -10, set back 2 m from it, at roughly even intervals across 30 m --
+# aligned enough to read as a built-up frontage, each turned a few degrees
+# off so it is not a row of soldiers. The mill stands apart to the west on
+# its mound, which is what a mill does, and the workshop sits off the end of
+# the street where the noisy trade belongs.
+#
+# `yaw` faces each building onto the lane rather than at the camera.
 BUILDINGS = [
     # scene, x, z, yaw degrees, collision half-extents (x, y, z)
-    ("bakery",      -4.6, -10.4,  28.0, (1.70, 1.80, 1.45)),
-    ("bookshop",     0.6, -11.6,   6.0, (1.55, 2.10, 1.40)),
-    ("clock_house",  6.0, -10.2, -18.0, (1.25, 2.80, 1.20)),
-    ("flower_shop",  9.8,  -5.4, -46.0, (1.60, 1.50, 1.40)),
-    ("workshop",    11.0,   0.8, -78.0, (2.40, 1.50, 1.60)),
+    ("bakery",      -9.4, -12.4,  12.0, (1.70, 1.80, 1.45)),
+    ("bookshop",    -2.6, -13.2,  -4.0, (1.55, 2.10, 1.40)),
+    ("clock_house",  4.4, -13.6,   8.0, (1.25, 2.80, 1.20)),
+    ("flower_shop", 11.0, -12.2, -14.0, (1.60, 1.50, 1.40)),
+    ("workshop",    17.4,  -7.0, -62.0, (2.40, 1.50, 1.60)),
 ]
 
 # Where letters may stand. Rings on the green, plus the two raised levels.
-GREEN_R = (3.2, 5.2, 7.2, 9.0)
+GREEN_R = (3.4, 5.6, 7.8, 10.0, 12.2)
 
 
 
@@ -103,8 +115,6 @@ def _occluders(trees):
            # and leaving them out is why five markers kept failing a test
            # the generator thought it had passed.
            (GREEN[0], GREEN[1], 1.0, 1.0, 2.45),              # the well
-           (GREEN[0] - 3.0, GREEN[1] + 1.8, 0.95, 0.75, 2.32),   # fingerpost
-           (GREEN[0] + 2.6, GREEN[1] + 1.4, 1.05, 0.45, 0.83),   # bench
            (GREEN[0] - 2.4, GREEN[1] + 3.0, 0.45, 0.45, 1.58),   # Annette
            (-2.0, -11.0, 3.25, 0.30, 2.30)]                      # bunting
     # ⛔ MARGIN. These halves are the COLLISION extents; the Godot check uses
@@ -153,8 +163,8 @@ def spawns(occluders):
     outside.
     """
     points = []
-    for radius, count, phase in zip(GREEN_R, (10, 13, 14, 12),
-                                    (0.0, 0.22, 0.44, 0.66)):
+    for radius, count, phase in zip(GREEN_R, (10, 13, 15, 16, 14),
+                                    (0.0, 0.22, 0.44, 0.66, 0.11)):
         for index in range(count):
             angle = math.tau * (index / count + phase)
             x = GREEN[0] + math.cos(angle) * radius
@@ -262,6 +272,9 @@ def main():
         ext.append('[ext_resource type="PackedScene" '
                    'path="res://storybook/village/%s.tscn" id="%s"]'
                    % (name, ids[key]))
+    ids["block"] = "bk"
+    ext.append('[ext_resource type="PackedScene" '
+               'path="res://storybook/foundation/block.tscn" id="bk"]')
     ids["tree"] = "tA"
     ext.append('[ext_resource type="PackedScene" '
                'path="res://storybook/foundation/tree.tscn" id="tA"]')
@@ -296,8 +309,12 @@ def main():
     markers = spawns(occluders)
 
     body = []
+    # ⭐ `block_scene` points at the FOUNDATION block. Without it the village
+    # spawns the shipping toy and its letters visibly do not match the ones
+    # round Chuck -- which is exactly how it looked.
     body.append('[node name="PhonemeVillage" type="Node3D" '
-                'groups=["phoneme_village"]]\nscript = ExtResource("vs")\n\n')
+                'groups=["phoneme_village"]]\nscript = ExtResource("vs")\n'
+                'block_scene = ExtResource("%s")\n\n' % ids["block"])
 
     # --- Terrain: the mound, and a flat green under everything else.
     body.append(node("Terrain", "Node3D", "."))
@@ -339,10 +356,24 @@ def main():
     body.append(instance("Bench", ids["bench"], "Props",
                          xform(MOUND[0] + rot_xz(2.0, -2.5, MOUND_YAW)[0], MOUND_H,
                                MOUND[2] + rot_xz(2.0, -2.5, MOUND_YAW)[1], 152.0)))
-    body.append(instance("BenchGreen", ids["bench"], "Props",
-                         xform(GREEN[0] + 2.6, 0, GREEN[1] + 1.4, -38.0)))
-    body.append(instance("Fingerpost", ids["fingerpost"], "Props",
-                         xform(GREEN[0] - 3.0, 0, GREEN[1] + 1.8, 16.0)))
+    # ⛔ SEARCHED, like the planters, and for the same reason: a modelled
+    # occluder box is an approximation of a mesh AABB, and the gap between
+    # them is exactly where a prop ends up standing on a sight-line. The
+    # Godot check named the fingerpost after I had already learned this once
+    # from the planter. Anything whose exact spot does not matter gets
+    # offered positions and refused the bad ones.
+    for name, res, top, radius in (("BenchGreen", "bench", 0.85, 2.9),
+                                   ("Fingerpost", "fingerpost", 2.35, 3.3)):
+        for step in range(28):
+            angle = math.radians(step * 12.9 + 40.0)
+            x = GREEN[0] + math.cos(angle) * radius
+            z = GREEN[1] + math.sin(angle) * radius
+            if occludes(x, z, top, markers):
+                continue
+            body.append(instance(name, ids[res], "Props",
+                                 xform(x, 0, z, math.degrees(angle) + 180.0)))
+            break
+
     # ⛔ The planters are SEARCHED, not placed. Two of them sat on a
     # sight-line and the Godot check named one as the culprit after three
     # rounds of widening occluder boxes that were not the problem. Anything
@@ -460,9 +491,9 @@ def main():
     subs = ['[sub_resource type="BoxShape3D" id="Box_%s"]\nsize = Vector3(%.2f, %.2f, %.2f)\n'
             % (n.title().replace("_", ""), h[0] * 2, h[1] * 2, h[2] * 2)
             for n, _, _, _, h in BUILDINGS] + [
-        '[sub_resource type="BoxShape3D" id="Green"]\nsize = Vector3(44, 1, 44)\n',
+        '[sub_resource type="BoxShape3D" id="Green"]\nsize = Vector3(68, 1, 60)\n',
         '[sub_resource type="SphereShape3D" id="Touch"]\nradius = 0.95\n',
-        '[sub_resource type="BoxShape3D" id="Trigger"]\nsize = Vector3(40, 6, 40)\n',
+        '[sub_resource type="BoxShape3D" id="Trigger"]\nsize = Vector3(62, 8, 54)\n',
     ]
     steps = len(ext) + len(subs)
     text = ("[gd_scene load_steps=%d format=3]\n\n" % (steps + 1)
