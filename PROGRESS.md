@@ -1,3 +1,99 @@
+# CVC LAND REBUILT, and a world to put it in — 2026-11-05/06
+
+👉 **START HERE.** The art direction is SETTLED and written up in
+`lookdev/DECISIONS.md` — read that first, it is the design handoff. This
+section is the state of the build.
+
+⛔⛔ **NOTHING IS COMMITTED.** `main` is at `184d356` and the entire rebuild
+is an uncommitted working tree of ~40 files. First job for whoever picks this
+up: get it onto a branch before touching anything.
+
+⛔ `scenes/main.tscn` (the classroom game) and `village/phoneme_village.tscn`
+are UNTOUCHED and still the site root. Nothing here has reached a child.
+
+## What exists now
+
+| | |
+|---|---|
+| `scenes/cvc_land.tscn` | the rebuilt CVC Land, GENERATED — do not hand-edit |
+| `tools/build_cvc_land.py` | generates it; every position read from the plan |
+| `art_src/explore/world_plan.py` | **the plan**: no bpy, shared by sculpt and layout |
+| `art_src/explore/cvcland.py` | ground + troll + pedestal + bell + shed + cart |
+| `storybook/painted.gdshader` | the painted surface |
+| `storybook/ink.gdshader` | the outline |
+| `storybook/painted_surface.gd` | applies both — **without this node the build looks like the asset pack** |
+| `tests/cvc_land.gd` | the loop, in CI |
+| `lookdev/` | the look-dev kit: scenes, shooter, `measure.py` |
+
+## The settled look
+
+patina `grain_strength 0.12` · `diffuse_toon` · inverted-hull ink at **3.4 px**
+(clip space, so one line weight covers a 4 m cottage and a 5 cm berry) ·
+saturation 0.78 / exposure 1.22 · **orthographic, pitch 16**, zoom 8.2.
+
+⭐ Verify any change with `python3 lookdev/measure.py` against the Cycles
+control at sat 0.304 / val 0.546. "It still looks too green" is not a number
+and cannot be aimed at; the published build was 2.3x over.
+
+## ⭐⭐ The layout is a diagram of a word
+
+Three pedestals; each letter zone sits DIRECTLY BEHIND its own pedestal, so
+fetching a sound is an out-and-back in the direction of the slot it fills.
+Onset left, vowel middle, ending right — the order a child reads them.
+
+Three worn tracks run out to the zones. **The paths teach the game**: a child
+can see where to go before anybody speaks to them.
+
+⛔ `world_plan` works in SCREEN axes (`ROW`, `AWAY`), not world X/Y. At yaw 30
+a row laid along world X comes out diagonal. The ground grid is generated in
+those axes too — an axis-aligned box holding this world would be 76 x 85 m,
+a third of it corner nobody can see.
+
+## ⛔ 20 blocks, and the letters were chosen from the WORD LIST
+
+`bdhlmpst` × `aeiou` × `bdgmnpt` = **172 CVC words**. Counted over the 516
+strict CVC words in `assets/words`.
+
+  * 42 (every usable letter) was TRIED and is too messy — the zones read as
+    heaps of dice. The 5-letter vowel zone was the control in the same frame.
+  * `w` is OUT: every word it bought is a vowel+w DIPHTHONG (bow law saw).
+    ⛔ Do not promote the next letter down — `y` has the same problem, `r` is
+    r-controlled, and `s` adds 12 junk words (bis dis hes pis).
+  * `b` and `d` are in both consonant zones ON PURPOSE — the reversal pair.
+  * The rest are BANKED for `world_plan.BONUS`, a reserved fourth site up the
+    north lane for digraphs and a harder Annette-prompted round. It is sited
+    now because the ground is a BAKED MESH; finding the spot later means
+    re-sculpting and re-baking.
+
+## 👉 WHAT IS NOT DONE — pick up here
+
+1. **The village half of the world is empty ground.** `world_plan` knows
+   where `VILLAGE_GREEN`, the five `VILLAGE` sites and `MILL` are, and the
+   lane already runs to the foot of the cart track. Nothing places them.
+   Needs a generator like `build_cvc_land.py`, reading the same plan.
+2. **⛔⛔ `tests/village.gd` BLOCKS THE DEPLOY.** It asserts Chuck climbs a
+   terrace at `Vector3(5.5, 0.1, 7.0)` and reaches y > 0.8. That terrace is
+   gone. It must be rewritten to test the ROUTINE (Annette prompts, letters
+   findable, a letter carried back) rather than coordinates.
+3. **The no-hidden-letter rule is RETIRED by decision** — *"the player will
+   go around the space to collect letters, that's the fun of it."* Its
+   replacement is REACHABILITY, which `tests/cvc_land.gd` already implements.
+   `tools/village_spawn_probe.gd` and the occlusion rule in the village
+   generator exist only to serve the retired rule.
+4. **Adoption.** `scenes/main.tscn` still has no tonemapper, the old camera
+   and a Kenney mannequin for Chuck. Deciding whether `cvc_land.tscn` BECOMES
+   the game is a separate call, and should come after the village is in.
+5. The troll is **PARKED** — three rounds did not converge. It needs a proper
+   character pass with its own face build, like Chuck has. See DECISIONS.md.
+
+## ⛔ Traps that cost real time, all in `lookdev/DECISIONS.md`
+
+The one worth repeating here: **Godot serves a STALE IMPORT CACHE.** Rebuild
+a mesh in Blender and anything that reads it through Godot — a capture, a
+collision bake — silently uses the PREVIOUS geometry, with a plausible face
+count. It caught this session out FOUR times. Always
+`godot --headless --path . --import` first.
+
 # Four fixes: flat floor, village spread, village letters, overcast light — 2026-11-03
 
 Four notes from the classroom preview, all four addressed.

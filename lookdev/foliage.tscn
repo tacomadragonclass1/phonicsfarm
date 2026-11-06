@@ -1,0 +1,88 @@
+[gd_scene load_steps=11 format=3]
+
+; THE FOLIAGE SET, side by side under the chosen look.
+;
+; ⛔ The point is JUDGING THEM TOGETHER. Each of these was built and approved
+; on its own, months apart, and the ink outline is the first thing that has
+; ever made their construction comparable: a blob and a carried clump look
+; the same under flat shading and completely different under a line.
+;
+; Left to right: the foundation tree (rebuilt), tree_b (rebuilt), bush,
+; blossom, mushrooms. Spacing is even so nothing overlaps and every
+; silhouette is read against sky.
+
+[ext_resource type="PackedScene" path="res://storybook/foundation/terrain.tscn" id="Terrain"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/tree.tscn" id="Tree"]
+[ext_resource type="PackedScene" path="res://storybook/village/tree_b.tscn" id="TreeB"]
+[ext_resource type="PackedScene" path="res://storybook/village/bush.tscn" id="Bush"]
+[ext_resource type="PackedScene" path="res://storybook/village/blossom.tscn" id="Blossom"]
+[ext_resource type="PackedScene" path="res://storybook/village/mushrooms.tscn" id="Mushrooms"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/block.tscn" id="Block"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
+sky_top_color = Color(0.62, 0.66, 0.70, 1)
+sky_horizon_color = Color(0.80, 0.82, 0.82, 1)
+sky_curve = 0.35
+ground_bottom_color = Color(0.46, 0.47, 0.45, 1)
+ground_horizon_color = Color(0.74, 0.75, 0.73, 1)
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMaterial")
+
+; Identical to lookdev.tscn's, so the two scenes are comparable. shoot.gd
+; overwrites both the light and the grade for every variant anyway.
+[sub_resource type="Environment" id="Environment"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 2
+ambient_light_color = Color(0.84, 0.86, 0.87, 1)
+ambient_light_energy = 0.82
+tonemap_mode = 4
+tonemap_exposure = 1.02
+tonemap_white = 2.0
+adjustment_enabled = true
+adjustment_saturation = 1.22
+
+[node name="Foliage" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.86602540, -0.25000000, 0.43301270, 0, 0.86602540, 0.50000000, -0.50000000, -0.43301270, 0.75000000, 0, 11, 0)
+light_color = Color(0.96, 0.97, 1, 1)
+light_energy = 0.40
+light_angular_distance = 26.0
+shadow_enabled = true
+shadow_opacity = 0.34
+shadow_blur = 4.0
+
+[node name="Terrain" parent="." instance=ExtResource("Terrain")]
+
+[node name="Tree" parent="." instance=ExtResource("Tree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4, 0, 0)
+
+[node name="TreeB" parent="." instance=ExtResource("TreeB")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, 0, 0)
+
+[node name="Bush" parent="." instance=ExtResource("Bush")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9, 0, 0.2)
+
+[node name="Blossom" parent="." instance=ExtResource("Blossom")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.1, 0, 0.5)
+
+[node name="Mushrooms" parent="." instance=ExtResource("Mushrooms")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9, 0, 0.3)
+
+; ⭐ The die is in frame as the SCALE REFERENCE and the quality bar. It is
+; the one thing in the set that already worked, so anything standing beside
+; it is being judged against it rather than against itself.
+[node name="Block" parent="." instance=ExtResource("Block")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.9, 0, 0.1)
+letter = "a"
+
+[node name="Camera3D" type="Camera3D" parent="."]
+projection = 1
+current = true
+size = 9.0
+far = 180.0

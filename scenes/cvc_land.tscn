@@ -1,0 +1,241 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="PackedScene" path="res://storybook/cvc/ground.tscn" id="Ground"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/pedestal.tscn" id="Pedestal"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/bell_lever.tscn" id="Bell"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/woodshed.tscn" id="Shed"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/handcart.tscn" id="Cart"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/tree.tscn" id="Tree"]
+[ext_resource type="PackedScene" path="res://storybook/village/tree_b.tscn" id="TreeB"]
+[ext_resource type="PackedScene" path="res://storybook/village/bush.tscn" id="Bush"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/block.tscn" id="Block"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/chuck.tscn" id="Player"]
+[ext_resource type="PackedScene" path="res://ui/touch_controls.tscn" id="UI"]
+[ext_resource type="Script" path="res://environment/fixed_camera.gd" id="Cam"]
+[ext_resource type="Script" path="res://storybook/painted_surface.gd" id="Painted"]
+[ext_resource type="ConcavePolygonShape3D" path="res://assets/storybook/collision/cvc_ground.res" id="GroundShape"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
+sky_top_color = Color(0.62, 0.66, 0.70, 1)
+sky_horizon_color = Color(0.80, 0.82, 0.82, 1)
+sky_curve = 0.35
+ground_bottom_color = Color(0.46, 0.47, 0.45, 1)
+ground_horizon_color = Color(0.74, 0.75, 0.73, 1)
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMaterial")
+
+; ⛔ THE GRADE IS MEASURED, not matched by eye. Sampled across the frame the
+; old build sat at mean saturation 0.707 against a path-traced control's
+; 0.304 -- 2.3x over, which is the acid green said as a number. These values
+; land within a few percent of the control; `lookdev/measure.py` checks it.
+[sub_resource type="Environment" id="Environment"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 2
+ambient_light_color = Color(0.58, 0.66, 0.84, 1)
+ambient_light_energy = 0.55
+tonemap_mode = 4
+tonemap_exposure = 1.22
+tonemap_white = 2.0
+adjustment_enabled = true
+adjustment_saturation = 0.78
+fog_enabled = true
+fog_light_color = Color(0.78, 0.82, 0.86, 1)
+fog_density = 0.0022
+fog_aerial_perspective = 0.22
+fog_sky_affect = 0.1
+
+[node name="CVCLand" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1.00000, 0, -0.00000, 0, 1, 0, 0.00000, 0, 1.00000, 0.000, 11.000, -0.000)
+rotation_degrees = Vector3(-34, 38, 0)
+light_color = Color(1, 0.94, 0.83, 1)
+light_energy = 1.15
+light_angular_distance = 2.2
+shadow_enabled = true
+shadow_opacity = 1.0
+shadow_blur = 1.2
+
+[node name="Ground" parent="." instance=ExtResource("Ground")]
+transform = Transform3D(1.00000, 0, -0.00000, 0, 1, 0, 0.00000, 0, 1.00000, 0.000, 0.000, -0.000)
+
+[node name="GroundBody" type="StaticBody3D" parent="."]
+
+[node name="GroundShape" type="CollisionShape3D" parent="GroundBody"]
+shape = ExtResource("GroundShape")
+
+[node name="Pedestals" type="Node3D" parent="."]
+
+[node name="Pedestal1" parent="Pedestals" instance=ExtResource("Pedestal")]
+transform = Transform3D(1.00000, 0, -0.00000, 0, 1, 0, 0.00000, 0, 1.00000, -1.472, 0.000, 0.850)
+
+[node name="Pedestal2" parent="Pedestals" instance=ExtResource("Pedestal")]
+transform = Transform3D(1.00000, 0, -0.00000, 0, 1, 0, 0.00000, 0, 1.00000, 0.000, 0.000, -0.000)
+
+[node name="Pedestal3" parent="Pedestals" instance=ExtResource("Pedestal")]
+transform = Transform3D(1.00000, 0, -0.00000, 0, 1, 0, 0.00000, 0, 1.00000, 1.472, 0.000, -0.850)
+
+[node name="SoundLever" parent="." instance=ExtResource("Bell")]
+transform = Transform3D(0.86603, 0, 0.50000, 0, 1, 0, -0.50000, 0, 0.86603, 3.851, 0.000, -1.530)
+pedestal_paths = Array[NodePath]([NodePath("../Pedestals/Pedestal1"), NodePath("../Pedestals/Pedestal2"), NodePath("../Pedestals/Pedestal3")])
+
+[node name="Zones" type="Node3D" parent="."]
+
+[node name="Blocks" type="Node3D" parent="."]
+
+[node name="Onset" parent="Zones" instance=ExtResource("Shed")]
+transform = Transform3D(0.39281, 0, -0.91962, 0, 1, 0, 0.91962, 0, 0.39281, -13.243, 0.000, -4.178)
+
+[node name="Block_o_b" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.95548, 0, 0.29506, 0, 1, 0, -0.29506, 0, 0.95548, -8.682, 0.000, -1.405)
+letter = "b"
+
+[node name="Block_o_d" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.68941, 0, 0.72437, 0, 1, 0, -0.72437, 0, 0.68941, -9.921, 0.000, -1.952)
+letter = "d"
+
+[node name="Block_o_h" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(-0.99578, 0, -0.09181, 0, 1, 0, 0.09181, 0, -0.99578, -11.168, 0.000, -2.459)
+letter = "h"
+
+[node name="Block_o_l" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.91128, 0, -0.41178, 0, 1, 0, 0.41178, 0, 0.91128, -12.402, 0.000, -3.015)
+letter = "l"
+
+[node name="Block_o_m" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(-0.91990, 0, 0.39215, 0, 1, 0, -0.39215, 0, -0.91990, -8.701, 0.000, -3.066)
+letter = "m"
+
+[node name="Block_o_p" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.96219, 0, 0.27237, 0, 1, 0, -0.27237, 0, 0.96219, -9.885, 0.000, -3.576)
+letter = "p"
+
+[node name="Block_o_s" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(-0.99203, 0, -0.12599, 0, 1, 0, 0.12599, 0, -0.99203, -11.122, 0.000, -4.079)
+letter = "s"
+
+[node name="Block_o_t" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.50372, 0, 0.86387, 0, 1, 0, -0.86387, 0, 0.50372, -12.440, 0.000, -4.618)
+letter = "t"
+
+[node name="Vowel" parent="Zones" instance=ExtResource("Tree")]
+transform = Transform3D(0.86602, 0, -0.50001, 0, 1, 0, 0.50001, 0, 0.86602, -5.900, 0.000, -10.219)
+
+[node name="Block_v_a" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.94286, 0, -0.33318, 0, 1, 0, 0.33318, 0, 0.94286, -2.469, 0.000, -8.120)
+letter = "a"
+
+[node name="Block_v_e" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(-0.94633, 0, -0.32320, 0, 1, 0, 0.32320, 0, -0.94633, -4.412, 0.000, -9.362)
+letter = "e"
+
+[node name="Block_v_i" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(-0.71339, 0, 0.70077, 0, 1, 0, -0.70077, 0, -0.71339, -6.204, 0.000, -7.854)
+letter = "i"
+
+[node name="Block_v_o" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.49503, 0, 0.86887, 0, 1, 0, -0.86887, 0, 0.49503, -5.255, 0.000, -5.720)
+letter = "o"
+
+[node name="Block_v_u" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.69622, 0, -0.71783, 0, 1, 0, 0.71783, 0, 0.69622, -2.925, 0.000, -5.884)
+letter = "u"
+
+[node name="Ending" parent="Zones" instance=ExtResource("Cart")]
+transform = Transform3D(0.99282, 0, 0.11960, 0, 1, 0, -0.11960, 0, 0.99282, 3.003, 0.000, -13.558)
+
+[node name="Block_e_b" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(-0.35757, 0, 0.93389, 0, 1, 0, -0.93389, 0, -0.35757, 1.585, 0.000, -8.397)
+letter = "b"
+
+[node name="Block_e_d" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(-0.99372, 0, 0.11188, 0, 1, 0, -0.11188, 0, -0.99372, 1.726, 0.000, -9.713)
+letter = "d"
+
+[node name="Block_e_g" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(-0.45953, 0, 0.88816, 0, 1, 0, -0.88816, 0, -0.45953, 1.965, 0.000, -11.091)
+letter = "g"
+
+[node name="Block_e_m" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.90160, 0, 0.43258, 0, 1, 0, -0.43258, 0, 0.90160, 2.052, 0.000, -12.405)
+letter = "m"
+
+[node name="Block_e_n" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(-0.47050, 0, -0.88240, 0, 1, 0, 0.88240, 0, -0.47050, 3.172, 0.000, -8.807)
+letter = "n"
+
+[node name="Block_e_p" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(-0.41259, 0, 0.91092, 0, 1, 0, -0.91092, 0, -0.41259, 3.353, 0.000, -10.216)
+letter = "p"
+
+[node name="Block_e_t" parent="Blocks" instance=ExtResource("Block")]
+transform = Transform3D(0.40926, 0, 0.91242, 0, 1, 0, -0.91242, 0, 0.40926, 3.479, 0.000, -11.526)
+letter = "t"
+
+[node name="Scenery" type="Node3D" parent="."]
+
+[node name="Scenery00" parent="Scenery" instance=ExtResource("Tree")]
+transform = Transform3D(0.86068, 0, -0.50915, 0, 1, 0, 0.50915, 0, 0.86068, -28.560, 0.000, -28.205)
+
+[node name="Scenery01" parent="Scenery" instance=ExtResource("TreeB")]
+transform = Transform3D(-0.91379, 0, -0.40619, 0, 1, 0, 0.40619, 0, -0.91379, -18.590, 0.000, -7.634)
+
+[node name="Scenery02" parent="Scenery" instance=ExtResource("Bush")]
+transform = Transform3D(0.69893, 0, -0.71519, 0, 1, 0, 0.71519, 0, 0.69893, -28.303, 0.000, -11.554)
+
+[node name="Scenery03" parent="Scenery" instance=ExtResource("Tree")]
+transform = Transform3D(-0.99897, 0, -0.04527, 0, 1, 0, 0.04527, 0, -0.99897, -29.132, 0.000, -30.001)
+
+[node name="Scenery04" parent="Scenery" instance=ExtResource("TreeB")]
+transform = Transform3D(0.75004, 0, -0.66139, 0, 1, 0, 0.66139, 0, 0.75004, -18.057, 0.000, -5.082)
+
+[node name="Scenery05" parent="Scenery" instance=ExtResource("Bush")]
+transform = Transform3D(0.99738, 0, -0.07237, 0, 1, 0, 0.07237, 0, 0.99738, -31.221, 0.000, -18.888)
+
+[node name="Scenery06" parent="Scenery" instance=ExtResource("Tree")]
+transform = Transform3D(0.78562, 0, 0.61871, 0, 1, 0, -0.61871, 0, 0.78562, -4.544, 0.000, -30.204)
+
+[node name="Scenery07" parent="Scenery" instance=ExtResource("TreeB")]
+transform = Transform3D(-0.97533, 0, -0.22075, 0, 1, 0, 0.22075, 0, -0.97533, -6.396, 0.000, -32.376)
+
+[node name="Scenery08" parent="Scenery" instance=ExtResource("Bush")]
+transform = Transform3D(0.96919, 0, 0.24631, 0, 1, 0, -0.24631, 0, 0.96919, -21.225, 0.000, -5.706)
+
+[node name="Scenery09" parent="Scenery" instance=ExtResource("Tree")]
+transform = Transform3D(0.84624, 0, -0.53280, 0, 1, 0, 0.53280, 0, 0.84624, -11.323, 0.000, -35.122)
+
+[node name="Scenery10" parent="Scenery" instance=ExtResource("TreeB")]
+transform = Transform3D(-0.89710, 0, -0.44184, 0, 1, 0, 0.44184, 0, -0.89710, -0.789, 0.000, -21.979)
+
+[node name="Scenery11" parent="Scenery" instance=ExtResource("Bush")]
+transform = Transform3D(-0.96093, 0, 0.27680, 0, 1, 0, -0.27680, 0, -0.96093, -29.783, 0.000, -23.735)
+
+[node name="Scenery12" parent="Scenery" instance=ExtResource("Tree")]
+transform = Transform3D(0.99166, 0, 0.12887, 0, 1, 0, -0.12887, 0, 0.99166, -13.327, 0.000, -34.632)
+
+[node name="Scenery13" parent="Scenery" instance=ExtResource("TreeB")]
+transform = Transform3D(-0.15028, 0, 0.98864, 0, 1, 0, -0.98864, 0, -0.15028, -32.332, 0.000, -15.603)
+
+[node name="Player" parent="." instance=ExtResource("Player")]
+transform = Transform3D(0.81872, 0, 0.57419, 0, 1, 0, -0.57419, 0, 0.81872, 1.960, 0.000, 2.794)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+projection = 1
+current = true
+far = 180.0
+script = ExtResource("Cam")
+pitch_degrees = 16.0
+yaw_degrees = 30.0
+zoom = 8.2
+distance = 26.0
+
+[node name="TouchControls" parent="." instance=ExtResource("UI")]
+
+[node name="PaintedSurface" type="Node" parent="."]
+script = ExtResource("Painted")
+

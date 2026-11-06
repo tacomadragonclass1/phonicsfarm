@@ -1,0 +1,161 @@
+[gd_scene load_steps=14 format=3]
+
+
+; CVC LAND -- the clearing, laid out from `art_src/explore/cvc_plan.py`.
+;
+; ⭐ Every position in here is READ FROM THE PLAN, not typed. The plan also
+; shapes the ground, so the worn tracks under the blocks go where the blocks
+; actually are -- which is the thing the last layout pass got wrong by
+; keeping two separate opinions about the world.
+
+[ext_resource type="PackedScene" path="res://storybook/cvc/ground.tscn" id="Ground"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/pedestal_post.tscn" id="Post"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/pedestal_cap.tscn" id="Cap"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/bell_frame.tscn" id="Frame"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/bell.tscn" id="Bell"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/woodshed.tscn" id="Shed"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/handcart.tscn" id="Cart"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/tree.tscn" id="Tree"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/chuck.tscn" id="Chuck"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/block.tscn" id="Block"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
+sky_top_color = Color(0.62, 0.66, 0.70, 1)
+sky_horizon_color = Color(0.80, 0.82, 0.82, 1)
+sky_curve = 0.35
+ground_bottom_color = Color(0.46, 0.47, 0.45, 1)
+ground_horizon_color = Color(0.74, 0.75, 0.73, 1)
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMaterial")
+
+[sub_resource type="Environment" id="Environment"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 2
+ambient_light_color = Color(0.84, 0.86, 0.87, 1)
+ambient_light_energy = 0.82
+tonemap_mode = 4
+tonemap_exposure = 1.02
+tonemap_white = 2.0
+adjustment_enabled = true
+adjustment_saturation = 1.22
+
+[node name="Clearing" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.86602540, -0.25000000, 0.43301270, 0, 0.86602540, 0.50000000, -0.50000000, -0.43301270, 0.75000000, 0, 11, 0)
+light_color = Color(0.96, 0.97, 1, 1)
+light_energy = 0.40
+light_angular_distance = 26.0
+shadow_enabled = true
+shadow_opacity = 0.34
+shadow_blur = 4.0
+
+[node name="Ground" parent="." instance=ExtResource("Ground")]
+transform = Transform3D(1.00000, 0, -0.00000, 0, 1, 0, 0.00000, 0, 1.00000, 0.000, 0.000, 0.000)
+
+[node name="Ped1Post" parent="." instance=ExtResource("Post")]
+transform = Transform3D(1.00000, 0, -0.00000, 0, 1, 0, 0.00000, 0, 1.00000, -1.472, 0.250, 0.850)
+
+[node name="Ped1Cap" parent="." instance=ExtResource("Cap")]
+transform = Transform3D(1.00000, 0, -0.00000, 0, 1, 0, 0.00000, 0, 1.00000, -1.472, 0.560, 0.850)
+
+[node name="Ped2Post" parent="." instance=ExtResource("Post")]
+transform = Transform3D(1.00000, 0, -0.00000, 0, 1, 0, 0.00000, 0, 1.00000, 0.000, 0.250, -0.000)
+
+[node name="Ped2Cap" parent="." instance=ExtResource("Cap")]
+transform = Transform3D(1.00000, 0, -0.00000, 0, 1, 0, 0.00000, 0, 1.00000, 0.000, 0.560, -0.000)
+
+[node name="Ped3Post" parent="." instance=ExtResource("Post")]
+transform = Transform3D(1.00000, 0, -0.00000, 0, 1, 0, 0.00000, 0, 1.00000, 1.472, 0.250, -0.850)
+
+[node name="Ped3Cap" parent="." instance=ExtResource("Cap")]
+transform = Transform3D(1.00000, 0, -0.00000, 0, 1, 0, 0.00000, 0, 1.00000, 1.472, 0.560, -0.850)
+
+[node name="BellFrame" parent="." instance=ExtResource("Frame")]
+transform = Transform3D(0.86603, 0, 0.50000, 0, 1, 0, -0.50000, 0, 0.86603, 3.851, 0.000, -1.530)
+
+[node name="Bell" parent="." instance=ExtResource("Bell")]
+transform = Transform3D(0.86603, 0, 0.50000, 0, 1, 0, -0.50000, 0, 0.86603, 3.851, 1.460, -1.530)
+
+[node name="Woodshed" parent="." instance=ExtResource("Shed")]
+transform = Transform3D(0.91355, 0, 0.40674, 0, 1, 0, -0.40674, 0, 0.91355, -10.208, 0.000, -2.882)
+
+[node name="VowelTree" parent="." instance=ExtResource("Tree")]
+transform = Transform3D(0.93969, 0, -0.34202, 0, 1, 0, 0.34202, 0, 0.93969, -4.250, 0.000, -7.361)
+
+[node name="Handcart" parent="." instance=ExtResource("Cart")]
+transform = Transform3D(0.52992, 0, -0.84805, 0, 1, 0, 0.84805, 0, 0.52992, 2.608, 0.000, -10.282)
+
+[node name="Chuck" parent="." instance=ExtResource("Chuck")]
+transform = Transform3D(0.98481, 0, 0.17365, 0, 1, 0, -0.17365, 0, 0.98481, 1.960, 0.000, 2.794)
+
+[node name="B_onset_b" parent="." instance=ExtResource("Block")]
+transform = Transform3D(-0.58303, 0, 0.81245, 0, 1, 0, -0.81245, 0, -0.58303, -9.130, 0.000, -2.805)
+letter = "b"
+
+[node name="B_onset_c" parent="." instance=ExtResource("Block")]
+transform = Transform3D(-0.66455, 0, -0.74724, 0, 1, 0, 0.74724, 0, -0.66455, -9.489, 0.000, -4.247)
+letter = "c"
+
+[node name="B_onset_d" parent="." instance=ExtResource("Block")]
+transform = Transform3D(0.97238, 0, -0.23342, 0, 1, 0, 0.23342, 0, 0.97238, -11.254, 0.000, -3.969)
+letter = "d"
+
+[node name="B_onset_f" parent="." instance=ExtResource("Block")]
+transform = Transform3D(0.84192, 0, -0.53960, 0, 1, 0, 0.53960, 0, 0.84192, -11.019, 0.000, -2.325)
+letter = "f"
+
+[node name="B_onset_g" parent="." instance=ExtResource("Block")]
+transform = Transform3D(0.71241, 0, -0.70176, 0, 1, 0, 0.70176, 0, 0.71241, -9.678, 0.000, -1.065)
+letter = "g"
+
+[node name="B_vowel_a" parent="." instance=ExtResource("Block")]
+transform = Transform3D(0.94651, 0, 0.32268, 0, 1, 0, -0.32268, 0, 0.94651, -2.607, 0.000, -7.178)
+letter = "a"
+
+[node name="B_vowel_e" parent="." instance=ExtResource("Block")]
+transform = Transform3D(0.98889, 0, 0.14864, 0, 1, 0, -0.14864, 0, 0.98889, -3.865, 0.000, -8.682)
+letter = "e"
+
+[node name="B_vowel_i" parent="." instance=ExtResource("Block")]
+transform = Transform3D(-0.24631, 0, -0.96919, 0, 1, 0, 0.96919, 0, -0.24631, -5.581, 0.000, -8.759)
+letter = "i"
+
+[node name="B_vowel_o" parent="." instance=ExtResource("Block")]
+transform = Transform3D(-0.35924, 0, -0.93325, 0, 1, 0, 0.93325, 0, -0.35924, -5.171, 0.000, -6.875)
+letter = "o"
+
+[node name="B_vowel_u" parent="." instance=ExtResource("Block")]
+transform = Transform3D(-0.87142, 0, 0.49054, 0, 1, 0, -0.49054, 0, -0.87142, -3.774, 0.000, -6.351)
+letter = "u"
+
+[node name="B_ending_t" parent="." instance=ExtResource("Block")]
+transform = Transform3D(-0.95534, 0, 0.29551, 0, 1, 0, -0.29551, 0, -0.95534, 3.953, 0.000, -10.356)
+letter = "t"
+
+[node name="B_ending_g" parent="." instance=ExtResource("Block")]
+transform = Transform3D(0.27320, 0, -0.96196, 0, 1, 0, 0.96196, 0, 0.27320, 3.065, 0.000, -11.139)
+letter = "g"
+
+[node name="B_ending_n" parent="." instance=ExtResource("Block")]
+transform = Transform3D(-0.39222, 0, -0.91987, 0, 1, 0, 0.91987, 0, -0.39222, 1.408, 0.000, -11.028)
+letter = "n"
+
+[node name="B_ending_p" parent="." instance=ExtResource("Block")]
+transform = Transform3D(-0.30762, 0, -0.95151, 0, 1, 0, 0.95151, 0, -0.30762, 1.470, 0.000, -9.393)
+letter = "p"
+
+[node name="B_ending_d" parent="." instance=ExtResource("Block")]
+transform = Transform3D(0.03708, 0, -0.99931, 0, 1, 0, 0.99931, 0, 0.03708, 3.336, 0.000, -8.702)
+letter = "d"
+
+[node name="Camera3D" type="Camera3D" parent="."]
+projection = 1
+current = true
+size = 9.0
+far = 180.0

@@ -1,0 +1,59 @@
+[gd_scene load_steps=9 format=3]
+
+; CVC LAND's sound lever: a bell.
+;
+; ⭐⭐ `sound_lever.gd` ALREADY DESCRIBED A BELL and nobody had noticed. It
+; rocks `$Handle` about X by +30 then -25 degrees and expands a torus
+; `$Pulse` outward -- that is a bell swinging on its headstock and the sound
+; going out from it. The old box-and-cylinder lever was a placeholder sitting
+; on top of an animation for something else.
+;
+; ⛔ Everything that MOVES lives under $Handle: the bell, its stock, the
+; clapper and the rope. A rope modelled into the frame would stand still
+; while the bell swung, which is the sort of thing nobody can name and
+; everybody sees.
+;
+; ⛔ $Pulse stays a Godot primitive on purpose. It is a feedback effect, not
+; an object in the world, and the script sets its `transparency` directly.
+
+[ext_resource type="Script" path="res://lever/sound_lever.gd" id="1"]
+[ext_resource type="PackedScene" path="res://assets/storybook/cvc/bell_frame.glb" id="2"]
+[ext_resource type="PackedScene" path="res://assets/storybook/cvc/bell.glb" id="3"]
+[ext_resource type="Script" path="res://storybook/storybook_surface.gd" id="4"]
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(1.5, 1.8, 0.75)
+
+[sub_resource type="StandardMaterial3D" id="PulseMaterial"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(1, 0.95, 0.72, 0.85)
+
+[sub_resource type="TorusMesh" id="PulseMesh"]
+inner_radius = 0.62
+outer_radius = 0.69
+material = SubResource("PulseMaterial")
+
+[node name="SoundLever" type="StaticBody3D" groups=["sound_levers"]]
+collision_layer = 8
+collision_mask = 2
+script = ExtResource("1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("Shape")
+
+[node name="Frame" parent="." instance=ExtResource("2")]
+
+[node name="Handle" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.46, 0)
+
+[node name="Bell" parent="Handle" instance=ExtResource("3")]
+
+[node name="Pulse" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 1.05, 0)
+visible = false
+mesh = SubResource("PulseMesh")
+
+[node name="SurfaceFix" type="Node" parent="."]
+script = ExtResource("4")

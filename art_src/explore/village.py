@@ -74,7 +74,17 @@ palette.extend({
 })
 
 
+# ⛔⛔ FOLIAGE AND ARCHITECTURE NEED OPPOSITE SMOOTHING, and one number for
+# the whole village was wrong for half of it. A low angle keeps chamfer facets
+# crisp, which is exactly right for a wall, a sign or a cart -- and exactly
+# wrong for a canopy, where it splits the normals at every lobe. A split
+# normal tears the INK OUTLINE's hull open, so every internal facet of every
+# bush was being drawn as a line. Measured on the foundation tree: 28 -> 62
+# removed the internal lines without touching a vertex.
 SMOOTH = 11.0
+SMOOTH_BY_SUBJECT = {
+    "tree_b": 62.0, "bush": 62.0, "blossom": 58.0, "mushrooms": 46.0,
+}
 
 
 # ⛔⛔ 512, NOT 1024, AND THIS IS A CRASH FIX RATHER THAN A SIZE SAVING.
@@ -90,7 +100,9 @@ SMOOTH = 11.0
 def produce(subject, objects, texture=asset.TEXTURE_SMALL, budget_tris=None):
     return asset.produce("village/%s" % subject, objects, texture=texture,
                          roughness=0.93, budget_tris=budget_tris,
-                         bake_samples=24, smooth_angle=SMOOTH,
+                         bake_samples=24,
+                         smooth_angle=SMOOTH_BY_SUBJECT.get(
+                             subject.split("/")[-1], SMOOTH),
                          gouache=F.SURFACE)
 
 
@@ -1422,45 +1434,60 @@ def build_bunting():
 
 
 def build_tree_b():
-    """A second tree: narrower, taller, with a leaning trunk.
+    """A second tree: narrow, upright, a leaning trunk that recovers.
 
     Deliberately NOT a tweak of the foundation tree. That one is a broad
-    fanned crown on an S-curve; this is a tall upright cone of smaller
-    cushions on a trunk that leans one way and recovers. From the gameplay
-    camera the two read as different species, which is the whole point.
+    fanned crown; this is a tall column of smaller clumps. From the gameplay
+    camera the two read as different species, which is the whole point --
+    ⭐ a prop used 26 times is ONE PROP USED 26 TIMES, and two alternating
+    silhouettes read as a wood where one repeated reads as wallpaper.
+
+    ⛔ Rebuilt to the same three rules as the foundation tree, because the
+    ink outline exposes all three: every clump is CARRIED by a visible limb,
+    the masses are UNEQUAL, and they sit APART so there is sky between them.
+    The old version was six cushions stacked up a trunk with no gaps, which
+    outlines as one tall blob.
     """
     meshtools.reset_scene()
     parts = []
     stroke = [(0.00, 0.00, 0.00), (-0.09, 0.02, 0.62), (-0.14, -0.01, 1.28),
-              (-0.05, 0.03, 1.92), (0.08, 0.01, 2.48), (0.11, 0.0, 2.84)]
+              (-0.05, 0.03, 1.92), (0.08, 0.01, 2.56), (0.06, 0.0, 3.06)]
     trunk = forms.sweep("Trunk", "g_timber", stroke,
-                        [0.185, 0.132, 0.098, 0.074, 0.052, 0.034],
-                        segments=10, samples=8, profile_squash=0.86)
+                        [0.185, 0.132, 0.098, 0.072, 0.048, 0.028],
+                        segments=11, samples=8, profile_squash=0.86)
     meshtools.flare_base(trunk, height=0.26, strength=0.50)
     forms.dents(trunk, [(-0.05, -0.15, 0.46), (-0.16, 0.12, 1.02),
                         (0.02, -0.12, 1.64)], depth=0.018, radius=0.11)
     meshtools.paint_by_normal(trunk, "g_timber", "g_timber", "g_ink",
                               up_at=0.7, down_at=-0.45)
     parts.append(trunk)
-    for origin, tip, radius in ((( -0.12, 0.0, 1.34), (-0.52, -0.10, 1.74), 0.044),
-                                ((0.00, 0.0, 1.98), (0.46, 0.12, 2.30), 0.040)):
+
+    for origin, tip, radius in (((-0.13, 0.00, 1.38), (-0.40, 0.05, 1.66), 0.044),
+                                ((-0.02, 0.00, 1.86), (0.38, -0.09, 2.10), 0.042),
+                                ((0.07, 0.01, 2.44), (0.28, -0.03, 2.74), 0.034)):
         middle = tuple((origin[i] + tip[i]) / 2 for i in range(3))
-        parts.append(forms.sweep("Branch", "g_timber",
-                                 [origin, (middle[0], middle[1], middle[2] + 0.06), tip],
-                                 [radius, radius * 0.66, radius * 0.36],
-                                 segments=7, samples=5, profile_squash=0.84))
-    layers = [
-        ((-0.24, 0.08, 1.52), 0.44, 0.46, ("g_leaf", "g_leaf_deep", "g_leaf_deep"), 6, 0.22, 24),
-        ((0.18, -0.10, 1.88), 0.42, 0.44, ("g_leaf", "g_leaf", "g_leaf_deep"), 7, 0.20, -28),
-        ((-0.14, 0.06, 2.22), 0.50, 0.50, ("g_leaf_light", "g_leaf", "g_leaf_deep"), 7, 0.21, 20),
-        ((0.14, -0.06, 2.56), 0.42, 0.44, ("g_leaf_light", "g_leaf", "g_leaf_deep"), 6, 0.23, -18),
-        ((0.02, 0.04, 2.86), 0.32, 0.34, ("g_leaf_light", "g_leaf_light", "g_leaf"), 5, 0.26, 26),
-        ((0.10, -0.02, 3.08), 0.22, 0.26, ("g_leaf_light", "g_leaf_light", "g_leaf"), 5, 0.28, -14),
+        parts.append(forms.sweep("Limb", "g_timber",
+                                 [origin, (middle[0], middle[1], middle[2] + 0.08), tip],
+                                 [radius, radius * 0.66, radius * 0.34],
+                                 segments=8, samples=5, profile_squash=0.84))
+
+    # Alternating left and right up the trunk, so the gaps are on BOTH sides
+    # and the column still reads as narrow. The widest mass is at two thirds
+    # height, not at the top: a conifer-ish silhouette with a shoulder.
+    clumps = [
+        ((-0.42, 0.06, 1.70), 0.40, 0.46, ("g_leaf", "g_leaf_deep", "g_leaf_deep"), 5, 0.24, 24),
+        ((0.40, -0.10, 2.14), 0.34, 0.40, ("g_leaf", "g_leaf", "g_leaf_deep"), 5, 0.25, -28),
+        ((-0.14, 0.08, 2.52), 0.50, 0.56, ("g_leaf_light", "g_leaf", "g_leaf_deep"), 6, 0.21, 20),
+        ((0.30, -0.04, 2.84), 0.30, 0.36, ("g_leaf_light", "g_leaf", "g_leaf_deep"), 5, 0.26, -18),
+        ((0.03, 0.03, 3.18), 0.23, 0.30, ("g_leaf_light", "g_leaf_light", "g_leaf"), 4, 0.28, 26),
     ]
-    for index, (centre, radius, height, greens, lobes, amount, twist) in enumerate(layers):
+    for index, (centre, radius, height, greens, lobes, amount, twist) in enumerate(clumps):
         mass = F.cushion("Leaf", greens[1], radius, height, centre,
                          lobes=lobes, amount=amount, squash=0.94, twist=twist,
-                         points=22)
+                         points=30,
+                         profile=[(-0.52, 0.22), (-0.30, 0.62), (-0.08, 0.92),
+                                  (0.14, 1.00), (0.36, 0.96), (0.56, 0.74),
+                                  (0.74, 0.30)])
         forms.jitter_verts(mass, 0.007, seed=61 + index)
         meshtools.paint_by_normal(mass, greens[0], greens[1], greens[2],
                                   up_at=0.50, down_at=-0.28)
@@ -1473,28 +1500,58 @@ def build_tree_b():
 
 
 def build_bush():
-    """A hedge bush: the foundation cushion, at shrub size, with berries."""
+    """A hedge bush: two lobes and a notch, with berries ON it.
+
+    ⛔ TWO LOBES AND A NOTCH, not three merged cushions. Three masses pushed
+    together outline as one blob with a bumpy top, which is the shrub version
+    of the same mistake the tree made. A bush is read by the DIP between its
+    shoulders.
+
+    ⛔ The berries used to float: nine spheres scattered in the air around the
+    mass at radii up to 0.56, which was invisible under flat shading and is
+    confetti the moment each one gets a line round it. Five now, and each sits
+    ON the surface -- placed at 0.86 of the lobe radius so it is bedded into
+    the leaves rather than hovering beside them.
+    """
     meshtools.reset_scene()
     parts = []
     import random
     rng = random.Random(17)
-    for centre, radius, height, lobes in (((0.0, 0.0, 0.40), 0.62, 0.78, 9),
-                                          ((0.34, 0.22, 0.30), 0.42, 0.58, 7),
-                                          ((-0.30, -0.18, 0.26), 0.38, 0.52, 7)):
+    # ⛔ FIVE SHALLOW FOLDS, NOT SEVEN DEEP ONES. At 0.56 m radius, seven
+    # scallops at amplitude 0.27 are convolutions -- the first cut of this
+    # read as a cabbage, or worse, a brain. The scallop count has to fall as
+    # the mass gets smaller or the folds stop being leaf clumps and start
+    # being texture.
+    #
+    # ⛔ And the two lobes sit FURTHER APART. At 0.46 m of separation they
+    # merged into one outline and the notch -- the whole point of having two
+    # -- never appeared. A bush is read by the dip between its shoulders.
+    lobes = (((-0.26, -0.06, 0.36), 0.52, 0.72, 5),
+             ((0.42, 0.20, 0.24), 0.34, 0.48, 4))
+    for centre, radius, height, lobe_count in lobes:
         mass = F.cushion("Bush", "f_hedge", radius, height, centre,
-                         lobes=lobes, amount=0.26, twist=20, points=22)
+                         lobes=lobe_count, amount=0.19, twist=20, points=28,
+                         profile=[(-0.52, 0.26), (-0.28, 0.66), (-0.06, 0.94),
+                                  (0.16, 1.00), (0.38, 0.92), (0.58, 0.68),
+                                  (0.74, 0.26)])
         forms.jitter_verts(mass, 0.012, seed=int(radius * 100))
         meshtools.paint_by_normal(mass, "f_hedge_sun", "f_hedge",
                                   "g_leaf_deep", up_at=0.55, down_at=-0.3)
         parts.append(mass)
-    for _ in range(9):
+    for index in range(5):
+        centre, radius, height, _ = lobes[index % 2]
         angle = rng.uniform(0, math.tau)
-        reach = rng.uniform(0.18, 0.56)
+        lift = rng.uniform(0.18, 0.56)
+        # 0.94, not 0.86: at 0.86 every berry sank into the leaves and
+        # vanished. It has to sit PROUD of the surface to read, just not
+        # free of it.
+        reach = radius * 0.94 * math.cos(lift * 1.4)
         parts.append(forms.superform(
-            "Berry", "f_bloom", size=(0.055, 0.055, 0.055), exponent=2.2,
-            segments=8, rings=6,
-            at=(math.cos(angle) * reach, math.sin(angle) * reach,
-                rng.uniform(0.34, 0.74))))
+            "Berry", "f_bloom", size=(0.048, 0.048, 0.048), exponent=2.3,
+            segments=9, rings=7,
+            at=(centre[0] + math.cos(angle) * reach,
+                centre[1] + math.sin(angle) * reach,
+                centre[2] + height * lift)))
     return parts
 
 

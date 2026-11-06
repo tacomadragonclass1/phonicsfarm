@@ -166,7 +166,7 @@ TERRAIN_SURFACE = dict(SURFACE, grain=0.0, streak=0.0,
 
 # A cottage is cut, a block is moulded, foliage is in between, and a character
 # is moulded a little softer than a toy.
-SMOOTH = {"cottage": 10.0, "block": 18.0, "tree": 28.0, "chuck": 20.0,
+SMOOTH = {"cottage": 10.0, "block": 18.0, "tree": 62.0, "chuck": 20.0,
           "terrain": 44.0, "props": 26.0, "garden": 22.0}
 
 
@@ -878,15 +878,41 @@ def _walk_action(skeleton):
 # the fanned layering. What changes is that each layer is now a MASS.
 
 def build_tree():
+    """The tree, rebuilt for an INKED silhouette.
+
+    ⛔⛔ THE OLD CANOPY WAS SIX OVERLAPPING PANCAKES and it survived three
+    review rounds because at the shipping camera -- orthographic, pitch 30,
+    far back -- its outline was a small soft blob and nobody could see what it
+    was made of. The moment the camera came down and an ink line went round
+    it, the whole construction was on display: a stack of flat lobed discs
+    with no sky between them.
+
+    ⭐⭐ WITH AN INK LINE, NEGATIVE SPACE IS THE SUBJECT. A solid mass outlines
+    as a solid mass, so no amount of surface work inside it will read as
+    foliage. What makes a drawn tree a tree is the holes: clumps that sit
+    APART, on branches you can see, with sky between them. That is the whole
+    redesign -- five separated clumps instead of six merged pads.
+
+    ⭐ The facets were a SEPARATE fault and are already fixed without touching
+    geometry. The internal lines were not faceting: they were the outline
+    hull TEARING at split normals, which happens wherever two faces meet at
+    more than the smoothing angle. `SMOOTH["tree"]` went 28 -> 62 and they
+    vanished. Measured by A/B render before any remodelling was done, which
+    is what kept this rebuild about silhouette rather than about polygons.
+    """
     meshtools.reset_scene()
     parts = []
 
-    stroke = [(0.00, 0.00, 0.00), (0.11, 0.03, 0.58), (-0.02, -0.02, 1.12),
-              (0.17, 0.05, 1.64), (0.36, 0.02, 2.06), (0.32, 0.0, 2.32)]
+    # ⭐ The trunk runs ALL THE WAY to the crown now, rather than stopping at
+    # 2.3 and letting a pad stack sit on top of nothing. A visible spine is
+    # what the clumps hang off, and it is the difference between a tree and a
+    # bush on a stick.
+    stroke = [(0.00, 0.00, 0.00), (0.06, 0.02, 0.62), (0.00, -0.03, 1.22),
+              (0.09, 0.02, 1.84), (0.13, -0.02, 2.38), (0.10, -0.04, 2.70)]
     trunk = forms.sweep("Trunk", "g_timber", stroke,
-                        [0.235, 0.145, 0.102, 0.074, 0.046, 0.028],
-                        segments=11, samples=8, profile_squash=0.80)
-    meshtools.flare_base(trunk, height=0.30, strength=0.55)
+                        [0.235, 0.160, 0.120, 0.086, 0.056, 0.034],
+                        segments=12, samples=9, profile_squash=0.82)
+    meshtools.flare_base(trunk, height=0.32, strength=0.58)
     # Bark: four vertical gouges rather than noise. Noise everywhere reads as
     # dirt; a few marks read as a surface that was cut.
     forms.dents(trunk, [(0.07, -0.19, 0.34), (-0.12, 0.14, 0.72),
@@ -896,70 +922,95 @@ def build_tree():
                               up_at=0.7, down_at=-0.45)
     parts.append(trunk)
 
-    for origin, tip, radius in (
-            ((0.02, 0.0, 1.16), (-0.70, -0.12, 1.60), 0.058),
-            ((0.22, 0.0, 1.78), (0.82, 0.14, 2.02), 0.050),
-            ((0.04, 0.02, 1.52), (0.10, -0.52, 1.84), 0.044)):
+    # ⛔ EVERY CLUMP IS CARRIED. A clump with no branch under it reads as a
+    # cloud parked beside a tree -- which is what the old sprigs did. Each
+    # limb below ends inside its clump, so the join is hidden but the REACH
+    # is visible, and that reach is what says the gap between two clumps is a
+    # gap and not a mistake.
+    limbs = [
+        ((0.02, 0.00, 1.30), (-0.68, 0.09, 2.02), 0.064),
+        ((0.09, 0.01, 1.52), (0.72, -0.07, 2.20), 0.060),
+        ((0.05, -0.02, 1.18), (0.16, -0.58, 1.88), 0.052),
+        ((0.11, 0.02, 1.74), (-0.22, 0.54, 2.36), 0.048),
+    ]
+    for origin, tip, radius in limbs:
         middle = tuple((origin[i] + tip[i]) / 2 for i in range(3))
-        middle = (middle[0], middle[1], middle[2] + 0.08)
+        # Lift the midpoint: a limb leaves the trunk rising, then levels out
+        # under the weight it carries. A straight line reads as a strut.
+        middle = (middle[0], middle[1], middle[2] + 0.13)
         parts.append(forms.sweep(
-            "Branch", "g_timber", [origin, middle, tip],
-            [radius, radius * 0.68, radius * 0.38], segments=8, samples=5,
-            profile_squash=0.82))
+            "Limb", "g_timber", [origin, middle, tip],
+            [radius, radius * 0.66, radius * 0.34], segments=9, samples=6,
+            profile_squash=0.84))
 
-    # Six layers, each a cushion rather than a lens. Radius, lobe count, lobe
-    # depth, squash and twist all differ per layer -- that variation is what
-    # he asked for, and it is cheaper here than any extra geometry.
-    # ⛔ The first arrangement spread SIX masses of radius 0.7-0.84 across a
-    # 2.7 m span at nearly the same height, and the canopy came out as a flat
-    # umbrella -- a wider, thicker version of the pad stack rather than a
-    # crown. Narrower masses lifted up the trunk rebuild the vertical fan that
-    # was the approved silhouette, and the volume stays.
+    # ⭐ FIVE CLUMPS, SEPARATED, one of them clearly the crown. Deliberately
+    # odd-numbered and deliberately unequal: four equal masses round a trunk
+    # is a clover, and a tree has a side it grew toward.
     #
-    # The greens are ALSO per-layer now. Giving every mass the same light top
-    # made the whole canopy one value, which is how a layered form loses the
-    # layering it was built for.
-    layers = [
-        # centre, radius, height, colour(up, mid, down), lobes, amount, squash, twist
-        ((-0.36, 0.12, 1.46), 0.54, 0.52, ("g_leaf", "g_leaf_deep", "g_leaf_deep"), 7, 0.21, 0.92, 26),
-        ((0.42, -0.06, 1.82), 0.52, 0.50, ("g_leaf", "g_leaf", "g_leaf_deep"), 6, 0.23, 0.88, -32),
-        ((-0.12, -0.20, 2.16), 0.66, 0.62, ("g_leaf_light", "g_leaf", "g_leaf_deep"), 8, 0.19, 0.95, 18),
-        ((0.32, 0.20, 2.50), 0.58, 0.56, ("g_leaf", "g_leaf", "g_leaf_deep"), 7, 0.22, 0.90, -22),
-        ((-0.26, 0.02, 2.80), 0.50, 0.48, ("g_leaf_light", "g_leaf_light", "g_leaf"), 6, 0.24, 0.94, 30),
-        ((0.16, -0.10, 3.04), 0.40, 0.40, ("g_leaf_light", "g_leaf_light", "g_leaf"), 5, 0.26, 0.92, -16),
+    # ⛔ ROUNDER than the old pads. Height is now about 1.15x radius rather
+    # than 0.9x, so each clump is a ball and not a bun -- a flat mass seen
+    # from a low camera presents its edge, which is exactly the "stacked
+    # plates" reading we are escaping.
+    #
+    # ⛔ points=36, not 26. The outline is now DRAWN in ink at a closer
+    # camera, so the silhouette's own polygon count is visible. Fewer, deeper
+    # lobes (5-6 at amount 0.19-0.23) read as foliage clumps; many shallow
+    # ones read as a crinkle-cut edge.
+    #
+    # ⛔ AND UNEQUAL. Five clumps of nearly one size read as a bunch of
+    # balloons, which is its own kind of generic -- the first cut of this did
+    # exactly that. One dominant crown, two mid, two small, and the small
+    # ones tucked so they break the outline rather than adding to the count.
+    #     centre, radius, height, (up, mid, down), lobes, amount, squash, twist
+    clumps = [
+        ((-0.04, -0.10, 2.86), 0.70, 0.66, ("g_leaf_light", "g_leaf", "g_leaf_deep"), 6, 0.20, 0.96, 22),
+        ((-0.78, 0.12, 2.14), 0.58, 0.58, ("g_leaf", "g_leaf", "g_leaf_deep"), 5, 0.24, 0.94, -28),
+        ((0.82, -0.10, 2.30), 0.52, 0.54, ("g_leaf_light", "g_leaf", "g_leaf_deep"), 6, 0.22, 0.92, 30),
+        ((0.26, -0.66, 1.92), 0.38, 0.42, ("g_leaf", "g_leaf_deep", "g_leaf_deep"), 5, 0.25, 0.96, -18),
+        ((-0.30, 0.56, 2.44), 0.34, 0.38, ("g_leaf_light", "g_leaf_light", "g_leaf"), 4, 0.27, 0.95, 14),
     ]
     rng = random.Random(4)
     for index, (centre, radius, height, greens, lobes, amount, squash, twist) \
-            in enumerate(layers):
+            in enumerate(clumps):
+        # ⭐ A FLATTER TOP AND AN UNDERCUT BOTTOM. The default cushion
+        # profile is near-spherical, and a sphere of leaves is a balloon.
+        # Foliage spreads where it meets the light and falls away
+        # underneath, so the radius is held wide through the upper half and
+        # pulled in hard below the equator. It also puts the mass's widest
+        # point ABOVE centre, which is what makes a canopy look supported
+        # rather than balanced.
         mass = cushion("Leaf", greens[1], radius, height, centre,
                        lobes=lobes, amount=amount, squash=squash, twist=twist,
-                       points=26)
-        # Two swells and a dent per mass: clumps, not a smooth dome. Enough to
+                       points=36,
+                       profile=[(-0.52, 0.22), (-0.30, 0.62), (-0.08, 0.92),
+                                (0.14, 1.00), (0.36, 0.96), (0.56, 0.74),
+                                (0.74, 0.30)])
+        # Two swells and a dent per mass: clumps within the clump. Enough to
         # break the revolve without costing a single extra triangle.
         for _ in range(2):
             angle = rng.uniform(0, math.tau)
             forms.swell(mass, (centre[0] + math.cos(angle) * radius * 0.6,
                                centre[1] + math.sin(angle) * radius * 0.6,
                                centre[2] + height * 0.12),
-                        radius=radius * 0.52, amount=0.055)
+                        radius=radius * 0.52, amount=0.060)
         angle = rng.uniform(0, math.tau)
         forms.dents(mass, [(centre[0] + math.cos(angle) * radius * 0.7,
                             centre[1] + math.sin(angle) * radius * 0.7,
                             centre[2] - height * 0.10)],
-                    depth=0.045, radius=radius * 0.42)
-        forms.jitter_verts(mass, 0.008, seed=11 + index)
+                    depth=0.050, radius=radius * 0.44)
+        forms.jitter_verts(mass, 0.007, seed=11 + index)
         meshtools.paint_by_normal(mass, greens[0], greens[1], greens[2],
                                   up_at=0.50, down_at=-0.28)
         parts.append(mass)
 
-    # Four sprigs on the outline. A silhouette that is only big masses reads
-    # as a logo; these are what make it read as a plant.
-    for centre, radius, lobes in (((-0.78, 0.10, 1.76), 0.23, 5),
-                                  ((0.76, 0.20, 2.34), 0.21, 5),
-                                  ((0.04, -0.58, 2.12), 0.22, 5),
-                                  ((-0.34, -0.30, 3.08), 0.18, 4)):
-        sprig = cushion("Sprig", "g_leaf", radius, radius * 1.3, centre,
-                        lobes=lobes, amount=0.26, points=18, twist=20)
+    # ⛔ ONLY TWO SPRIGS, and both sit ON a clump's edge rather than in open
+    # air. The old four were free-floating and, once outlined, each one read
+    # as a separate little bush hovering next to the tree. A sprig is for
+    # roughening a silhouette that already exists.
+    for centre, radius, lobes in (((-1.12, 0.16, 2.02), 0.20, 5),
+                                  ((1.10, -0.14, 2.52), 0.18, 4)):
+        sprig = cushion("Sprig", "g_leaf", radius, radius * 1.25, centre,
+                        lobes=lobes, amount=0.26, points=22, twist=20)
         meshtools.paint_by_normal(sprig, "g_leaf_light", "g_leaf",
                                   "g_leaf_deep", up_at=0.5, down_at=-0.3)
         parts.append(sprig)

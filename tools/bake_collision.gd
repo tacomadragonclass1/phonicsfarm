@@ -15,10 +15,17 @@ extends SceneTree
 ##
 ## A saved ConcavePolygonShape3D is deserialised instead of computed, which
 ## is the difference between reading a list of points and building one.
+##
+## ⛔⛔ RUN `godot --headless --path . --import` FIRST. This script loads the
+## GLB through Godot's IMPORT CACHE, so a mesh rebuilt in Blender and baked
+## without reimporting bakes the PREVIOUS geometry -- silently, with a
+## plausible face count, and the collision then disagrees with what is drawn.
+## It has caught this project out four separate times in one session.
 
 const SOURCES := {
 	"terrain": "res://assets/storybook/explore/foundation_terrain.glb",
 	"mill_mound": "res://assets/storybook/village/mill_mound.glb",
+	"cvc_ground": "res://assets/storybook/cvc/ground.glb",
 }
 
 

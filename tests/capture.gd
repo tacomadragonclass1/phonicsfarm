@@ -121,11 +121,21 @@ func capture() -> void:
 	if "--feedback" in OS.get_cmdline_user_args():
 		scene.get_node("SoundLever").activate()
 		await create_timer(0.18).timeout
-		await RenderingServer.frame_post_draw
+		_draw_now()
 		root.get_texture().get_image().save_png("/tmp/phonics-feedback-active.png")
 		await root.get_node("PhonemeAudio").sequence_finished
 		await create_timer(0.12).timeout
 		output = "/tmp/phonics-feedback-word.png"
-	await RenderingServer.frame_post_draw
+	_draw_now()
 	root.get_texture().get_image().save_png(output)
 	quit()
+
+
+# ⛔ `await RenderingServer.frame_post_draw` NEVER RETURNS when the window is
+# not being composited -- which is every run from a non-interactive shell, and
+# on XWayland even from a desktop one. The main loop is alive the whole time
+# (SceneTree timers keep firing), so it looks exactly like a hung scene and
+# the blame lands on whatever is being captured. Forcing the draw synchronously
+# does not depend on the compositor ever showing the window.
+func _draw_now() -> void:
+	RenderingServer.force_draw(false)

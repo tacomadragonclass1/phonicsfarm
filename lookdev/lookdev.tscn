@@ -1,0 +1,95 @@
+[gd_scene load_steps=8 format=3]
+
+; THE LOOK-DEV SCENE. Deliberately four objects: a cottage, a tree, a block
+; and a patch of ground.
+;
+; ⛔ IT IS SMALL ON PURPOSE, and that is a process decision, not a shortcut.
+; The last pass drifted from art direction into level design because the only
+; place to look at the art was a whole walkable world, and once you are
+; looking at a world you start moving buildings. Four objects cannot tempt
+; anybody into a layout.
+;
+; Everything here is instanced from the SHIPPING storybook scenes, at the same
+; transforms the preview uses, so the ground pad under the cottage lines up and
+; nothing is a special case built to flatter the test.
+;
+; Variants are applied by lookdev/shoot.gd, not stored here.
+
+[ext_resource type="PackedScene" path="res://storybook/foundation/terrain.tscn" id="Terrain"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/cottage.tscn" id="Cottage"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/tree.tscn" id="Tree"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/block.tscn" id="Block"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
+sky_top_color = Color(0.62, 0.66, 0.70, 1)
+sky_horizon_color = Color(0.80, 0.82, 0.82, 1)
+sky_curve = 0.35
+ground_bottom_color = Color(0.46, 0.47, 0.45, 1)
+ground_horizon_color = Color(0.74, 0.75, 0.73, 1)
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMaterial")
+
+; The CURRENT grade, copied from scenes/foundation_preview.tscn unchanged, so
+; variant "base" really is what is published today and not a reconstruction.
+[sub_resource type="Environment" id="Environment"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 2
+ambient_light_color = Color(0.84, 0.86, 0.87, 1)
+ambient_light_energy = 0.82
+tonemap_mode = 4
+tonemap_exposure = 1.02
+tonemap_white = 2.0
+adjustment_enabled = true
+adjustment_saturation = 1.22
+
+[node name="LookDev" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.86602540, -0.25000000, 0.43301270, 0, 0.86602540, 0.50000000, -0.50000000, -0.43301270, 0.75000000, 0, 11, 0)
+light_color = Color(0.96, 0.97, 1, 1)
+light_energy = 0.40
+light_angular_distance = 26.0
+shadow_enabled = true
+shadow_opacity = 0.34
+shadow_blur = 4.0
+
+[node name="Terrain" parent="." instance=ExtResource("Terrain")]
+
+[node name="Cottage" parent="." instance=ExtResource("Cottage")]
+transform = Transform3D(0.97029574, 0, -0.2419219, 0, 1, 0, 0.2419219, 0, 0.97029574, -2.7, 0, -3.0)
+
+[node name="Tree" parent="." instance=ExtResource("Tree")]
+transform = Transform3D(0.91354546, 0, 0.40673664, 0, 1, 0, -0.40673664, 0, 0.91354546, 3.95, 0, -0.75)
+
+; ⛔ FOUR BLOCKS, SPREAD IN DEPTH, and this is a gameplay instrument rather
+; than set dressing. The whole game is a child reading letters laid out on the
+; ground, and `tests/village.gd` enforces a no-hidden-letter rule against the
+; fixed camera. Any camera change has to be judged on whether the letters
+; still read -- so there have to be letters at a near, a middle and a far
+; distance to judge it on.
+[node name="Block" parent="." instance=ExtResource("Block")]
+transform = Transform3D(0.91354546, 0, 0.40673664, 0, 1, 0, -0.40673664, 0, 0.91354546, 0.3, 0, 1.1)
+letter = "a"
+
+[node name="BlockC" parent="." instance=ExtResource("Block")]
+transform = Transform3D(0.98480775, 0, -0.17364818, 0, 1, 0, 0.17364818, 0, 0.98480775, -1.9, 0, 2.6)
+letter = "c"
+
+[node name="BlockT" parent="." instance=ExtResource("Block")]
+transform = Transform3D(0.86602540, 0, 0.50000000, 0, 1, 0, -0.50000000, 0, 0.86602540, 2.6, 0, -0.4)
+letter = "t"
+
+[node name="BlockS" parent="." instance=ExtResource("Block")]
+transform = Transform3D(0.93969262, 0, -0.34202014, 0, 1, 0, 0.34202014, 0, 0.93969262, 5.6, 0, -4.2)
+letter = "s"
+
+[node name="Camera3D" type="Camera3D" parent="."]
+projection = 1
+current = true
+size = 9.0
+far = 180.0

@@ -1,0 +1,112 @@
+[gd_scene load_steps=16 format=3]
+
+; CVC LAND's new objects, judged against the set.
+;
+; ⛔ Chuck is in frame and that is not decoration. The troll has to be big
+; enough to be the thing you walk back toward from an off-screen zone, and
+; small enough not to own the frame -- which is a question about him NEXT TO
+; A CHILD, not about his dimensions.
+
+[ext_resource type="PackedScene" path="res://storybook/foundation/terrain.tscn" id="Terrain"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/troll.tscn" id="Troll"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/chuck.tscn" id="Chuck"]
+[ext_resource type="PackedScene" path="res://storybook/foundation/block.tscn" id="Block"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/pedestal_post.tscn" id="Post"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/pedestal_cap.tscn" id="Cap"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/bell_frame.tscn" id="Frame"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/bell.tscn" id="Bell"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/woodshed.tscn" id="Shed"]
+[ext_resource type="PackedScene" path="res://storybook/cvc/handcart.tscn" id="Cart"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
+sky_top_color = Color(0.62, 0.66, 0.70, 1)
+sky_horizon_color = Color(0.80, 0.82, 0.82, 1)
+sky_curve = 0.35
+ground_bottom_color = Color(0.46, 0.47, 0.45, 1)
+ground_horizon_color = Color(0.74, 0.75, 0.73, 1)
+
+[sub_resource type="Sky" id="Sky"]
+sky_material = SubResource("SkyMaterial")
+
+[sub_resource type="Environment" id="Environment"]
+background_mode = 2
+sky = SubResource("Sky")
+ambient_light_source = 2
+ambient_light_color = Color(0.84, 0.86, 0.87, 1)
+ambient_light_energy = 0.82
+tonemap_mode = 4
+tonemap_exposure = 1.02
+tonemap_white = 2.0
+adjustment_enabled = true
+adjustment_saturation = 1.22
+
+[node name="CVC" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.86602540, -0.25000000, 0.43301270, 0, 0.86602540, 0.50000000, -0.50000000, -0.43301270, 0.75000000, 0, 11, 0)
+light_color = Color(0.96, 0.97, 1, 1)
+light_energy = 0.40
+light_angular_distance = 26.0
+shadow_enabled = true
+shadow_opacity = 0.34
+shadow_blur = 4.0
+
+[node name="Terrain" parent="." instance=ExtResource("Terrain")]
+
+; ⛔ The troll is PARKED, not finished -- three rounds of him did not
+; converge and he needs a proper character pass, not another tweak. He is
+; kept in frame at the back purely for scale against the props.
+[node name="Troll" parent="." instance=ExtResource("Troll")]
+transform = Transform3D(0.93969262, 0, 0.34202014, 0, 1, 0, -0.34202014, 0, 0.93969262, -6.4, 0, -3.2)
+
+; The three pedestals, as the game assembles them: post + cap + a letter
+; resting on the snap point.
+[node name="Ped1" parent="." instance=ExtResource("Post")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9, 0.25, 0.6)
+
+[node name="Ped1Cap" parent="." instance=ExtResource("Cap")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9, 0.56, 0.6)
+
+[node name="Ped1Block" parent="." instance=ExtResource("Block")]
+transform = Transform3D(0.98480775, 0, -0.17364818, 0, 1, 0, 0.17364818, 0, 0.98480775, -1.9, 0.62, 0.6)
+letter = "c"
+
+[node name="Ped2" parent="." instance=ExtResource("Post")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.25, 0.2)
+
+[node name="Ped2Cap" parent="." instance=ExtResource("Cap")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.56, 0.2)
+
+[node name="Ped3" parent="." instance=ExtResource("Post")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3, 0.25, -0.2)
+
+[node name="Ped3Cap" parent="." instance=ExtResource("Cap")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3, 0.56, -0.2)
+
+[node name="BellFrame" parent="." instance=ExtResource("Frame")]
+transform = Transform3D(0.86602540, 0, 0.50000000, 0, 1, 0, -0.50000000, 0, 0.86602540, 3.3, 0, 1.3)
+
+[node name="Bell" parent="." instance=ExtResource("Bell")]
+transform = Transform3D(0.86602540, 0, 0.50000000, 0, 1, 0, -0.50000000, 0, 0.86602540, 3.3, 1.46, 1.3)
+
+[node name="Woodshed" parent="." instance=ExtResource("Shed")]
+transform = Transform3D(0.93969262, 0, -0.34202014, 0, 1, 0, 0.34202014, 0, 0.93969262, -5.0, 0, 2.4)
+
+[node name="Handcart" parent="." instance=ExtResource("Cart")]
+transform = Transform3D(0.64278761, 0, 0.76604444, 0, 1, 0, -0.76604444, 0, 0.64278761, 5.6, 0, -1.4)
+
+[node name="Chuck" parent="." instance=ExtResource("Chuck")]
+transform = Transform3D(0.93969262, 0, -0.34202014, 0, 1, 0, 0.34202014, 0, 0.93969262, 1.9, 0, 1.9)
+
+[node name="Block" parent="." instance=ExtResource("Block")]
+transform = Transform3D(0.91354546, 0, 0.40673664, 0, 1, 0, -0.40673664, 0, 0.91354546, 0.6, 0, 2.3)
+letter = "a"
+
+[node name="Camera3D" type="Camera3D" parent="."]
+projection = 1
+current = true
+size = 9.0
+far = 180.0
