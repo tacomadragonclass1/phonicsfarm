@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="PackedScene" path="res://storybook/cvc/ground.tscn" id="Ground"]
 [ext_resource type="PackedScene" path="res://storybook/cvc/pedestal.tscn" id="Pedestal"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://storybook/village/tree_b.tscn" id="TreeB"]
 [ext_resource type="PackedScene" path="res://storybook/village/bush.tscn" id="Bush"]
 [ext_resource type="PackedScene" path="res://storybook/foundation/block.tscn" id="Block"]
+[ext_resource type="PackedScene" path="res://scenes/village_quarter.tscn" id="Village"]
 [ext_resource type="PackedScene" path="res://storybook/foundation/chuck.tscn" id="Player"]
 [ext_resource type="PackedScene" path="res://ui/touch_controls.tscn" id="UI"]
 [ext_resource type="Script" path="res://environment/fixed_camera.gd" id="Cam"]
@@ -220,6 +221,8 @@ transform = Transform3D(0.99166, 0, 0.12887, 0, 1, 0, -0.12887, 0, 0.99166, -13.
 
 [node name="Scenery13" parent="Scenery" instance=ExtResource("TreeB")]
 transform = Transform3D(-0.15028, 0, 0.98864, 0, 1, 0, -0.98864, 0, -0.15028, -32.332, 0.000, -15.603)
+
+[node name="VillageQuarter" parent="." instance=ExtResource("Village")]
 
 [node name="Player" parent="." instance=ExtResource("Player")]
 transform = Transform3D(0.81872, 0, 0.57419, 0, 1, 0, -0.57419, 0, 0.81872, 1.960, 0.000, 2.794)

@@ -6,7 +6,7 @@
 ⛔ This writes a NEW scene. `scenes/main.tscn` -- the classroom game -- is not
 touched. Nothing here reaches a child until the preview build is cut over.
 
-⭐⭐ EVERY POSITION COMES FROM `art_src/explore/cvc_plan.py`, which also
+⭐⭐ EVERY POSITION COMES FROM `art_src/explore/world_plan.py`, which also
 shapes the ground. So the worn tracks run to where the blocks actually are,
 and the pedestals stand on the beaten patch that exists because they stand
 there. One source, two consumers, no second opinion -- which is exactly what
@@ -50,7 +50,7 @@ import world_plan as P  # noqa: E402
 # beg bet bib bid big bin bit bob bog bud bug bun and on -- which is more
 # than a term's worth, and every vowel stays in play.
 #
-# 👉 The REST are not gone, they are waiting: `cvc_plan.BONUS` reserves a
+# 👉 The REST are not gone, they are waiting: `world_plan.BONUS` reserves a
 # fourth site up the north lane for the rare letters and the digraphs, for a
 # harder round where Annette names a word to build rather than the child
 # choosing freely.
@@ -74,7 +74,7 @@ VOWEL = "aeiou"                        # 5, and there are only ever five
 #                     lis mas mes pas pes pis sis. Junk a five-year-old would
 #                     be celebrated for building.
 #
-# 👉 `w` is BANKED for the reserve set at `cvc_plan.BONUS`, where digraphs
+# 👉 `w` is BANKED for the reserve set at `world_plan.BONUS`, where digraphs
 # live -- ow and ew belong there, taught as units, which is the only honest
 # way to use it.
 ENDING = "bdgmnpt"                     # 7, the most productive TRUE closers
@@ -175,6 +175,12 @@ def main():
         "TreeB": "res://storybook/village/tree_b.tscn",
         "Bush": "res://storybook/village/bush.tscn",
         "Block": "res://storybook/foundation/block.tscn",
+        # ⭐ THE VILLAGE HALF, generated separately by tools/build_village.py
+        # and instanced here. ONE world, one ground mesh, one continuous
+        # walk -- the lane out of the vowel zone runs into that street. Two
+        # scenes would mean two opinions about where the ground is, which is
+        # the failure world_plan.py exists to prevent.
+        "Village": "res://scenes/village_quarter.tscn",
         "Player": "res://storybook/foundation/chuck.tscn",
         "UI": "res://ui/touch_controls.tscn",
     }
@@ -322,6 +328,12 @@ fog_sky_affect = 0.1
         body.append(instance("Scenery%02d" % placed, kind, "Scenery",
                              xform(point, rng.uniform(0, 360))))
         placed += 1
+
+    # --- the village quarter: the street, the green, the mill. Instanced
+    # BEFORE the player so PaintedSurface -- which runs last and walks every
+    # sibling -- reaches into it. It has no script and no letters; see
+    # tools/build_village.py.
+    body.append(instance("VillageQuarter", "Village", "."))
 
     body.append(instance("Player", "Player", ".",
                          xform(P.START, math.degrees(

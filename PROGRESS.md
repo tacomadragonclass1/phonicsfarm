@@ -1,12 +1,104 @@
+# THE VILLAGE IS STANDING, and the world is one scene — 2026-11-09
+
+👉 **START HERE.** `lookdev/DECISIONS.md` is still the design handoff and is
+unchanged. This section is the state of the build.
+
+✅ The rebuild is **committed and pushed** to `origin/cvc-land-rebuild`
+(`6fae2e1` plus this pass). `main` is still `184d356` and still what deploys,
+so nothing here is live. ⛔ `deploy.yml` fires only on a push to `main` --
+pushing this branch cannot ship it, and that is checked, not assumed.
+
+## What was done
+
+**The village half of the world is no longer empty ground.** It turned out to
+be a placement job, not an art job: all five shops, the windmill, Annette and
+every prop were already modelled in `art_src/explore/village.py`, already
+exported to `assets/storybook/village/*.glb`, and already wrapped as scenes in
+`storybook/village/*.tscn`. The ground already spanned away -20..68 with the
+green flat and the mill hill sculpted in. Nothing placed any of it.
+
+| | |
+|---|---|
+| `tools/build_village.py` | NEW. Generates the village quarter from the plan |
+| `scenes/village_quarter.tscn` | GENERATED -- do not hand-edit |
+| `tools/build_cvc_land.py` | now instances the quarter into the world |
+
+⭐ **TWO GENERATORS, TWO FILES, ONE WORLD.** `build_cvc_land.py` rewrites
+`cvc_land.tscn` wholesale, so a second script writing that same file would
+overwrite it. The village emits its own scene and CVC Land instances it:
+one owner per generated file, and the village can be re-laid without
+touching the clearing. It is instanced BEFORE the player so `PaintedSurface`
+-- which runs last and walks every sibling -- reaches into it.
+
+## ⛔ The facade is the asset's local +Z, not its forward
+
+Every building is modelled with its door and windows on the Blender **-Y**
+face (`front = -1.26` and friends in `village.py`), and the glTF conversion
+sends Blender -Y to Godot **+Z**. So aiming a shop at the green means aiming
+its BACK vector there. A yaw derived from the conventional -Z forward turns
+all five shops around to face the hedge, and every suite still passes.
+`facade_yaw()` carries the derivation.
+
+⭐ Verified by SCREENSHOT, not by reasoning -- `lookdev/shoot.gd ... landwide`,
+then cropped and upscaled before judging. The wide plate is too small to read
+a shopfront in, which is exactly how an earlier pass mis-called the ink twice.
+
+## ⛔⛔ NO MILL MOUND
+
+`storybook/village/mill_mound.tscn` and `assets/storybook/collision/mill_mound.res`
+belong to the OLD foundation village, where the mill stood on a 12 m cone set
+down on flat ground -- the approach that was rejected, because "a hill you set
+down is not a hill". `world_plan.mill_hill` sculpts the rise INTO the terrain
+now. Instancing the mound would stack a second hill on the first. It is still
+on disk and still baked by `tools/bake_collision.gd`; leave it alone.
+
+## What is in the quarter
+
+Five shops on the arc, each facing the green, each with a **box collider**
+sized from the measured footprints (⛔ a StaticBody3D with no CollisionShape
+child is not collision -- the first generated village had six of them and
+Chuck walked through every building). The windmill on the crown at the plan's
+own `MILL_H`, not a guessed height. Well, two benches, a fingerpost, two
+planters and bunting on the green, the ring positions **searched** rather than
+typed because the lane skirts the green. 34 pieces of scenery, kept off the
+lane, the cart track, the pads, the open green, the mill crown and the
+reserved `BONUS` site.
+
+Six suites green with the village in: `smoke layout lever feedback village
+cvc_land`, 0 failures each.
+
+## 👉 WHAT IS NOT DONE — pick up here
+
+1. **The workshop shows the camera a blank gable.** It sits at the west end of
+   the arc with the green to its east, so "face the green" turns its front
+   away from a camera that never moves. The rule is right for the other four.
+   This one is a taste call: leave it, or give the end shops a yaw that splits
+   the difference between the green and the viewer.
+2. **`lane_stone.tscn` and `wall_run.tscn` are built, exported and unused.**
+   The lane is carried by the ground's colour field alone. Paving it and
+   walling the street frontage are both cheap and both taste calls.
+3. **No letters, no round, no Annette script.** She is furniture. The village
+   ROUND is gameplay adoption and stays downstream of this on purpose.
+4. **Adoption.** `scenes/main.tscn` is still the classroom game: no
+   tonemapper, old camera, Kenney mannequin for Chuck. Whether
+   `cvc_land.tscn` BECOMES the game is the next real decision.
+5. **`tests/village.gd` tests the OLD village** (`village/phoneme_village.tscn`,
+   untouched) and still enforces the RETIRED no-hidden-letter rule. It passes,
+   so it blocks nothing -- rewrite it to test the ROUTINE when the new village
+   takes the round over, not before.
+6. The troll is still **PARKED**. Three rounds did not converge; it needs its
+   own face build like Chuck has. See DECISIONS.md.
+
 # CVC LAND REBUILT, and a world to put it in — 2026-11-05/06
 
 👉 **START HERE.** The art direction is SETTLED and written up in
 `lookdev/DECISIONS.md` — read that first, it is the design handoff. This
 section is the state of the build.
 
-⛔⛔ **NOTHING IS COMMITTED.** `main` is at `184d356` and the entire rebuild
-is an uncommitted working tree of ~40 files. First job for whoever picks this
-up: get it onto a branch before touching anything.
+✅ **COMMITTED on branch `cvc-land-rebuild`** at `6fae2e1`, 104 files,
+working tree clean. `main` is still at `184d356` and still what deploys, so
+nothing here is live. The branch is pushed to `origin`; the deploy workflow
+fires only on a push to `main`, so pushing the branch cannot ship it.
 
 ⛔ `scenes/main.tscn` (the classroom game) and `village/phoneme_village.tscn`
 are UNTOUCHED and still the site root. Nothing here has reached a child.
@@ -71,10 +163,16 @@ strict CVC words in `assets/words`.
    where `VILLAGE_GREEN`, the five `VILLAGE` sites and `MILL` are, and the
    lane already runs to the foot of the cart track. Nothing places them.
    Needs a generator like `build_cvc_land.py`, reading the same plan.
-2. **⛔⛔ `tests/village.gd` BLOCKS THE DEPLOY.** It asserts Chuck climbs a
-   terrace at `Vector3(5.5, 0.1, 7.0)` and reaches y > 0.8. That terrace is
-   gone. It must be rewritten to test the ROUTINE (Annette prompts, letters
-   findable, a letter carried back) rather than coordinates.
+2. **`tests/village.gd` does NOT block the deploy** -- that claim was wrong.
+   All six suites are green on this branch (`smoke layout lever feedback
+   village cvc_land`, 0 failures each, Godot 4.5.2 headless). The terrace it
+   asserts at `Vector3(5.5, 0.1, 7.0)` is still there, because
+   `village/phoneme_village.tscn` is UNTOUCHED: that suite tests the OLD
+   village, not this world. ⚠ So it is not a blocker, it is a test aimed at
+   the scene being replaced -- and it still enforces the RETIRED
+   no-hidden-letter rule (it reports `[]` hidden over 663 visuals). Rewrite it
+   to test the ROUTINE (Annette prompts, letters findable, a letter carried
+   back) when the new village takes over, not before.
 3. **The no-hidden-letter rule is RETIRED by decision** — *"the player will
    go around the space to collect letters, that's the fun of it."* Its
    replacement is REACHABILITY, which `tests/cvc_land.gd` already implements.
