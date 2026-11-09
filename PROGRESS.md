@@ -67,6 +67,58 @@ reserved `BONUS` site.
 Six suites green with the village in: `smoke layout lever feedback village
 cvc_land`, 0 failures each.
 
+## ✅ The export was LOADED, not just built — 2026-11-09
+
+⛔ "Passing locally proves NOTHING about the export" has cost this project a
+shipped-broken build before, so both presets were exported and **opened in a
+browser** off `build/web/serve.py` on loopback (a secure context, which Godot
+web requires).
+
+  * **Classroom build (`Web` preset): intact.** Boots and renders the
+    shipping game exactly as before -- PLAY lever, pedestals, river, bridge,
+    alphabet. `scenes/main.tscn` is byte-identical between `main` and this
+    branch, and the pck is 6.11 MB against main's 6.98 MB, so it got
+    SMALLER, not bigger.
+  * **Preview build (`WebPreview`): boots and runs** the rebuilt world. The
+    art direction IS in the export -- grade, patina and the ink hull all
+    present. (Zoom before judging that: at game zoom a 3.4 px clip-space
+    line is genuinely thin, and it reads as "no outline" in a fit-to-window
+    screenshot.)
+
+⛔⛔ **`scenes/village_quarter.tscn` was leaking into the CLASSROOM build.**
+The `Web` preset excludes `scenes/cvc_land.tscn` by name, and the new scene
+was not on that list while `export_filter` is `all_resources`. Now excluded.
+Any further generated scene needs the same line.
+
+## ⛔⛔ NEW: the world's outer boundary is VISIBLE from the game camera
+
+Standing at `START`, the built game shows the clearing, then the rim, then
+**past the rim into empty sky** across roughly the bottom third of the frame.
+It is not an aspect-ratio artifact (`fit_clearing()` resolves to size 8.2 at
+both 1.60 and 1.96) and it is not the art direction.
+
+⭐⭐ **NO LOOKDEV PLATE CAN SHOW THIS, which is why it survived.**
+`lookdev/shoot.gd` calls `camera.set_process(false)` and places the camera
+itself at a fixed target, so every plate -- `land` included -- frames a point
+near the pedestals. The GAME camera is `fixed_camera.gd`, which centres on
+the PLAYER every frame, and `START` sits about 3.9 m nearer the near edge.
+This is the same shape of mistake DECISIONS.md already lists four of:
+a diagnostic that cannot see the thing it is diagnosing.
+
+The plan itself is fine -- the rim rises as designed, measured along the
+away axis from `START`:
+
+    away -10: 0.000   -14: 1.083   -18: 3.422   -20: 3.848
+
+So the fix is framing, not terrain. Candidates, cheapest first: move `START`
+deeper in; raise `RIM_H`; or pull the camera's `zoom` in. ⛔ The camera is
+SETTLED by decision -- changing `zoom` reopens an art-direction call, so
+`START` is the honest first try.
+
+⚠ Nothing was DRIVEN. Keyboard events dispatched over CDP do not reach the
+Godot web canvas on this box, so Chuck never moved. Walking the world, the
+touch controls and the lever all remain unverified in the export.
+
 ## 👉 WHAT IS NOT DONE — pick up here
 
 1. **The workshop shows the camera a blank gable.** It sits at the west end of
