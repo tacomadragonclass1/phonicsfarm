@@ -1,9 +1,12 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 ; CVC LAND -- woodshed. Instance the GLB and carry its own sRGB correction.
 
 [ext_resource type="PackedScene" path="res://assets/storybook/cvc/woodshed.glb" id="1"]
 [ext_resource type="Script" path="res://storybook/storybook_surface.gd" id="2"]
+
+[sub_resource type="BoxShape3D" id="Hull"]
+size = Vector3(3.29, 2.25, 2.34)
 
 [node name="woodshed" type="Node3D"]
 
@@ -11,3 +14,11 @@
 
 [node name="SurfaceFix" type="Node" parent="."]
 script = ExtResource("2")
+
+[node name="Body" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 2
+
+[node name="Hull" type="CollisionShape3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000, 1.125, 0.000)
+shape = SubResource("Hull")

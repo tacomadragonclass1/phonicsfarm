@@ -5,7 +5,7 @@ state and outstanding limitations, and README.md for architecture and test
 commands before editing. Keep shared handoff updates in PROGRESS.md so Claude
 Code, Codex, and OpenCode/Qwen use the same memory.
 
-Start with **THE VILLAGE IS STANDING, and the world is one scene — 2026-11-09**
+Start with **A WORLD THREE TIMES THE SIZE, a river, and things you cannot walk through — 2026-11-09**
 at the top of PROGRESS.md, then read `lookdev/DECISIONS.md`, which is the art
 direction handoff. Each section ends with "WHAT IS NOT DONE", which is the
 list to pick up from.
@@ -103,6 +103,16 @@ rewriting the other's file would overwrite it. The plan has no bpy import on
 purpose: the Blender sculpt and both Godot layouts read the same module,
 which is what makes "the village sits on the hill" true by construction
 rather than by hand.
+
+⛔ COLLISION LIVES IN THE ASSET WRAPPER, not in the generators -- written by
+`tools/add_colliders.py` from footprints `tools/measure_footprints.gd`
+measures off the real meshes. Re-run both after rebuilding an asset. Layer 1
+is the one that stops Chuck (`chuck.tscn` is layer 2, mask 13).
+
+⛔⛔ THE GROUND IS AN OPEN HEIGHTFIELD. Any slope tilting away from the camera
+more steeply than the camera's pitch (16) shows its UNDERSIDE and renders as
+a near-black band. That is why there is no rim on the south edge and why the
+river's far bank is 15 m long. Do not "tidy" either back.
 
 ⛔ A building's FACADE is its local +Z, not its forward. Modelled on Blender
 -Y, which glTF sends to Godot +Z -- so a yaw built from the usual -Z forward

@@ -205,5 +205,73 @@ func run() -> void:
 	check(lever.recognized_word == "bad",
 		"the bell reads the row as a word (got '%s')" % lever.recognized_word)
 
+	# --- the river is a wall, not a suggestion -----------------------------
+	#
+	# ⛔⛔ DRIVEN, NOT TELEPORTED. Every other check in this file moves Chuck
+	# by setting `global_position`, which goes straight through collision --
+	# so a teleport across the river would "pass" against no wall at all.
+	# This one presses the real movement action and lets `move_and_slide`
+	# decide, because the thing being tested IS the collision.
+	var wall := scene.get_node_or_null("RiverWall")
+	check(wall != null and wall.get_child_count() > 0,
+		"the river has a wall along its north lip")
+	if wall:
+		# The plan's AWAY axis expressed in Godot: the plan works in (row,
+		# away) and its +y runs into the picture, which the scene writes out
+		# as -z. Reading the bank off the WALL ITSELF rather than restating
+		# the river's coordinates keeps one source of truth.
+		var away_axis := Vector3(-0.5, 0.0, -0.8660)
+		var bank := INF
+		for segment in wall.get_children():
+			bank = minf(bank, (segment as Node3D).global_position.dot(away_axis))
+
+		await release()
+		# Start from the open ground this pass exists to create -- a few
+		# metres south of the pedestal row -- and walk due south until
+		# either the wall stops him or he is past it.
+		var start: Vector3 = (pedestals[1] as Node3D).global_position \
+			- away_axis * 8.0
+		await teleport(start)
+		var furthest := player.global_position.dot(away_axis)
+		Input.action_press("move_down")
+		for step in 420:
+			await physics_frame
+			furthest = minf(furthest, player.global_position.dot(away_axis))
+		Input.action_release("move_down")
+		await frames(4)
+
+		# He must have actually set off -- a Chuck who never moved would
+		# pass a "did not cross" check for the wrong reason.
+		var travelled := player.global_position.dot(away_axis)
+		check(furthest < bank + 9.0,
+			"Chuck actually walks south to the river (stopped %.1f m short)"
+				% (furthest - bank))
+		check(furthest > bank - 1.2,
+			"the river turns Chuck back: furthest %.2f against a bank at %.2f"
+				% [furthest, bank])
+		check(absf(travelled - furthest) < 3.0,
+			"and he is still on the near side when he stops")
+
+	# --- and the other three edges are closed too --------------------------
+	#
+	# ⭐ STRUCTURAL, not driven, and deliberately so. The river check above
+	# already proves that a wall on layer 1 stops Chuck; these use the
+	# identical mechanism, and walking him into each of three edges would
+	# add about twenty seconds to every run to re-prove the same fact. What
+	# can still silently break is a wall with no shape under it -- which is
+	# exactly how the first generated village ended up with six buildings
+	# Chuck walked straight through.
+	var bounds := scene.get_node_or_null("Bounds")
+	check(bounds != null and bounds.get_child_count() == 3,
+		"the world's other three edges are walled")
+	if bounds:
+		var shaped := 0
+		for edge in bounds.get_children():
+			for part in edge.get_children():
+				if part is CollisionShape3D and (part as CollisionShape3D).shape:
+					shaped += 1
+		check(shaped == 3,
+			"and every one of them has a shape under it (%d of 3)" % shaped)
+
 	print("CVC LAND RESULT: %d failures" % failures)
 	quit(1 if failures else 0)

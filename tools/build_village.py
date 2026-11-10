@@ -50,21 +50,18 @@ sys.path.insert(0, os.path.join(ROOT, "art_src", "explore"))
 
 import world_plan as P  # noqa: E402
 
-# ⭐ MEASURED FOOTPRINTS, carried over from `build_foundation_village.py`.
-# Half-extents (x, y, z) in the building's OWN frame, so the box rotates
-# with the shop. These were measured off the meshes once; the meshes have
-# not changed, and re-deriving them by eye would only lose accuracy.
+# ⛔⛔ COLLISION IS NOT EMITTED HERE ANY MORE. It used to be: this script
+# wrote a StaticBody3D and a BoxShape3D beside each shop, sized from a table
+# carried over from the old foundation village. Two things were wrong with
+# that. The table was STALE -- it called the bakery 2.90 m deep where the
+# mesh measures 3.68, so Chuck could walk into the gable -- and the village
+# was the only place in the world where being solid was a property of the
+# LAYOUT rather than of the thing.
 #
-# ⛔ A StaticBody3D with no CollisionShape child is not collision, it is an
-# empty node. The first generated village had six of them and Chuck walked
-# straight through every building.
-FOOTPRINT = {
-    "bakery":      (1.70, 1.80, 1.45),
-    "bookshop":    (1.55, 2.10, 1.40),
-    "clock_house": (1.25, 2.80, 1.20),
-    "flower_shop": (1.60, 1.50, 1.40),
-    "workshop":    (2.40, 1.50, 1.60),
-}
+# Collision now lives in `storybook/village/*.tscn`, put there by
+# `tools/add_colliders.py` from footprints `tools/measure_footprints.gd`
+# measured off the real meshes. Instancing a shop is enough to make it solid,
+# here or anywhere else.
 
 ASSETS = ("bakery", "bookshop", "clock_house", "flower_shop", "workshop",
           "windmill", "annette", "well", "bench", "fingerpost", "planter",
@@ -157,10 +154,6 @@ def main():
                    % (name, ids[name]))
 
     subs = []
-    for name, half in sorted(FOOTPRINT.items()):
-        subs.append('[sub_resource type="BoxShape3D" id="Box_%s"]\n'
-                    'size = Vector3(%.2f, %.2f, %.2f)\n'
-                    % (name, half[0] * 2.0, half[1] * 2.0, half[2] * 2.0))
 
     body = [node("VillageQuarter", "Node3D")]
 
@@ -176,13 +169,6 @@ def main():
         tag = name.title().replace("_", "")
         body.append(instance(tag, ids[name], "Buildings",
                              xform(site, yaw, height)))
-        body.append(node(tag + "Body", "StaticBody3D", "Buildings",
-                         transform=xform(site, yaw, height)))
-        body.append(node(tag + "Shape", "CollisionShape3D",
-                         "Buildings/" + tag + "Body",
-                         shape='SubResource("Box_%s")' % name,
-                         position="Vector3(0, %.2f, 0)"
-                                  % FOOTPRINT[name][1]))
         table.append((name, radius, yaw, height))
 
     # --- the mill, on the crown. ⛔ Height from the PLAN, not guessed: the

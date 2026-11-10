@@ -87,7 +87,7 @@ GROUND_SURFACE = dict(F.SURFACE, grain=0.055, grain_scale=96.0,
                       ao_strength=0.34, ao_distance=0.90,
                       edge_light=0.07, edge_dark=0.09)
 
-SMOOTH = {"ground": 46.0, "troll": 44.0, "pedestal_post": 34.0, "pedestal_cap": 24.0,
+SMOOTH = {"ground": 46.0, "river": 60.0, "troll": 44.0, "pedestal_post": 34.0, "pedestal_cap": 24.0,
           "bell": 40.0, "bell_frame": 12.0, "woodshed": 12.0,
           "handcart": 16.0}
 
@@ -308,13 +308,93 @@ def build_ground():
     return [ground]
 
 
+def build_river():
+    # The water itself: a ribbon down the channel the ground already cuts.
+    #
+    # The channel is sculpted by `world_plan.river_depth`, so this mesh does
+    # not shape anything -- it only fills what the terrain already dug. If
+    # the two ever disagree, the plan is right and this is wrong.
+    #
+    # It is DELIBERATELY WIDER than the water line (RIVER_HALF) and sits
+    # below grade, so its edges tuck under the banks instead of ending in a
+    # visible seam. A water plane whose border you can see reads as a sheet
+    # of blue paper lying in a ditch.
+    #
+    # NO COLLISION HERE. The barrier is a wall on the north lip, built by
+    # tools/build_cvc_land.py. Water you can stand on is worse than water
+    # you can walk through, and the wall never lets Chuck reach either.
+    import bmesh
+    import bpy
+    from mathutils import Vector
+
+    meshtools.reset_scene()
+    half = P.RIVER_HALF + P.RIVER_BANK * 0.34
+    step = 1.1
+    # ⛔⛔ CLIPPED TO THE WORLD, with one metre of margin and no more. Built
+    # to a hand-typed -46..46 it ran 8 m past the ground on one side and 16
+    # on the other, and the overhang hung in the sky as two blue bars with
+    # nothing under them. The margin is there so the water disappears INTO
+    # the rising rim rather than stopping short of it, which is what sells a
+    # river that carries on out of the world.
+    low, high = P.WORLD_ROW[0] - 1.0, P.WORLD_ROW[1] + 1.0
+    rows = [low + i * step for i in range(int((high - low) / step) + 1)]
+
+    bm = bmesh.new()
+    grid = []
+    for row in rows:
+        centre = P.river_centre(row)
+        line = []
+        for k in (-1.0, -0.45, 0.0, 0.45, 1.0):
+            x, y = P.along(row, centre + half * k)
+            line.append(bm.verts.new(Vector((x, y, P.RIVER_WATER))))
+        grid.append(line)
+    for r in range(len(grid) - 1):
+        for c in range(4):
+            bm.faces.new([grid[r][c], grid[r][c + 1],
+                          grid[r + 1][c + 1], grid[r + 1][c]])
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    flipped = [f for f in bm.faces if f.normal.z < 0.0]
+    if flipped:
+        bmesh.ops.reverse_faces(bm, faces=flipped)
+
+    mesh = bpy.data.meshes.new("RiverMesh")
+    bm.to_mesh(mesh)
+    bm.free()
+    water = bpy.data.objects.new("River", mesh)
+    bpy.context.collection.objects.link(water)
+    meshtools.set_part_color(water, "r_water")
+
+    def field(position, normal):
+        # Across the channel: shallow at the lips, deep in the middle, with
+        # a little drift along its length so it is not a uniform band.
+        gap = P.river_distance(position.x, position.y) / max(half, 0.001)
+        depth = 1.0 - min(max(gap, 0.0), 1.0)
+        return min(max(depth * 0.86 + 0.10 * _fbm(position.x, position.y,
+                                                  seed=17), 0.0), 1.0)
+
+    F.paint_field(water, [
+        (0.00, "r_water_edge"),
+        (0.34, "r_water"),
+        (0.72, "r_water_deep"),
+    ], field)
+    return [water]
+
+
 SUBJECTS = {
     # ⛔ 2048 for the ground ALONE. It is 40 x 88 m where everything else is
     # metres across, so at 1024 it would carry 12 texels per metre against a
     # 142 px/m camera -- worse than the blur this pass was fixing. 16 MB of
     # texture, and the only asset in the game that earns it.
     "ground": lambda: produce("ground", build_ground(), budget_tris=90000,
-                              texture=2048,
+                              # ⛔⛔ 4096, BECAUSE THE WORLD TRIPLED. The note
+                              # below is still the argument -- it is just
+                              # that 40x88 m became 68x164. At 2048 the new
+                              # ground would carry about 12.5 texels per
+                              # metre, which is the density that was already
+                              # REJECTED here as worse than the blur this
+                              # pass set out to fix. 4096 restores 25/m,
+                              # marginally better than the old build had.
+                              texture=4096,
                               # ⭐ A/B SWITCH, kept deliberately. `OLD_SURFACE=1` rebuilds the
                               # ground on the old smoothed recipe so the two
                               # bakes can be compared directly. Measured that
@@ -328,6 +408,8 @@ SUBJECTS = {
                               surface=(F.TERRAIN_SURFACE
                                        if os.environ.get("OLD_SURFACE")
                                        else GROUND_SURFACE)),
+    "river": lambda: produce("river", build_river(), budget_tris=6000,
+                             texture=512),
     "troll": lambda: produce("troll", build_troll(), budget_tris=13000),
     "pedestal_post": lambda: produce("pedestal_post", build_pedestal_post(),
                                      budget_tris=1800),

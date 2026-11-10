@@ -47,8 +47,13 @@ PEDESTALS = [along(-PEDESTAL_SPACING, 0.0),
 # turns to ring it. ⛔ Not between the pedestals: it would be reached by
 # accident while carrying.
 BELL = along(4.10, -0.60)
-# Where Chuck starts: in front of the row, facing it.
-START = along(0.30, -3.40)
+# Where Chuck starts: well in front of the row, facing it.
+# ⛔ NOT ON THE DOORSTEP OF THE WORLD. At away -3.4 the start sat 16.6 m from
+# the old south edge, and the game camera -- which centres on the PLAYER, not
+# on the clearing -- framed the rim and the empty sky past it across the
+# bottom third of the screen. No lookdev plate showed it, because
+# `lookdev/shoot.gd` parks its own camera on the pedestals instead.
+START = along(0.30, -11.00)
 
 # --- the three zones -------------------------------------------------------
 # ⛔ The zones spread MUCH wider than the pedestals do. Fanning them at the
@@ -73,8 +78,8 @@ ZONE_RADIUS = 2.9
 # ⛔ It sits BEYOND the vowel zone, up the north lane. A fourth zone fanned
 # beside the other three would break the one thing the layout is for: three
 # zones behind three pedestals, in the order a word is read.
-BONUS = along(2.6, 19.5)
-BONUS_RADIUS = 4.2
+BONUS = along(2.6, 26.0)
+BONUS_RADIUS = 5.0
 
 # --- the village -----------------------------------------------------------
 #
@@ -82,20 +87,41 @@ BONUS_RADIUS = 4.2
 # vowel zone heading nowhere; this is where it was always going. One
 # continuous walk means the journey is the thing that separates free play
 # from the village round, instead of a loading screen.
-VILLAGE_GREEN = along(-1.0, 28.0)
-VILLAGE_GREEN_R = 6.8
+# ⭐⭐ A LONG WAY UP. The village used to sit 19.5 m from the vowel zone,
+# which is forty paces -- near enough that the two places read as one field
+# with houses at the end. It is now 47.5 m, so the walk is long enough to be
+# a JOURNEY and the village arrives as somewhere else.
+VILLAGE_GREEN = along(-1.0, 56.0)
+VILLAGE_GREEN_R = 9.5
 
 # ⛔ THE STREET IS AN ARC ON THE FAR SIDE OF THE GREEN. The camera never
 # turns, so buildings on the NEAR side would stand between the viewer and
 # every letter on the green. Same rule that put CVC Land's zones behind its
 # pedestals, applied to a village.
-VILLAGE = [
-    ("bakery",      along(7.40, 31.42), 2.60),
-    ("bookshop",    along(4.43, 35.66), 2.60),
-    ("clock_house", along(-0.26, 37.85), 2.30),
-    ("flower_shop", along(-5.42, 37.40), 2.50),
-    ("workshop",    along(-9.66, 34.43), 2.90),
+# ⭐ GENERATED FROM AN ARC, not typed. Spacing is then ONE number -- the arc
+# radius -- instead of five pairs that have to be re-typed in step whenever
+# the green moves. The chord between neighbours is 2*R*sin(half the angular
+# step), so at R 17.0 and 32 degrees apart they stand 9.37 m centre to
+# centre against footprint radii summing about 5.2: roughly 4 m of daylight
+# between neighbours, where the hand-typed arc left them touching.
+VILLAGE_ARC_R = 17.0
+VILLAGE_PLAN = [
+    ("bakery",      22.0, 2.60),
+    ("bookshop",    54.0, 2.60),
+    ("clock_house", 86.0, 2.30),
+    ("flower_shop", 118.0, 2.50),
+    ("workshop",    150.0, 2.90),
 ]
+
+
+def _village_site(angle_deg):
+    rad = math.radians(angle_deg)
+    return along(-1.0 + VILLAGE_ARC_R * math.cos(rad),
+                 56.0 + VILLAGE_ARC_R * math.sin(rad))
+
+
+VILLAGE = [(name, _village_site(angle), radius)
+           for name, angle, radius in VILLAGE_PLAN]
 
 # --- the mill hill ---------------------------------------------------------
 #
@@ -109,13 +135,96 @@ VILLAGE = [
 # air -- a shop halfway up a hillside, which nobody would build and nothing
 # in the layout asked for. Measure building-to-hill distance whenever either
 # moves.
-MILL = along(-6.0, 52.0)
-MILL_BASE_R = 10.0
-MILL_H = 3.40
-MILL_CROWN_R = 3.60
+MILL = along(-9.0, 96.0)
+MILL_BASE_R = 13.0
+MILL_H = 4.20
+MILL_CROWN_R = 4.60
 # The long gentle tail points back down toward the village, so the climb is
 # the face the fixed camera can see.
 MILL_AXIS = -62.0
+
+# --- the river -------------------------------------------------------------
+#
+# ⭐⭐ THE SOUTH WALL OF THE WORLD, and it has to be a THING rather than an
+# invisible stop. A five-year-old who walks into nothing learns that the
+# world is a box; a child who walks to a river learns where the river is.
+# Everything south of it is scenery -- it exists to be looked at, and Chuck
+# never stands on it.
+#
+# ⛔ UNCROSSABLE IS A COLLIDER, NOT A SLOPE. Relying on the bank being too
+# steep to climb makes the boundary a property of the character controller's
+# floor angle, which is exactly the kind of accidental rule that stops being
+# true the next time anybody touches movement. `tools/build_cvc_land.py`
+# puts a real wall along the north bank and `tests/cvc_land.gd` proves it.
+RIVER_AWAY = -32.0
+RIVER_MEANDER = 2.4        # how far the channel wanders, in metres
+RIVER_WAVELENGTH = 38.0    # ... and over what distance across the picture
+RIVER_HALF = 4.2           # half the water's width
+# ⛔⛔ THE TWO BANKS ARE NOT THE SAME, and that is the whole design. The NEAR
+# bank is short so Chuck can stand at the water's edge and the wall sits
+# tight against it. The FAR bank is nearly twice as long, because at 3.6 it
+# came out a 44-degree wall which rendered as a near-black band under the
+# water -- a hole in the world, from a camera that CAN see it (Chuck reaches
+# away -25 and the frame runs 15 m past him). A far shore should recede, not
+# drop away.
+RIVER_BANK = 3.6           # the near bank: out of the water to grade
+RIVER_BANK_FAR = 15.0      # the far shore, shallower than the CAMERA
+# ⛔⛔ 15.0 IS DERIVED FROM THE CAMERA ANGLE, not chosen by eye. The ground
+# is an open heightfield with no underside worth looking at, so any slope
+# that tilts AWAY from the camera more steeply than the camera's own pitch
+# shows the viewer its back -- which renders as a near-black band. The game
+# camera is pitch 16. A smoothstep bank rising `RIVER_BED` over L has a
+# maximum gradient of 1.5 * 2.6 / L, so L must exceed 1.5 * 2.6 / tan(16) =
+# 13.6 m. At 7.0 the far shore hit 30 degrees and read as a hole in the
+# world; at 15.0 it is 14.6 and reads as a shore.
+RIVER_BED = -2.60
+# ⛔ The water sits BELOW grade, not at it. A surface flush with the bank
+# reads as a blue path; the whole point is that the ground drops away.
+RIVER_WATER = -0.95
+
+
+def river_centre(row):
+    """Where the channel's middle sits, for a position across the picture."""
+    return RIVER_AWAY + RIVER_MEANDER * math.sin(
+        math.tau * row / RIVER_WAVELENGTH)
+
+
+# ⛔ Sampled across the FULL row extent plus a margin, so the channel runs
+# off both edges of the world. A river that stops inside the frame is a pond.
+RIVER = [(_row, river_centre(_row))
+         for _row in [(-44.0 + _i * 1.1) for _i in range(77)]]
+
+
+def river_distance(x, y):
+    """Distance from the channel's centreline, in metres.
+
+    ⭐ Worked in PLAN axes. The river runs across the picture, so its
+    centreline is a function of `row` -- which makes this a cheap vertical
+    distance rather than a search over a polyline, and the ground bake calls
+    it once per vertex.
+    """
+    row, away = to_plan(x, y)
+    return abs(away - river_centre(row))
+
+
+def river_depth(x, y):
+    """How far the ground drops here, as a height OFFSET (<= 0)."""
+    row, away = to_plan(x, y)
+    centre = river_centre(row)
+    gap = abs(away - centre)
+    bank = RIVER_BANK if away >= centre else RIVER_BANK_FAR
+    if gap >= RIVER_HALF + bank:
+        return 0.0
+    if gap <= RIVER_HALF:
+        return RIVER_BED
+    k = (gap - RIVER_HALF) / bank
+    return RIVER_BED * (1.0 - k * k * (3.0 - 2.0 * k))
+
+
+def north_bank(row):
+    """The away-coordinate of the north lip, where the wall stands."""
+    return river_centre(row) + RIVER_HALF + RIVER_BANK * 0.95
+
 
 # --- the ground ------------------------------------------------------------
 #
@@ -125,12 +234,25 @@ MILL_AXIS = -62.0
 # 85 m, a third of which is corner nobody will ever see. Generating in
 # (row, away) and transforming each vertex gives the same coverage in 40 x 82
 # and puts every triangle somewhere it can be looked at.
-WORLD_ROW = (-24.0, 16.0)
-WORLD_AWAY = (-20.0, 68.0)
-GROUND_STEP = 0.30
+# ⭐⭐ ABOUT THREE TIMES THE GROUND: 68 x 178 m against the old 40 x 88, so
+# 12,104 m2 against 3,520 -- 3.44x. The away axis carries most of it, because
+# away is the axis the asks are about: a long walk to the village, open space
+# south of the pedestals, and a river beyond that.
+WORLD_ROW = (-38.0, 30.0)
+WORLD_AWAY = (-52.0, 126.0)
 
-RIM_BAND = 9.0
-RIM_H = 5.20
+# ⛔⛔ THE STEP HAS TO GROW WITH THE WORLD. The grid is a heightfield, so
+# triangles scale with AREA: tripling the ground at step 0.30 would be about
+# 264,000 triangles against a 90,000 budget, and a proportionally larger
+# baked collision shape for a SINGLE-THREADED web build. 0.56 is 0.30 scaled
+# by sqrt(3.44), which holds the count at roughly 77,000 -- within a few
+# percent of what the small world cost.
+GROUND_STEP = 0.56
+
+# Wider shoulders for a wider world; the band is a fraction of the world, not
+# an absolute, and at 9.0 it would have read as a kerb around a field.
+RIM_BAND = 12.0
+RIM_H = 6.00
 
 
 def world_centre():
@@ -153,9 +275,14 @@ def _soft_min(values, k=2.6):
 
 
 def _edge_in(x, y):
+    # ⛔⛔ THREE EDGES, NOT FOUR. The south edge is deliberately absent, so
+    # no rim is ever built there -- see the note in `rim()`. Modulating the
+    # four-edge result afterwards was tried and is worse: the rim still
+    # ramps within the band and the taper adds its own gradient on top, so
+    # the far shore came out STEEPER (24 degrees) than leaving it alone.
     row, away = to_plan(x, y)
     return _soft_min([row - WORLD_ROW[0], WORLD_ROW[1] - row,
-                      away - WORLD_AWAY[0], WORLD_AWAY[1] - away])
+                      WORLD_AWAY[1] - away])
 
 
 def rim(x, y):
@@ -166,6 +293,14 @@ def rim(x, y):
     """
     k = min(max((RIM_BAND - _edge_in(x, y)) / RIM_BAND, 0.0), 1.0)
     lift = k * k * (3.0 - 2.0 * k)
+    # ⛔⛔ NO RIM ON THE SOUTH EDGE -- `_edge_in` leaves it out on purpose.
+    # A shoulder that rises toward the viewer is a wall of BACKFACES: the
+    # camera looks down at 16 degrees and the rim climbs at 37, so the
+    # player sees the underside of the world's own boundary as a black band.
+    # On the three far edges the rim climbs AWAY and reads as wooded hills;
+    # on the near edge it can only ever be that band. What closes the south
+    # is the river and the distance past it, which is what the player is
+    # meant to be looking at anyway.
     # Higher behind than in front, so the world has a back wall and an open
     # foreground instead of sitting in a bowl.
     away = to_plan(x, y)[1]
@@ -217,6 +352,11 @@ def ground_height(x, y):
         t = min(max((distance - CART_W * 0.62) / 2.2, 0.0), 1.0)
         blend = 1.0 - t * t * (3.0 - 2.0 * t)
         height += (climb - height) * blend
+
+    # ⛔ THE RIVER IS CUT LAST, so nothing fills it back in. It is a cut like
+    # the cart track, not a landform: the water takes its own level and the
+    # banks come down to meet it.
+    height += river_depth(x, y)
 
     # ⛔ LEVEL PADS UNDER EVERY BUILDING. One standing on a slope at this
     # scale reads as a mistake rather than as terrain, and `pedestal.gd`'s
@@ -317,12 +457,35 @@ def track_climb(x, y):
 # length of the vale, skirts the green the way a lane does -- a green belongs
 # to everybody and the lane is going somewhere -- fronts the houses, and ends
 # at the foot of the cart track. A child can follow it without being told.
-APPROACH = _densify([along(1.6, -14.0), along(0.9, -9.0), along(0.4, -5.2),
+# ⛔ The approach now starts at the RIVER, not at the world's edge, because
+# the river IS the edge as far as Chuck is concerned. It comes up off the
+# north bank and runs the long open stretch to the pedestals.
+APPROACH = _densify([along(1.8, -22.0), along(1.6, -18.0), along(1.3, -13.0),
+                     along(0.9, -9.0), along(0.4, -5.2),
                      along(0.0, -2.4)], 14)
-LANE_NORTH = _densify([ZONES["vowel"], along(1.2, 13.0), along(3.2, 18.5),
-                       along(4.6, 23.0), along(5.4, 27.5),
-                       along(3.6, 32.0), along(0.2, 34.6),
-                       along(-4.4, 35.2), along(-8.8, 34.4),
+
+
+def _green_arc(radius, start_deg, end_deg, steps=9):
+    # Points on a ring about the green, for a lane that fronts the houses.
+    out = []
+    for index in range(steps + 1):
+        angle = math.radians(start_deg
+                             + (end_deg - start_deg) * index / float(steps))
+        out.append(along(-1.0 + radius * math.cos(angle),
+                         56.0 + radius * math.sin(angle)))
+    return out
+
+
+# ⭐ ONE CONTINUOUS WAY, and it is now a long one. It leaves the clearing
+# past the vowel tree, runs the length of the vale, comes up on the green from
+# the south-east, and ARCS ROUND IT at radius 13 -- outside the green itself
+# (9.5) and inside the houses (17), which is exactly where a village street
+# runs. Then on to the foot of the cart track.
+LANE_NORTH = _densify([ZONES["vowel"], along(1.2, 16.0), along(2.6, 24.0),
+                       along(4.0, 32.0), along(5.2, 40.0),
+                       along(6.0, 47.0)]
+                      + _green_arc(13.0, 2.0, 172.0)
+                      + [
                        # ⛔ The lane ENDS ON the cart track's first sample
                        # rather than near it. Typed by hand it stopped 6.3 m
                        # short, which reads as a way that gives up just

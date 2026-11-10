@@ -1,3 +1,115 @@
+# A WORLD THREE TIMES THE SIZE, a river, and things you cannot walk through — 2026-11-09
+
+👉 **START HERE.** `lookdev/DECISIONS.md` is still the art-direction handoff
+and is unchanged. This section is the state of the build.
+
+## The world
+
+| | old | new |
+|---|---|---|
+| ground | 40 x 88 m, 3,520 m2 | **68 x 178 m, 12,104 m2 (3.44x)** |
+| vowel zone to the green | 19.5 m | **47.5 m** |
+| village neighbours, centre to centre | ~5.2 m (touching) | **9.37 m** |
+| pedestals to the south boundary | 20 m to a bare edge | **32 m to a river** |
+| ground grid | 78,792 tris @ step 0.30 | 76,956 tris @ step 0.56 |
+
+⛔⛔ **THE STEP HAS TO GROW WITH THE WORLD.** The ground is a heightfield, so
+triangles scale with AREA: tripling it at step 0.30 would be ~264,000 against
+a 90,000 budget, and a proportionally bigger baked collision shape for a
+single-threaded web build. 0.56 is 0.30 x sqrt(3.44) and holds the count
+flat. ⛔ The texture had to go 2048 -> 4096 for the same reason: at 2048 the
+new ground carries ~12.5 texels/m, which is the density this project already
+REJECTED once as worse than the blur it was fixing.
+
+⭐ The village arc is now **generated from one number** (`VILLAGE_ARC_R`)
+rather than five typed coordinate pairs, so breathing room is a dial.
+
+## ⛔⛔ THE RIVER, and why the far bank is shaped the way it is
+
+The south boundary is a river with a **real wall** on its north lip, not a
+steep bank. Relying on steepness makes the edge of the world a side effect of
+the character controller's floor angle -- an accidental rule that stops being
+true the next time anybody touches movement.
+
+⭐⭐ **THE TWO BANKS ARE DIFFERENT, AND THE FAR ONE IS DERIVED FROM THE CAMERA
+ANGLE.** The ground is an open heightfield, so any slope tilting away from the
+camera more steeply than the camera's own pitch shows the viewer its
+UNDERSIDE -- which renders as a near-black band. First cut: a 44-degree far
+bank, a black strip under the water. Softened to 30: still black. The fix is
+arithmetic, not taste. A smoothstep bank rising 2.6 m over L peaks at
+1.5 x 2.6 / L, and the game camera is pitch 16, so L must exceed
+1.5 x 2.6 / tan(16) = 13.6 m. `RIVER_BANK_FAR = 15.0` gives 14.6 degrees and
+the band is gone.
+
+⛔ **THERE IS NO RIM ON THE SOUTH EDGE**, for the same reason: a shoulder that
+rises toward the viewer can only ever be backfaces. `_edge_in` is built from
+THREE edges. Tapering a four-edge rim was tried first and is worse -- the
+taper adds its own gradient and the shore came out at 24 degrees.
+
+👉 This also killed the horizon defect from the last pass. `START` moved from
+away -3.4 to -11.0 and the south edge is 41 m further out, so the camera no
+longer frames empty sky. Confirmed in the exported build in a browser.
+
+## Collision: an asset knows its own
+
+`tools/measure_footprints.gd` reads the real meshes; `tools/add_colliders.py`
+writes a body into each wrapper from that table. Instancing a thing is now
+enough to make it solid, here or in any other scene.
+
+⛔ The old hand-me-down village table was **stale**: it called the bakery
+2.90 m deep where the mesh measures 3.68, so Chuck could walk into the gable.
+That table is deleted, not corrected.
+
+⭐⭐ **THE REACHABILITY TEST EARNED ITS KEEP.** Making the landmarks solid
+broke the fetch of `l`: `stack_yard` lays its columns ALONG the
+zone-to-pedestal axis, so the yard reaches 2.7 m back on its own and the
+woodshed's hull overlapped the last row of blocks. The 3.3 m standoff had
+always been too short; nothing noticed while landmarks had no collision.
+`STANDOFF` is now derived per landmark from the yard reach plus the measured
+half-footprint.
+
+⛔ Deliberately NOT solid, each for a reason: blossom and mushrooms (ankle
+height -- stopping a five-year-old dead on a mushroom is worse), Annette (she
+is TOUCHED to replay the prompt), bunting (overhead). Trees collide on the
+TRUNK, the windmill on its TOWER -- the measured box is the canopy and the
+sails, and a 1.3 m radius would stop Chuck in open air.
+
+## ⛔⛔ The rim was climbable, and nobody could have known
+
+It rises 6 m over 12 m, which smoothsteps to 36.9 degrees, and `chuck.tscn`
+sets no `floor_max_angle` so he uses Godot's default 45. Chuck could walk up
+the wooded shoulder and off the mesh. It had never mattered because until
+this pass nobody could get that far from the pedestals. There are now walls
+just inside the crest on the other three edges, using the same mechanism as
+the river. 👉 This was NOT asked for -- it is the same bug as the river on
+the other three sides, and it is flagged here rather than buried.
+
+## What was checked
+
+Six suites green. The river test is **driven, not teleported** -- it presses
+the real movement action and lets `move_and_slide` decide, because the thing
+under test IS the collision; every other check in that file teleports, which
+goes straight through colliders. ⭐ It was verified to FAIL with the wall
+disabled (Chuck reaches -37.2, ten metres into the water) before being
+trusted.
+
+The preview was EXPORTED and LOADED IN A BROWSER. Preview pck is 50.0 MB, up
+from 39.9. The classroom build is untouched by all of this -- `main.tscn` is
+not involved and the `Web` preset excludes every asset here.
+
+## 👉 WHAT IS NOT DONE
+
+1. **Nothing was driven beyond the river test.** CDP keyboard events do not
+   reach the Godot web canvas on this box, so the long walk to the village,
+   the touch controls and the lever are still unverified in the export.
+2. **The village round still does not exist** -- no letters, no Annette
+   script. She is furniture.
+3. **Adoption.** `scenes/main.tscn` is still the classroom game.
+4. **The workshop still shows the camera a blank gable** (west end of the
+   arc, green to its east).
+5. `lane_stone.tscn` and `wall_run.tscn` are still built and unused.
+6. The troll is still **PARKED**.
+
 # THE VILLAGE IS STANDING, and the world is one scene — 2026-11-09
 
 👉 **START HERE.** `lookdev/DECISIONS.md` is still the design handoff and is

@@ -42,7 +42,7 @@ func run() -> void:
 	var scene_path := "res://lookdev/lookdev.tscn"
 	if VIEW == "foliage":
 		scene_path = "res://lookdev/foliage.tscn"
-	elif VIEW == "land" or VIEW == "landwide":
+	elif VIEW == "land" or VIEW == "landwide" or VIEW == "south":
 		scene_path = "res://scenes/cvc_land.tscn"
 	elif VIEW == "clearing" or VIEW == "clearwide":
 		scene_path = "res://lookdev/clearing.tscn"
@@ -166,10 +166,20 @@ func _frame(camera: Camera3D) -> void:
 			camera.position = target + Vector3(0.4806, 0.2756, 0.8324) * 26.0
 		"landwide":
 			# The whole world, to judge the PLAN rather than the framing.
+			# ⛔ RETUNED when the world tripled: 62 / (-16, -20) framed the
+			# OLD 40 x 88 m ground and now crops away the village, the mill
+			# and the river all at once -- a plate that silently shows a
+			# third of the subject is worse than no plate.
 			camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-			camera.size = 62.0
-			target = Vector3(-16.0, 0.8, -20.0)
-			camera.position = target + Vector3(0.4806, 0.4500, 0.8324) * 70.0
+			camera.size = 168.0
+			target = Vector3(-22.0, 0.8, -30.0)
+			camera.position = target + Vector3(0.4806, 0.4500, 0.8324) * 150.0
+		"south":
+			# The river and the open ground the pedestals now stand in.
+			camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+			camera.size = 54.0
+			target = Vector3(10.0, 0.8, 12.0)
+			camera.position = target + Vector3(0.4806, 0.3200, 0.8324) * 70.0
 		"clearing":
 			camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 			camera.size = 8.2

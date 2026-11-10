@@ -87,6 +87,14 @@ EXTRA = {
     "e_stone_deep": ("#6E6757", 0.40, "stone in shade, wall joints"),
     "e_earth":      ("#A8814F", 0.50, "the worn path"),
     "e_earth_deep": ("#785A38", 0.34, "a rut, a dug bed"),
+    # --- the river ---------------------------------------------------------
+    # ⛔ DESATURATED, and darker than instinct says. A saturated blue beside
+    # grass at 0.56 is the brightest thing in the frame and pulls the eye
+    # straight off the letters, which are the product. These sit under the
+    # grass in value so the water reads as depth rather than as paint.
+    "r_water":      ("#5A7E86", 0.44, "the river's body"),
+    "r_water_deep": ("#3E5F6B", 0.31, "midstream, where the bed drops"),
+    "r_water_edge": ("#7D9A96", 0.56, "shallows over the gravel"),
     # --- the field ---------------------------------------------------------
     # Canopy 0.39 against meadow 0.56 is the load-bearing pair: at 0.52/0.55
     # trees disappeared into the field behind them, which is recorded in
